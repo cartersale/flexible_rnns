@@ -44,7 +44,29 @@ volume) and gitignores `stepnet/data/` + `data/`. Working tree is clean.
 
 Rollback point for everything below: `git reset --hard pre-migration`.
 
-## Phase 1 — Scaffold the new repo
+## Phases 1–2 — Scaffold and move ✅ DONE
+
+Commit `21a8d84` in the new repo. A preflight gate asserted all 100
+`stepnet/*.py` were classified exactly once (92 kept, 8 dropped) before
+anything was copied; files were **copied, never moved**, so the old repo is
+intact. Resulting counts: core 5, training 4, structural 15, motifs 5,
+figures 20, slides 11, run 33.
+
+Repo is **1.1M working tree / 732K .git**, down from 649M / 165M.
+
+Also landed: `pyproject.toml` with a real dependency list (the old `setup.py`
+was broken — it read a `requirements.txt` that does not exist), `.gitignore`,
+`.env.example`, `README.md`, `docs/provenance.md`, `results/` symlinks into the
+data volume, and the four old planning docs preserved as `docs/_source_*.md`,
+to be rewritten into `methods.md` / `figure_map.md` / `findings.md` in Phase 5.
+
+`train.py` turned out to be a **fork**, not a clean copy of upstream (+83/−7:
+CPU fallback, thread-pool control, checkpoint resume, wall-clock deadline).
+Recorded as such in `docs/provenance.md`.
+
+**Code does not run yet** — Phase 3 is what makes it work.
+
+### Original Phase 1–2 spec, for reference
 
 ```
 flexmult_symmetry/
