@@ -31,8 +31,11 @@ import time
 import argparse
 import subprocess
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ENTRY = os.path.join(HERE, 'train_softplus_diag.py')
+from flexsym import paths
+
+# Workers are launched as `python -m`, so they resolve flexsym through the
+# installed package rather than a sys.path entry.
+ENTRY_MODULE = 'flexsym.training.train_softplus_diag'
 
 
 def parse_int_list(spec):
@@ -56,8 +59,7 @@ def checkpoint_done(n_rnn, seed, data_root):
     Checks the TRAINING_COMPLETE sentinel rather than model.ckpt.meta, because
     periodic mid-run saves create model.ckpt.* before a net has finished.
     """
-    sys.path.insert(0, HERE)
-    from train_softplus_diag import build_filedir
+    from flexsym.training.train_softplus_diag import build_filedir
     filedir = build_filedir(n_rnn, seed, data_root=data_root)
     complete = os.path.exists(os.path.join(filedir, 'TRAINING_COMPLETE'))
     # A timed-out net is "complete" but did not converge -- leave it re-queueable
@@ -85,7 +87,7 @@ def launch(job, args):
     log_path = os.path.join(args.log_dir, 'n{}_seed{}.log'.format(n_rnn, seed))
     log_f = open(log_path, 'w')
     cmd = [
-        sys.executable, ENTRY,
+        sys.executable, '-m', ENTRY_MODULE,
         '--n-rnn', str(n_rnn),
         '--seed', str(seed),
         '--max-steps', repr(args.max_steps),
@@ -105,7 +107,7 @@ def launch(job, args):
     log_f.write('# ' + ' '.join(cmd) + '\n')
     log_f.flush()
     proc = subprocess.Popen(
-        cmd, cwd=HERE, env=worker_env(args.threads_per_worker),
+        cmd, cwd=str(paths.REPO_ROOT), env=worker_env(args.threads_per_worker),
         stdout=log_f, stderr=subprocess.STDOUT,
     )
     return proc, log_f, log_path

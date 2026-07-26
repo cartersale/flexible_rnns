@@ -34,6 +34,8 @@ that headline result. Model activity loaded once.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import csv
 import json
@@ -51,9 +53,6 @@ warnings.filterwarnings("ignore")
 import numpy as np
 from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
 _patched_load = np.load
 _orig_load = _patched_load.__closure__[0].cell_contents if getattr(_patched_load, "__closure__", None) else _patched_load
@@ -66,19 +65,19 @@ def _dedup_load(*a: Any, **k: Any):
 
 np.load = _dedup_load
 
-from structural_cell_activity_coherence import compute_hidden_by_epoch, load_structural_labels  # noqa: E402
-from structural_cell_subpartition_pilot import choose_functional_partition  # noqa: E402
-from softplus_memory_subpartition_sweep import unit_features_for_period  # noqa: E402
-from softplus_memory_full_context_alignment import (  # noqa: E402
+from flexsym.structural.structural_cell_activity_coherence import compute_hidden_by_epoch, load_structural_labels  # noqa: E402
+from flexsym.structural.structural_cell_subpartition_pilot import choose_functional_partition  # noqa: E402
+from flexsym.structural.softplus_memory_subpartition_sweep import unit_features_for_period  # noqa: E402
+from flexsym.structural.softplus_memory_full_context_alignment import (  # noqa: E402
     choose_partition_from_features,
     feature_rank,
     random_project_features,
     signed_input_features,
 )
 
-ORIGINAL = Path("/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/suppfig4")
-STAGED = Path("/Volumes/X9_Pro/flexible_multitask_data/new_runs/staged")
-ACT_ROOT = STEP_DIR.parent / "results" / "activity_clusters_paper"
+ORIGINAL = paths.ORIGINAL_STORE
+STAGED = paths.STAGED_STORE
+ACT_ROOT = paths.REPO_ROOT / "results" / "activity_clusters_paper"
 ACT_NAME = "epoch_variance_unit_clusters_paper_max.npz"
 MEM_PERIODS = [("MemoryPro", "delaygo", "delay1"), ("MemoryAnti", "delayanti", "delay1")]
 
@@ -115,7 +114,7 @@ def analyse(
         return None
     struct_np = None
     for p in [
-        STEP_DIR.parent / f"results/signed_input_wl_paper/{model}/transpose_selected_k_{k}/signed_input_wl_sweep.npz",
+        paths.REPO_ROOT / f"results/signed_input_wl_paper/{model}/transpose_selected_k_{k}/signed_input_wl_sweep.npz",
     ]:
         if p.exists():
             struct_np = p
@@ -132,7 +131,7 @@ def analyse(
 
     # memory-cell selection: reuse cell-epoch-variance if present, else selection on the fly
     cell_var_path = (
-        STEP_DIR.parent
+        paths.REPO_ROOT
         / f"results/signed_input_wl_paper/{model}/transpose_selected_k_{k}/cell_epoch_variance/structural_cell_epoch_variance_k_{k}.npz"
     )
     hidden = compute_hidden_by_epoch(md, [("delaygo", "delay1"), ("delayanti", "delay1")], batch_size=batch_size)
@@ -254,7 +253,7 @@ def main() -> None:
     p.add_argument("--n-draws", type=int, default=100)
     p.add_argument("--batch-size", type=int, default=1024)
     p.add_argument("--seed", type=int, default=0)
-    p.add_argument("--output-dir", default=str(STEP_DIR.parent / "results/signed_input_wl_paper/fair_context_predictor"))
+    p.add_argument("--output-dir", default=str(paths.REPO_ROOT / "results/signed_input_wl_paper/fair_context_predictor"))
     args = p.parse_args()
 
     summary = analyse(

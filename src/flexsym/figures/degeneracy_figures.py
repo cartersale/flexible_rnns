@@ -8,6 +8,8 @@
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import csv
 from pathlib import Path
 
@@ -18,7 +20,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Rectangle, FancyArrowPatch
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = paths.REPO_ROOT
 OUT = REPO / "results/figures"; OUT.mkdir(parents=True, exist_ok=True)
 CSV = REPO / "results/signed_input_wl_paper/partition_stability_soft/partition_stability_all.csv"
 

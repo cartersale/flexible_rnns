@@ -9,13 +9,12 @@ stim1 / go1); shared = same epoch type across tasks, non-shared = different.
 Aggregated per seed, tested across seeds.
 """
 from __future__ import annotations
+
+from flexsym import paths
 import sys, csv, glob
 from pathlib import Path
 import numpy as np
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 _p = np.load
 _o = _p.__closure__[0].cell_contents if getattr(_p, "__closure__", None) else _p
 def _dl(*a, **k):
@@ -24,14 +23,14 @@ def _dl(*a, **k):
 np.load = _dl
 
 from sklearn.metrics import adjusted_rand_score  # noqa: E402
-from structural_cell_activity_coherence import compute_hidden_by_epoch, load_structural_labels  # noqa: E402
-from structural_cell_cross_task_fractionation import filter_valid_task_epochs  # noqa: E402
-from structural_cell_subpartition_pilot import choose_functional_partition  # noqa: E402
-from softplus_memory_subpartition_sweep import unit_features_for_period  # noqa: E402
+from flexsym.structural.structural_cell_activity_coherence import compute_hidden_by_epoch, load_structural_labels  # noqa: E402
+from flexsym.structural.structural_cell_cross_task_fractionation import filter_valid_task_epochs  # noqa: E402
+from flexsym.structural.structural_cell_subpartition_pilot import choose_functional_partition  # noqa: E402
+from flexsym.structural.softplus_memory_subpartition_sweep import unit_features_for_period  # noqa: E402
 
-REPO = STEP_DIR.parent
-ORIG = Path("/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/suppfig4")
-STAGED = Path("/Volumes/X9_Pro/flexible_multitask_data/new_runs/staged")
+REPO = paths.REPO_ROOT
+ORIG = paths.ORIGINAL_STORE
+STAGED = paths.STAGED_STORE
 OPK = {0: 41, 1: 51, 2: 38, 3: 14, 4: 14, 5: 14, 6: 14, 7: 14, 8: 14, 9: 15}
 OUT = REPO / "results/signed_input_wl_paper/shared_component_reorg"
 # broad battery: memory(delay1), stimulus(stim1), response(go1) across many tasks

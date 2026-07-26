@@ -1,5 +1,7 @@
 """Fig 4b: per-seed partial r(F, full|internal) forest + k-robustness curve."""
 from __future__ import annotations
+
+from flexsym import paths
 import glob, csv
 from pathlib import Path
 import matplotlib
@@ -7,7 +9,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = paths.REPO_ROOT
 OUT = REPO / "results/figures"; OUT.mkdir(parents=True, exist_ok=True)
 FILES = sorted(glob.glob(str(REPO / "results/signed_input_wl_paper/conn_func_regression/conn_func_regression_LeakyRNN_softplus_diag_256_all_*.csv")))
 C_MAIN = "#2a78d6"; C_CTRL = "#eda100"; C_INT = "#9a9a97"; INK = "#0b0b0b"; MUTED = "#52514e"; GRID = "#e6e5e2"

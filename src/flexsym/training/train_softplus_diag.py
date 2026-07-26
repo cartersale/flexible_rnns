@@ -21,8 +21,8 @@ import argparse
 import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
 
-import train
-from task import rules_dict
+from flexsym.core import train
+from flexsym.core.task import rules_dict
 
 
 # --- fixed network configuration (softplus-diag) -----------------------------

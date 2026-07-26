@@ -13,6 +13,8 @@ merged downstream with ``ensemble_metrics_nolesion.csv``.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import csv
 import glob
@@ -33,20 +35,17 @@ import tensorflow.compat.v1 as tf
 
 tf.disable_v2_behavior()
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-import tools  # noqa: E402
-from network import Model  # noqa: E402
-from ensemble_analyze import lesion_metrics  # noqa: E402
-from run_lesion_causal_batch import unit_activity_by_task  # noqa: E402
-from structural_cell_lesions import evaluate_condition  # noqa: E402
+from flexsym.core import tools  # noqa: E402
+from flexsym.core.network import Model  # noqa: E402
+from flexsym.structural.ensemble_analyze import lesion_metrics  # noqa: E402
+from flexsym.run.lesion_causal_batch import unit_activity_by_task  # noqa: E402
+from flexsym.structural.structural_cell_lesions import evaluate_condition  # noqa: E402
 
-REPO = STEP_DIR.parent
+REPO = paths.REPO_ROOT
 ENS = REPO / "results" / "signed_input_wl_paper" / "restart_ensemble"
-ORIG = Path("/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/suppfig4")
-STAGED = Path("/Volumes/X9_Pro/flexible_multitask_data/new_runs/staged")
+ORIG = paths.ORIGINAL_STORE
+STAGED = paths.STAGED_STORE
 
 
 def resolve(model: str) -> Path | None:
@@ -84,7 +83,7 @@ def run_net(seed: int, *, n_rep: int, batch: int, min_cell: int) -> list[dict]:
     # np.load is monkeypatched by several modules into a chain that ends in
     # task.py's loader (forces allow_pickle=True); calling it here double-injects
     # the kwarg. Use task.py's saved pristine loader directly.
-    from task import np_load_old
+    from flexsym.core.task import np_load_old
     z = np_load_old(ens_path, allow_pickle=True)
     k = int(z["k"])
     ind_active = np.asarray(z["ind_active"], dtype=np.int64)

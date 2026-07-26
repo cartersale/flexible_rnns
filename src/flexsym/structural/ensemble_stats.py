@@ -26,6 +26,8 @@ partition non-uniqueness:
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import csv
 import json
@@ -40,7 +42,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-REPO = Path(__file__).resolve().parent.parent
+REPO = paths.REPO_ROOT
 ENS = REPO / "results" / "signed_input_wl_paper" / "restart_ensemble"
 
 # effect key -> (display name, expected-sign direction: +1 means larger=stronger)

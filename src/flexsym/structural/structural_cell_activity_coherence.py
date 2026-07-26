@@ -24,9 +24,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
 
 def load_structural_labels(sweep_path: Path, k: int) -> tuple[np.ndarray, np.ndarray, str]:
@@ -117,9 +114,9 @@ def compute_hidden_by_epoch(
     import tensorflow.compat.v1 as tf
 
     tf.disable_v2_behavior()
-    from network import Model
-    from task import generate_trials
-    import tools
+    from flexsym.core.network import Model
+    from flexsym.core.task import generate_trials
+    from flexsym.core import tools
 
     model = Model(str(model_dir), sigma_rec=0)
     by_rule: dict[str, list[str]] = {}

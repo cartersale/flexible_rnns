@@ -18,25 +18,24 @@ degree). Pure connectivity — no TF model load.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import csv
 import sys
 from pathlib import Path
 
 import numpy as np
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from signed_input_wl_structural_roles import (  # noqa: E402
+from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
     apply_matrix_variant, approx_wl_signed, gamma_signed, labels_to_H,
     load_w_rec, random_labels_same_sizes,
 )
 
-REPO = STEP_DIR.parent
+REPO = paths.REPO_ROOT
 ACT = REPO / "results/activity_clusters_paper"
-ORIG = Path("/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/suppfig4")
-STAGED = Path("/Volumes/X9_Pro/flexible_multitask_data/new_runs/staged")
+ORIG = paths.ORIGINAL_STORE
+STAGED = paths.STAGED_STORE
 OPK = {0: 41, 1: 51, 2: 38, 3: 14, 4: 14, 5: 14, 6: 14, 7: 14, 8: 14, 9: 15}
 TYPES = ["trained", "row-shuffle", "full-shuffle", "gaussian"]
 

@@ -14,6 +14,8 @@ Data: results/signed_input_wl_paper/training_control_all_sizes.csv (33 networks,
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import csv
 from pathlib import Path
 
@@ -23,7 +25,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = paths.REPO_ROOT
 CTRL = REPO / "results/signed_input_wl_paper/training_control_all_sizes.csv"
 OUT = REPO / "results/figures/slides"
 

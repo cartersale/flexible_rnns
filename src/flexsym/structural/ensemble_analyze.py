@@ -25,6 +25,8 @@ comparable to the single-partition pipeline.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import sys
 import warnings
 from pathlib import Path
@@ -34,9 +36,6 @@ warnings.filterwarnings("ignore")
 
 import numpy as np
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
 # task.py monkeypatches np.load to force allow_pickle=True; make it kwargs-safe.
 _patched_load = np.load
@@ -54,32 +53,32 @@ def _dedup_load(*a: Any, **k: Any):
 
 np.load = _dedup_load
 
-from signed_input_wl_structural_roles import (  # noqa: E402
+from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
     gamma_signed,
     labels_to_H,
     random_labels_same_sizes,
 )
-from run_lumpability_check import (  # noqa: E402
+from flexsym.run.lumpability_check import (  # noqa: E402
     eig_leakage,
     pw_constant_projector,
     subspace_invariance,
 )
-from run_motif_jacobian_lumpability import best_r2  # noqa: E402
-from run_connectivity_functional_regression import (  # noqa: E402
+from flexsym.run.motif_jacobian_lumpability import best_r2  # noqa: E402
+from flexsym.run.connectivity_functional_regression import (  # noqa: E402
     corr_sim,
     partial_corr,
     upper,
     zscore,
 )
-from softplus_memory_full_context_alignment import signed_input_features  # noqa: E402
-from softplus_memory_subpartition_sweep import unit_features_for_period  # noqa: E402
-from structural_cell_subpartition_pilot import choose_functional_partition  # noqa: E402
+from flexsym.structural.softplus_memory_full_context_alignment import signed_input_features  # noqa: E402
+from flexsym.structural.softplus_memory_subpartition_sweep import unit_features_for_period  # noqa: E402
+from flexsym.structural.structural_cell_subpartition_pilot import choose_functional_partition  # noqa: E402
 
-REPO = STEP_DIR.parent
+REPO = paths.REPO_ROOT
 ACT_ROOT = REPO / "results" / "activity_clusters_paper"
 ACT_NAME = "epoch_variance_unit_clusters_paper_max.npz"
 # external drive has room; keep big activity tensors off the repo/scratch.
-CACHE_ROOT = Path("/Volumes/X9_Pro/flexible_multitask_data/activity_cache")
+CACHE_ROOT = paths.CACHE_ROOT
 
 # --- task-epoch batteries (verbatim from the production downstream scripts) --- #
 REORG_BATTERY = [
@@ -142,8 +141,8 @@ class ActivityCache:
         self._load_disk()
         missing = [k for k in keys if k not in self._mem]
         if missing:
-            from structural_cell_cross_task_fractionation import filter_valid_task_epochs
-            from structural_cell_activity_coherence import compute_hidden_by_epoch
+            from flexsym.structural.structural_cell_cross_task_fractionation import filter_valid_task_epochs
+            from flexsym.structural.structural_cell_activity_coherence import compute_hidden_by_epoch
 
             valid = filter_valid_task_epochs(self.model_dir, missing, self.batch_size)
             global np  # np.load may have been re-wrapped by task.py import above

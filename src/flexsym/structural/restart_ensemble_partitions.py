@@ -20,6 +20,8 @@ objects the lesion / reorg / connectivity analyses consume.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import sys
 import warnings
@@ -29,24 +31,21 @@ warnings.filterwarnings("ignore")
 
 import numpy as np
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from signed_input_wl_structural_roles import (  # noqa: E402
+from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
     apply_matrix_variant,
     approx_wl_signed,
     gamma_signed,
     labels_to_H,
     load_w_rec,
 )
-from structural_partition_stability import _consensus_partition  # noqa: E402
+from flexsym.structural.structural_partition_stability import _consensus_partition  # noqa: E402
 
-REPO = STEP_DIR.parent
+REPO = paths.REPO_ROOT
 ACTIVITY_ROOT = REPO / "results" / "activity_clusters_paper"
 ACTIVITY_NAME = "epoch_variance_unit_clusters_paper_max.npz"
-ORIG = Path("/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/suppfig4")
-STAGED = Path("/Volumes/X9_Pro/flexible_multitask_data/new_runs/staged")
+ORIG = paths.ORIGINAL_STORE
+STAGED = paths.STAGED_STORE
 OUT = REPO / "results" / "signed_input_wl_paper" / "restart_ensemble"
 
 # operating k as used by the downstream lesion / reorg / connectivity scripts

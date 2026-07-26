@@ -41,13 +41,10 @@ import tensorflow.compat.v1 as tf
 
 tf.disable_v2_behavior()
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-import tools  # noqa: E402
-from network import Model, get_perf  # noqa: E402
-from task import generate_trials  # noqa: E402
+from flexsym.core import tools  # noqa: E402
+from flexsym.core.network import Model, get_perf  # noqa: E402
+from flexsym.core.task import generate_trials  # noqa: E402
 
 PARTITION_TYPES = ("structural", "activity", "random")
 

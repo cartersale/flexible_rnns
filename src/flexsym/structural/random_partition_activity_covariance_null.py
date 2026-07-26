@@ -15,11 +15,8 @@ os.environ.setdefault("MPLCONFIGDIR", str(Path(tempfile.gettempdir()) / "matplot
 import numpy as np
 
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from structural_cell_activity_coherence import (  # noqa: E402
+from flexsym.structural.structural_cell_activity_coherence import (  # noqa: E402
     cell_activity_metrics,
     compute_hidden_by_epoch,
     key_name,

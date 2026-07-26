@@ -11,6 +11,8 @@ Use --include-canonical to include seed 0 as well.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import csv
 import json
@@ -21,9 +23,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-REPO_DIR = Path(__file__).resolve().parents[1]
+REPO_DIR = paths.REPO_ROOT
 STEP_DIR = Path(__file__).resolve().parent
-DEFAULT_DATA_ROOT = Path("/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/suppfig4")
+DEFAULT_DATA_ROOT = paths.ORIGINAL_STORE
 DEFAULT_ACTIVITY_ROOT = REPO_DIR / "results" / "activity_clusters_paper"
 DEFAULT_STRUCT_ROOT = REPO_DIR / "results" / "signed_input_wl_paper"
 DEFAULT_PYTHON = REPO_DIR.parent / ".venv" / "bin" / "python"

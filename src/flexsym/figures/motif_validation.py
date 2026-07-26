@@ -27,11 +27,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from motif_classify import classify_net, classify_condition, npload  # noqa: E402
+from flexsym.motifs.motif_classify import classify_net, classify_condition, npload  # noqa: E402
 
 # DM / decision tasks expected to show saddles during stimulus/evidence epochs
 DM_RULES = {

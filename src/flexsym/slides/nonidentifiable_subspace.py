@@ -18,6 +18,8 @@ Data: results/signed_input_wl_paper/restart_ensemble_all_sizes/*.npz
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 from pathlib import Path
 
@@ -28,7 +30,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import adjusted_rand_score
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = paths.REPO_ROOT
 ALL_SIZES = REPO / "results/signed_input_wl_paper/restart_ensemble_all_sizes"
 FALLBACK = REPO / "results/signed_input_wl_paper/restart_ensemble"
 OUT = REPO / "results/figures/slides"

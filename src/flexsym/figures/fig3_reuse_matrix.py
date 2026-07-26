@@ -1,16 +1,16 @@
 """Fig 3 pooled task-epoch reuse matrix -> fig3/panelC_reuse_matrix.svg"""
 from __future__ import annotations
+
+from flexsym import paths
 import sys, json
 from pathlib import Path
 import numpy as np
-STEP = Path(__file__).resolve().parent
-sys.path.insert(0, str(STEP))
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
-from figstyle import INK, MUTED, GRID, YELLOW, BLUE, ORANGE, save
+from flexsym.figures.figstyle import INK, MUTED, GRID, YELLOW, BLUE, ORANGE, save
 
-OUT = STEP.parent / "results/figures/fig3"
-DATA = STEP.parent / "results/signed_input_wl_paper/epoch_reuse_matrix.json"
+OUT = paths.REPO_ROOT / "results/figures/fig3"
+DATA = paths.REPO_ROOT / "results/signed_input_wl_paper/epoch_reuse_matrix.json"
 TYPECOL = {"stimulus": YELLOW, "memory": BLUE, "response": ORANGE}
 ABBR = {"stim1": "stim", "delay1": "delay", "go1": "go"}
 

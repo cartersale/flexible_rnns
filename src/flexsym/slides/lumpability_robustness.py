@@ -17,6 +17,8 @@ Data
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import collections
 import csv
@@ -28,7 +30,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = paths.REPO_ROOT
 LUMP = REPO / "results/signed_input_wl_paper/lumpability/lumpability.csv"
 STEP = REPO / "results/signed_input_wl_paper/lumpability/step_r2_all.csv"
 CTRL = REPO / "results/signed_input_wl_paper/training_control.csv"

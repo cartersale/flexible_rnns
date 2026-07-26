@@ -21,6 +21,8 @@ both partitions (ind_active) before regressing against labels.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 from pathlib import Path
 
 import numpy as np
@@ -35,7 +37,7 @@ def npload(path):
 
 
 STEP_DIR = Path(__file__).resolve().parent
-REPO_DIR = STEP_DIR.parent
+REPO_DIR = paths.REPO_ROOT
 WL_ROOT = REPO_DIR / "results" / "signed_input_wl_paper"
 ACT_ROOT = REPO_DIR / "results" / "activity_clusters_paper"
 ACT_NAME = "epoch_variance_unit_clusters_paper_max.npz"
@@ -188,7 +190,7 @@ def subspace_lumpability(vecs, role_labels, n_rand=200, max_vecs=60, rng=None):
     random partitions -> z. Inherits the robustness of the eigenvector-lumpability
     (R2) result because it is the same measurement on Jacobian eigenvectors.
     """
-    from signed_input_wl_structural_roles import random_labels_same_sizes
+    from flexsym.structural.signed_input_wl_structural_roles import random_labels_same_sizes
 
     rng = rng or np.random.default_rng(0)
     V = np.asarray(vecs, dtype=float)

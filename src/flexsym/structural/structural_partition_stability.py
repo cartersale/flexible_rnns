@@ -45,11 +45,8 @@ from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
 from sklearn.mixture import GaussianMixture
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from signed_input_wl_structural_roles import (  # noqa: E402
+from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
     _canonicalize_labels,
     apply_matrix_variant,
     approx_wl_signed,

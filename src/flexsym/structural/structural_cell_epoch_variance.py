@@ -19,9 +19,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
 
 def _labels_to_cell_matrix(labels: np.ndarray, k: int) -> np.ndarray:

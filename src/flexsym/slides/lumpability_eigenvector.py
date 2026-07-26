@@ -15,6 +15,8 @@ Optional staged builds for slide animation (--build):
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import sys
 from pathlib import Path
@@ -25,16 +27,13 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from signed_input_wl_structural_roles import apply_matrix_variant, approx_wl_signed, load_w_rec  # noqa: E402
+from flexsym.structural.signed_input_wl_structural_roles import apply_matrix_variant, approx_wl_signed, load_w_rec  # noqa: E402
 
-REPO = STEP_DIR.parent
+REPO = paths.REPO_ROOT
 ACT_ROOT = REPO / "results/activity_clusters_paper"
 ACT_NAME = "epoch_variance_unit_clusters_paper_max.npz"
-ORIGINAL = Path("/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/suppfig4")
+ORIGINAL = paths.ORIGINAL_STORE
 OUT = REPO / "results/figures/slides"
 
 BG = "#ffffff"

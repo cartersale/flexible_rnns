@@ -37,19 +37,16 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from structural_cell_activity_coherence import (  # noqa: E402
+from flexsym.structural.structural_cell_activity_coherence import (  # noqa: E402
     compute_hidden_by_epoch,
     load_structural_labels,
 )
-from structural_cell_cross_task_fractionation import (  # noqa: E402
+from flexsym.structural.structural_cell_cross_task_fractionation import (  # noqa: E402
     compute_fractionation_matrix,
     filter_valid_task_epochs,
 )
-from structural_cell_subpartition_pilot import choose_functional_partition  # noqa: E402
+from flexsym.structural.structural_cell_subpartition_pilot import choose_functional_partition  # noqa: E402
 
 
 def unit_features_for_batch_subset(

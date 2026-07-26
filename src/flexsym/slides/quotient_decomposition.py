@@ -16,6 +16,8 @@ Data: results/motif_fixed_points/quotient_prediction.json (A_cond, lambda error)
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import json
 from pathlib import Path
 
@@ -25,7 +27,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = paths.REPO_ROOT
 PRED = REPO / "results/motif_fixed_points/quotient_prediction.json"
 CTRL = REPO / "results/motif_fixed_points/quotient_controls.json"
 OUT = REPO / "results/figures/slides"

@@ -18,6 +18,8 @@ The model activity is loaded once; partitions are looped in-process.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import csv
 import json
@@ -35,21 +37,18 @@ warnings.filterwarnings("ignore")
 import numpy as np
 from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from signed_input_wl_structural_roles import (  # noqa: E402
+from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
     apply_matrix_variant,
     approx_wl_signed,
     load_w_rec,
 )
-from structural_partition_stability import _consensus_partition, soft_wl_signed  # noqa: E402
-from structural_cell_epoch_variance import compute_structural_cell_epoch_variance  # noqa: E402
-from structural_cell_activity_coherence import compute_hidden_by_epoch  # noqa: E402
-from structural_cell_subpartition_pilot import choose_functional_partition  # noqa: E402
-from softplus_memory_subpartition_sweep import unit_features_for_period  # noqa: E402
-from softplus_memory_full_context_alignment import (  # noqa: E402
+from flexsym.structural.structural_partition_stability import _consensus_partition, soft_wl_signed  # noqa: E402
+from flexsym.structural.structural_cell_epoch_variance import compute_structural_cell_epoch_variance  # noqa: E402
+from flexsym.structural.structural_cell_activity_coherence import compute_hidden_by_epoch  # noqa: E402
+from flexsym.structural.structural_cell_subpartition_pilot import choose_functional_partition  # noqa: E402
+from flexsym.structural.softplus_memory_subpartition_sweep import unit_features_for_period  # noqa: E402
+from flexsym.structural.softplus_memory_full_context_alignment import (  # noqa: E402
     CONTROL_TARGETS,
     choose_full_context_partition,
     control_metric_summary,
@@ -77,10 +76,10 @@ def _dedup_load(*a: Any, **k: Any):
 
 np.load = _dedup_load
 
-ACTIVITY_ROOT = STEP_DIR.parent / "results" / "activity_clusters_paper"
+ACTIVITY_ROOT = paths.REPO_ROOT / "results" / "activity_clusters_paper"
 ACTIVITY_NAME = "epoch_variance_unit_clusters_paper_max.npz"
-ORIGINAL_STORE = Path("/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/suppfig4")
-STAGED_STORE = Path("/Volumes/X9_Pro/flexible_multitask_data/new_runs/staged")
+ORIGINAL_STORE = paths.ORIGINAL_STORE
+STAGED_STORE = paths.STAGED_STORE
 
 MEM_PERIODS = [
     ("MemoryPro", "delaygo", "delay1"),

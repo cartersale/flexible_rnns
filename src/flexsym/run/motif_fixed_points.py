@@ -25,6 +25,8 @@ Example:
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import json
 import os
@@ -35,30 +37,21 @@ from pathlib import Path
 warnings.filterwarnings("ignore")
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "3")
 
-STEP_DIR = Path(__file__).resolve().parent
-REPO_DIR = STEP_DIR.parent
-for _p in (
-    STEP_DIR,
-    REPO_DIR / "external" / "recurrent-whisperer",
-    REPO_DIR / "external" / "fixed-point-finder",
-):
-    if str(_p) not in sys.path:
-        sys.path.insert(0, str(_p))
+REPO_DIR = paths.REPO_ROOT
+paths.add_external_to_syspath()  # FixedPointFinder + recurrent-whisperer
 
 import numpy as np
 import tensorflow.compat.v1 as tf  # noqa: E402
 
 tf.disable_v2_behavior()
 
-import tools  # noqa: E402
-from network import FixedPoint_Model  # noqa: E402
-from task import generate_trials, rules_dict  # noqa: E402
+from flexsym.core import tools  # noqa: E402
+from flexsym.core.network import FixedPoint_Model  # noqa: E402
+from flexsym.core.task import generate_trials, rules_dict  # noqa: E402
 from FixedPointFinderTF import FixedPointFinderTF as FixedPointFinder  # noqa: E402
 
-ORIGINAL_STORE = Path(
-    "/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/suppfig4"
-)
-STAGED_STORE = Path("/Volumes/X9_Pro/flexible_multitask_data/new_runs/staged")
+ORIGINAL_STORE = paths.ORIGINAL_STORE
+STAGED_STORE = paths.STAGED_STORE
 OUTPUT_ROOT = REPO_DIR / "results" / "motif_fixed_points"
 
 # Epochs we analyse. go1 (pure response) is skipped by default: the motifs of

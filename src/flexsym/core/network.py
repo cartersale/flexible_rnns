@@ -18,9 +18,9 @@ from tensorflow.python.util import nest
 from tensorflow.python.ops import rnn
 from tensorflow.python.ops.rnn_cell_impl import RNNCell
 
-import tools
-import task
-from task import generate_trials, generate_datasetTensors, datasetGeneratorFromTaskDef, defineDatasetFormat
+from flexsym.core import tools
+from flexsym.core import task
+from flexsym.core.task import generate_trials, generate_datasetTensors, datasetGeneratorFromTaskDef, defineDatasetFormat
 
 def clip_grad(grad,max_norm):
     n = tf.norm(grad)

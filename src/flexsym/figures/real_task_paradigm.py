@@ -8,6 +8,8 @@ canonical model hyperparameters.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import json
 import os
@@ -25,22 +27,12 @@ import numpy as np
 from matplotlib.gridspec import GridSpec
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-TRANSFER_LEARN = REPO_ROOT / "flexible_multitask" / "transfer_learn"
-if str(TRANSFER_LEARN) not in sys.path:
-    sys.path.insert(0, str(TRANSFER_LEARN))
-
-from task import generate_trials, rule_name, rules_dict  # noqa: E402
+from flexsym.core.task import generate_trials, rule_name, rules_dict  # noqa: E402
 
 
-DEFAULT_MODEL_DIR = Path(
-    "/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/"
-    "suppfig4/LeakyRNN_softplus_diag_256_all_0"
-)
+DEFAULT_MODEL_DIR = paths.ORIGINAL_STORE / "LeakyRNN_softplus_diag_256_all_0"
 DEFAULT_OUTPUT_DIR = (
-    REPO_ROOT
-    / "flexible_multitask"
-    / "results"
+    paths.RESULTS_ROOT
     / "signed_input_wl_paper"
     / "LeakyRNN_softplus_diag_256_all_0"
     / "figures"

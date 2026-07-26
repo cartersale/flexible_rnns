@@ -36,6 +36,8 @@ motif type), run on the valid networks (seeds 0-2):
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import json
 import sys
@@ -43,17 +45,14 @@ from pathlib import Path
 
 import numpy as np
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from motif_classify import npload  # noqa: E402
-from motif_participation import WL_ROOT  # noqa: E402
-from run_motif_reuse_control import (  # noqa: E402
+from flexsym.motifs.motif_classify import npload  # noqa: E402
+from flexsym.motifs.motif_participation import WL_ROOT  # noqa: E402
+from flexsym.run.motif_reuse_control import (  # noqa: E402
     MOTIF_TYPES, _row_for_k, pair_masks, project, reuse_R,
 )
 
-FP_ROOT = STEP_DIR.parent / "results" / "motif_fixed_points"
+FP_ROOT = paths.REPO_ROOT / "results" / "motif_fixed_points"
 K_GRID = [8, 12, 20, 30, 40, 50]
 N_PERM = 100
 SUB_RANK = 3          # dimensionality of the per-motif subspace for 'angle'

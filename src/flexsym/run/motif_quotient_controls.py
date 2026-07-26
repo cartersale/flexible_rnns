@@ -30,6 +30,8 @@ C6  MOTIF-APPROPRIATE MODE SELECTION. Selecting quotient modes by top |lambda|
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import json
 import sys
@@ -37,19 +39,16 @@ from pathlib import Path
 
 import numpy as np
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from motif_classify import npload  # noqa: E402
-from motif_participation import WL_ROOT  # noqa: E402
-from run_motif_reuse_control import _row_for_k  # noqa: E402
-from run_motif_quotient_prediction import (  # noqa: E402
+from flexsym.motifs.motif_classify import npload  # noqa: E402
+from flexsym.motifs.motif_participation import WL_ROOT  # noqa: E402
+from flexsym.run.motif_reuse_control import _row_for_k  # noqa: E402
+from flexsym.run.motif_quotient_prediction import (  # noqa: E402
     condition_jacobians, load_conditions, indicator, quotient,
     containment_norm,
 )
 
-FP_ROOT = STEP_DIR.parent / "results" / "motif_fixed_points"
+FP_ROOT = paths.REPO_ROOT / "results" / "motif_fixed_points"
 R_MAX = 10
 N_PERM = 60
 

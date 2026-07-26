@@ -16,6 +16,8 @@ Data: results/motif_fixed_points/subspace_role_vs_activity.json
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import collections
 import csv
 import glob
@@ -28,7 +30,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = paths.REPO_ROOT
 ROOT = REPO / "results/motif_fixed_points"
 JSON = ROOT / "subspace_role_vs_activity.json"
 OUT = REPO / "results/figures/slides"

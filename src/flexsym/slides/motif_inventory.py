@@ -12,6 +12,8 @@ Data: results/motif_fixed_points/motif_taxonomy_all_nets.csv and <net>/*.npz
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import csv
 from collections import Counter
 from pathlib import Path
@@ -24,12 +26,9 @@ import numpy as np
 
 import sys
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
-from motif_classify import IM_THRESH  # noqa: E402  (|Im lambda| above this => rotation)
+from flexsym.motifs.motif_classify import IM_THRESH  # noqa: E402  (|Im lambda| above this => rotation)
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = paths.REPO_ROOT
 ROOT = REPO / "results/motif_fixed_points"
 TAX = ROOT / "motif_taxonomy_all_nets.csv"
 OUT = REPO / "results/figures/slides"

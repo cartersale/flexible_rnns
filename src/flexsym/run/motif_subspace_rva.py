@@ -26,6 +26,8 @@ beyond activity, matched on k and size. Signed-rank across the 10 seeds.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import json
 from pathlib import Path
@@ -33,14 +35,11 @@ from pathlib import Path
 import numpy as np
 
 import sys
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from motif_classify import npload  # noqa: E402
-from motif_participation import WL_ROOT, ACT_ROOT, ACT_NAME  # noqa: E402
+from flexsym.motifs.motif_classify import npload  # noqa: E402
+from flexsym.motifs.motif_participation import WL_ROOT, ACT_ROOT, ACT_NAME  # noqa: E402
 
-FP_ROOT = STEP_DIR.parent / "results" / "motif_fixed_points"
+FP_ROOT = paths.REPO_ROOT / "results" / "motif_fixed_points"
 K_GRID = [8, 12, 16, 20, 25, 30, 40, 50]
 N_PERM = 200
 MAX_VECS = 40

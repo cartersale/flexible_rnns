@@ -14,6 +14,8 @@ groups; f_A near the equality diagonal).
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import sys
 from pathlib import Path
 
@@ -24,19 +26,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import pearsonr
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from signed_input_wl_structural_roles import (  # noqa: E402
+from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
     apply_matrix_variant, approx_wl_signed, labels_to_H, load_w_rec,
 )
 
-REPO = STEP_DIR.parent
+REPO = paths.REPO_ROOT
 ACT_ROOT = REPO / "results/activity_clusters_paper"
 ACT_NAME = "epoch_variance_unit_clusters_paper_max.npz"
-ORIGINAL = Path("/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/suppfig4")
-STAGED = Path("/Volumes/X9_Pro/flexible_multitask_data/new_runs/staged")
+ORIGINAL = paths.ORIGINAL_STORE
+STAGED = paths.STAGED_STORE
 OUT = REPO / "results/figures"; OUT.mkdir(parents=True, exist_ok=True)
 
 C_G = "#2a78d6"    # gamma (size-weighted)

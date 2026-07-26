@@ -29,6 +29,8 @@ partitions carrying the same held-out gains.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import json
 import sys
@@ -36,19 +38,16 @@ from pathlib import Path
 
 import numpy as np
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from motif_classify import npload  # noqa: E402
-from motif_participation import WL_ROOT  # noqa: E402
-from run_motif_reuse_control import MOTIF_TYPES, _row_for_k  # noqa: E402
-from run_motif_quotient_prediction import (  # noqa: E402
+from flexsym.motifs.motif_classify import npload  # noqa: E402
+from flexsym.motifs.motif_participation import WL_ROOT  # noqa: E402
+from flexsym.run.motif_reuse_control import MOTIF_TYPES, _row_for_k  # noqa: E402
+from flexsym.run.motif_quotient_prediction import (  # noqa: E402
     indicator, quotient, containment_norm, recover_alpha_gain,
 )
-from run_motif_quotient_controls import basis_from_Q  # noqa: E402
+from flexsym.run.motif_quotient_controls import basis_from_Q  # noqa: E402
 
-FP_ROOT = STEP_DIR.parent / "results" / "motif_fixed_points"
+FP_ROOT = paths.REPO_ROOT / "results" / "motif_fixed_points"
 MAX_FP = 120
 R_MODES = 3
 
@@ -137,7 +136,7 @@ def run_net(net, k_list, n_perm, rng):
     rule_of = {(m.get("key") or f"{m['rule']}__{m['epoch']}"): m["rule"]
                for m in recs}
 
-    from run_motif_quotient_prediction import condition_jacobians, load_conditions
+    from flexsym.run.motif_quotient_prediction import condition_jacobians, load_conditions
     jb = condition_jacobians(net, ia, W)
     conds = load_conditions(net, ia, W, jb)
     lamJ_of = {c["key"]: c["lam_J"] for c in conds}

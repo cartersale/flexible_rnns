@@ -14,6 +14,8 @@ Data: results/motif_fixed_points/<net>/*.npz and motif_taxonomy_all_nets.csv
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import csv
 from pathlib import Path
 
@@ -23,7 +25,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = paths.REPO_ROOT
 ROOT = REPO / "results/motif_fixed_points"
 TAX = ROOT / "motif_taxonomy_all_nets.csv"
 OUT = REPO / "results/figures/slides"

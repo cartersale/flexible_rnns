@@ -15,18 +15,15 @@ os.environ.setdefault("MPLCONFIGDIR", str(Path(tempfile.gettempdir()) / "matplot
 import numpy as np
 
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
 
 def compute_variance_epoch(model_dir: str, batch_size: int = 1024) -> dict:
     import tensorflow.compat.v1 as tf
 
     tf.disable_v2_behavior()
-    from network import Model
-    from task import generate_trials
-    import tools
+    from flexsym.core.network import Model
+    from flexsym.core.task import generate_trials
+    from flexsym.core import tools
 
     model = Model(model_dir, sigma_rec=0)
     h_all_byepoch = OrderedDict()

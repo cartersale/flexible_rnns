@@ -22,18 +22,15 @@ import seaborn as sns
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score, silhouette_score
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from softplus_memory_subpartition_sweep import unit_features_for_period  # noqa: E402
-from structural_cell_activity_coherence import compute_hidden_by_epoch, load_structural_labels  # noqa: E402
-from structural_cell_subpartition_pilot import choose_functional_partition, zscore_rows  # noqa: E402
+from flexsym.structural.softplus_memory_subpartition_sweep import unit_features_for_period  # noqa: E402
+from flexsym.structural.structural_cell_activity_coherence import compute_hidden_by_epoch, load_structural_labels  # noqa: E402
+from flexsym.structural.structural_cell_subpartition_pilot import choose_functional_partition, zscore_rows  # noqa: E402
 
 
 def filter_valid_task_epochs(model_dir: Path, task_epochs: list[tuple[str, str]], batch_size: int) -> list[tuple[str, str]]:
     """Keep only task/epoch pairs exposed by this repo's task generator."""
-    from task import generate_trials
+    from flexsym.core.task import generate_trials
 
     with (model_dir / "hp.json").open() as f:
         hp = json.load(f)

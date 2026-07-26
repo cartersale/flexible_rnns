@@ -14,18 +14,17 @@ Writes results/motif_fixed_points/motif_taxonomy_all_nets.csv.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import csv
 import sys
 from pathlib import Path
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from motif_classify import classify_net  # noqa: E402
-from plot_motif_validation import DECISION_RULES  # noqa: E402
+from flexsym.motifs.motif_classify import classify_net  # noqa: E402
+from flexsym.figures.motif_validation import DECISION_RULES  # noqa: E402
 
-REPO = STEP_DIR.parent
+REPO = paths.REPO_ROOT
 ROOT = REPO / "results/motif_fixed_points"
 OUT = ROOT / "motif_taxonomy_all_nets.csv"
 

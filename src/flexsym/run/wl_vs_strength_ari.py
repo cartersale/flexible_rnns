@@ -17,6 +17,8 @@ restarts (same class-size profile as the quantile bins by construction).
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import csv
 import sys
 import warnings
@@ -27,23 +29,18 @@ warnings.filterwarnings("ignore")
 import numpy as np
 from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from signed_input_wl_structural_roles import (  # noqa: E402
+from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
     apply_matrix_variant,
     approx_wl_signed,
     load_w_rec,
 )
 
-REPO_DIR = STEP_DIR.parent
+REPO_DIR = paths.REPO_ROOT
 ACTIVITY_ROOT = REPO_DIR / "results" / "activity_clusters_paper"
 ACTIVITY_NAME = "epoch_variance_unit_clusters_paper_max.npz"
-ORIGINAL_STORE = Path(
-    "/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/suppfig4"
-)
-STAGED_STORE = Path("/Volumes/X9_Pro/flexible_multitask_data/new_runs/staged")
+ORIGINAL_STORE = paths.ORIGINAL_STORE
+STAGED_STORE = paths.STAGED_STORE
 
 # operating k per 256 net (active_fraction selected_k from batch k-selection summaries)
 OPERATING_K = {

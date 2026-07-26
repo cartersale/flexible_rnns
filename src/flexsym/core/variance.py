@@ -13,9 +13,9 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import tensorflow as tf
 
-from task import *
-from network import Model
-import tools
+from flexsym.core.task import *
+from flexsym.core.network import Model
+from flexsym.core import tools
 
 save = True
 

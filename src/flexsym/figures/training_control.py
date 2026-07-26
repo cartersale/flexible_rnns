@@ -9,6 +9,8 @@ Panel B: lumpability step-R² by matrix type — trained > row-shuffle > full-sh
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import csv
 from pathlib import Path
 
@@ -18,7 +20,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = paths.REPO_ROOT
 CSV = REPO / "results/signed_input_wl_paper/training_control.csv"
 OUT = REPO / "results/figures"; OUT.mkdir(parents=True, exist_ok=True)
 

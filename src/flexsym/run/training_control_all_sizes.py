@@ -16,20 +16,19 @@ Pure connectivity -- no TF model load.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import csv
 import sys
 from pathlib import Path
 
 import numpy as np
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from run_training_control import TYPES, analyse_matrix, make_matrix, resolve  # noqa: E402
-from signed_input_wl_structural_roles import apply_matrix_variant, load_w_rec  # noqa: E402
+from flexsym.run.training_control import TYPES, analyse_matrix, make_matrix, resolve  # noqa: E402
+from flexsym.structural.signed_input_wl_structural_roles import apply_matrix_variant, load_w_rec  # noqa: E402
 
-REPO = STEP_DIR.parent
+REPO = paths.REPO_ROOT
 ACT = REPO / "results/activity_clusters_paper"
 LUMP = REPO / "results/signed_input_wl_paper/lumpability/lumpability.csv"
 OUT = REPO / "results/signed_input_wl_paper/training_control_all_sizes.csv"

@@ -1,15 +1,15 @@
 """Fig 2 (lumpable invariant subspaces) panels -> results/figures/fig2/*.svg"""
 from __future__ import annotations
+
+from flexsym import paths
 import sys, csv
 from pathlib import Path
 import numpy as np
-STEP = Path(__file__).resolve().parent
-sys.path.insert(0, str(STEP))
 import matplotlib.pyplot as plt
-from figstyle import INK, MUTED, GRID, BAND, BLUE, YELLOW, GREEN, ORANGE, AQUA, VIOLET, RED, GRAY, clean, save
-from signed_input_wl_structural_roles import apply_matrix_variant, approx_wl_signed, load_w_rec
+from flexsym.figures.figstyle import INK, MUTED, GRID, BAND, BLUE, YELLOW, GREEN, ORANGE, AQUA, VIOLET, RED, GRAY, clean, save
+from flexsym.structural.signed_input_wl_structural_roles import apply_matrix_variant, approx_wl_signed, load_w_rec
 
-REPO = STEP.parent
+REPO = paths.REPO_ROOT
 BASE = REPO / "results/signed_input_wl_paper"
 OUT = REPO / "results/figures/fig2"
 HUES = [BLUE, GREEN, "#e87ba4", YELLOW, AQUA, ORANGE, VIOLET, RED]
@@ -75,7 +75,7 @@ def panel_eigenvector():
     real = np.array([float(r["real"]) for r in rows]); rand = np.array([float(r["rand"]) for r in rows])
     szs = np.array([int(r["size"]) for r in rows])
     rng = np.random.default_rng(0)
-    from figstyle import SIZE_COL
+    from flexsym.figures.figstyle import SIZE_COL
     axR.scatter(np.zeros(len(rand))+(rng.random(len(rand))-0.5)*0.28, rand, s=16, color=GRAY,
                 edgecolor="white", lw=0.4, zorder=4)
     for i, sz in enumerate([128, 256, 512, 1024]):

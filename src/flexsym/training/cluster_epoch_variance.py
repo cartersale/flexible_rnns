@@ -19,9 +19,6 @@ from scipy.cluster.hierarchy import fcluster, linkage
 from sklearn.metrics import silhouette_score
 
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
 
 def _load_variance_epoch(model_dir: Path, variance_path: str | os.PathLike[str] | None = None) -> dict:
@@ -205,7 +202,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.compute_variance:
-        from analysis import variance
+        from flexsym.core import variance
 
         variance.compute_variance(args.model_dir)
 

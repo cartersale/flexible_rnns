@@ -14,6 +14,8 @@ effect is added by the separate TF driver ``run_ensemble_lesion.py``.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import csv
 import sys
@@ -25,22 +27,19 @@ warnings.filterwarnings("ignore")
 
 import numpy as np
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from ensemble_analyze import (  # noqa: E402
+from flexsym.structural.ensemble_analyze import (  # noqa: E402
     ActivityCache,
     all_needed_epochs,
     analyze,
 )
-from signed_input_wl_structural_roles import apply_matrix_variant, load_w_rec  # noqa: E402
+from flexsym.structural.signed_input_wl_structural_roles import apply_matrix_variant, load_w_rec  # noqa: E402
 
-REPO = STEP_DIR.parent
+REPO = paths.REPO_ROOT
 ENS = REPO / "results" / "signed_input_wl_paper" / "restart_ensemble"
 OUT = REPO / "results" / "signed_input_wl_paper" / "restart_ensemble"
-ORIG = Path("/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/suppfig4")
-STAGED = Path("/Volumes/X9_Pro/flexible_multitask_data/new_runs/staged")
+ORIG = paths.ORIGINAL_STORE
+STAGED = paths.STAGED_STORE
 
 
 def resolve(model: str) -> Path | None:

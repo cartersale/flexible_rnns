@@ -22,6 +22,8 @@ Writes results/<...>/rotation_motif.csv (repo-side, small).
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import csv
 import json
@@ -29,8 +31,8 @@ from pathlib import Path
 
 import numpy as np
 
-REPO = Path(__file__).resolve().parents[1]
-DRIVE = Path("/Volumes/X9_Pro/flexible_multitask_data")
+REPO = paths.REPO_ROOT
+DRIVE = paths.MODEL_ROOT
 MODELS = DRIVE / "multitask_processed/suppfig4"
 OUT = REPO / "results/motif_rotation"
 

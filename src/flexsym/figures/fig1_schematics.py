@@ -1,15 +1,15 @@
 """Fig 1 schematic panels A (task paradigm) and B (partition method) -> fig1/*.svg"""
 from __future__ import annotations
+
+from flexsym import paths
 import sys
 from pathlib import Path
 import numpy as np
-STEP = Path(__file__).resolve().parent
-sys.path.insert(0, str(STEP))
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch, Rectangle, Circle
-from figstyle import INK, MUTED, GRID, BLUE, YELLOW, GREEN, MAGENTA, ORANGE, AQUA, VIOLET, RED, GRAY, SURF, save, clean
+from flexsym.figures.figstyle import INK, MUTED, GRID, BLUE, YELLOW, GREEN, MAGENTA, ORANGE, AQUA, VIOLET, RED, GRAY, SURF, save, clean
 
-OUT = STEP.parent / "results/figures/fig1"
+OUT = paths.REPO_ROOT / "results/figures/fig1"
 
 # epoch-type colors (shared components)
 EP = {"fixation": "#c9c8c3", "stimulus": YELLOW, "delay": BLUE, "response": ORANGE}

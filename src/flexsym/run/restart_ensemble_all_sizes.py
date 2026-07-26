@@ -11,6 +11,8 @@ the schema the 256-unit ensembles already use.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import csv
 import sys
@@ -18,17 +20,14 @@ from pathlib import Path
 
 import numpy as np
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from restart_ensemble_partitions import resolve, size_matched_random  # noqa: E402
-from signed_input_wl_structural_roles import (  # noqa: E402
+from flexsym.structural.restart_ensemble_partitions import resolve, size_matched_random  # noqa: E402
+from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
     apply_matrix_variant, approx_wl_signed, gamma_signed, labels_to_H, load_w_rec,
 )
-from structural_partition_stability import _consensus_partition  # noqa: E402
+from flexsym.structural.structural_partition_stability import _consensus_partition  # noqa: E402
 
-REPO = STEP_DIR.parent
+REPO = paths.REPO_ROOT
 ACT = REPO / "results/activity_clusters_paper"
 LUMP = REPO / "results/signed_input_wl_paper/lumpability/lumpability.csv"
 OUT = REPO / "results/signed_input_wl_paper/restart_ensemble_all_sizes"

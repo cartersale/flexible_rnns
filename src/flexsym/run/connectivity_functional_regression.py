@@ -29,6 +29,8 @@ aggregated per seed then across seeds (seed as unit of replication, reviewer #4)
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import csv
 import json
@@ -45,9 +47,6 @@ warnings.filterwarnings("ignore")
 
 import numpy as np
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
 _patched_load = np.load
 _orig_load = _patched_load.__closure__[0].cell_contents if getattr(_patched_load, "__closure__", None) else _patched_load
@@ -60,15 +59,15 @@ def _dedup_load(*a: Any, **k: Any):
 
 np.load = _dedup_load
 
-from signed_input_wl_structural_roles import apply_matrix_variant, approx_wl_signed, load_w_rec  # noqa: E402
-from structural_cell_activity_coherence import compute_hidden_by_epoch  # noqa: E402
-from structural_cell_cross_task_fractionation import filter_valid_task_epochs  # noqa: E402
-from softplus_memory_subpartition_sweep import unit_features_for_period  # noqa: E402
-from softplus_memory_full_context_alignment import random_project_features, signed_input_features, feature_rank  # noqa: E402
+from flexsym.structural.signed_input_wl_structural_roles import apply_matrix_variant, approx_wl_signed, load_w_rec  # noqa: E402
+from flexsym.structural.structural_cell_activity_coherence import compute_hidden_by_epoch  # noqa: E402
+from flexsym.structural.structural_cell_cross_task_fractionation import filter_valid_task_epochs  # noqa: E402
+from flexsym.structural.softplus_memory_subpartition_sweep import unit_features_for_period  # noqa: E402
+from flexsym.structural.softplus_memory_full_context_alignment import random_project_features, signed_input_features, feature_rank  # noqa: E402
 
-ORIGINAL = Path("/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/suppfig4")
-STAGED = Path("/Volumes/X9_Pro/flexible_multitask_data/new_runs/staged")
-ACT_ROOT = STEP_DIR.parent / "results" / "activity_clusters_paper"
+ORIGINAL = paths.ORIGINAL_STORE
+STAGED = paths.STAGED_STORE
+ACT_ROOT = paths.REPO_ROOT / "results" / "activity_clusters_paper"
 ACT_NAME = "epoch_variance_unit_clusters_paper_max.npz"
 MEM_PERIODS = [("delaygo", "delay1"), ("delayanti", "delay1")]
 # Broad battery spanning stimulus / delay(memory) / response epoch types across
@@ -225,7 +224,7 @@ def main():
     p.add_argument("--batch-size", type=int, default=1024)
     p.add_argument("--variant", default="transpose")
     p.add_argument("--seed", type=int, default=0)
-    p.add_argument("--output-dir", default=str(STEP_DIR.parent / "results/signed_input_wl_paper/conn_func_regression"))
+    p.add_argument("--output-dir", default=str(paths.REPO_ROOT / "results/signed_input_wl_paper/conn_func_regression"))
     p.add_argument("--task-epochs", nargs="+", default=[f"{r}/{e}" for r, e in FULL_BATTERY],
                    help="task/epoch list; default = full battery (stim/delay/go across families)")
     args = p.parse_args()

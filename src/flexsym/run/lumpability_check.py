@@ -27,6 +27,8 @@ Pure connectivity -- no TF model load.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import csv
 import os
@@ -39,21 +41,18 @@ warnings.filterwarnings("ignore")
 
 import numpy as np
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from signed_input_wl_structural_roles import (  # noqa: E402
+from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
     apply_matrix_variant,
     load_w_rec,
     random_labels_same_sizes,
 )
 
-REPO = STEP_DIR.parent
+REPO = paths.REPO_ROOT
 ACT_ROOT = REPO / "results" / "activity_clusters_paper"
 ACT_NAME = "epoch_variance_unit_clusters_paper_max.npz"
-ORIGINAL = Path("/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/suppfig4")
-STAGED = Path("/Volumes/X9_Pro/flexible_multitask_data/new_runs/staged")
+ORIGINAL = paths.ORIGINAL_STORE
+STAGED = paths.STAGED_STORE
 
 
 def resolve(model: str) -> Path | None:
@@ -139,7 +138,7 @@ def analyse(model: str, k: int, *, variant: str, n_null: int, m_eig: int) -> dic
 def _load_labels(model: str, k: int) -> tuple[np.ndarray, int] | None:
     """Return (labels, actual_k). Falls back to any materialized transpose_selected_k_<n>."""
     import glob as _glob
-    from structural_cell_activity_coherence import load_structural_labels
+    from flexsym.structural.structural_cell_activity_coherence import load_structural_labels
 
     candidates = [
         (REPO / f"results/signed_input_wl_paper/{model}/transpose_selected_k_{k}/signed_input_wl_sweep.npz", k),

@@ -26,15 +26,12 @@ import tensorflow.compat.v1 as tf
 
 tf.disable_v2_behavior()
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-import tools  # noqa: E402
-from network import Model  # noqa: E402
-from structural_cell_activity_coherence import compute_hidden_by_epoch  # noqa: E402
-from structural_cell_lesions import evaluate_condition  # noqa: E402
-from structural_cell_subpartition_pilot import choose_functional_partition  # noqa: E402
+from flexsym.core import tools  # noqa: E402
+from flexsym.core.network import Model  # noqa: E402
+from flexsym.structural.structural_cell_activity_coherence import compute_hidden_by_epoch  # noqa: E402
+from flexsym.structural.structural_cell_lesions import evaluate_condition  # noqa: E402
+from flexsym.structural.structural_cell_subpartition_pilot import choose_functional_partition  # noqa: E402
 
 
 DEFAULT_PERIODS = [

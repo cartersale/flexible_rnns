@@ -19,6 +19,8 @@ Per-network summary:
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import csv
 import glob
@@ -27,7 +29,7 @@ from pathlib import Path
 
 import numpy as np
 
-REPO = Path(__file__).resolve().parent.parent
+REPO = paths.REPO_ROOT
 FP_ROOT = REPO / "results" / "motif_fixed_points"
 OUT = REPO / "results" / "signed_input_wl_paper" / "subspace_dynamics"
 

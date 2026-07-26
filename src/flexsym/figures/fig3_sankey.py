@@ -6,18 +6,18 @@ all 10 seeds. Same-computation (diagonal) flows = reuse; different-computation =
 reorganization.
 """
 from __future__ import annotations
+
+from flexsym import paths
 import sys, json
 from pathlib import Path
 import numpy as np
-STEP = Path(__file__).resolve().parent
-sys.path.insert(0, str(STEP))
 import matplotlib.pyplot as plt
 from matplotlib.path import Path as MPath
 from matplotlib.patches import PathPatch, Rectangle
-from figstyle import INK, MUTED, GRID, YELLOW, BLUE, ORANGE, GRAY, save
+from flexsym.figures.figstyle import INK, MUTED, GRID, YELLOW, BLUE, ORANGE, GRAY, save
 
-OUT = STEP.parent / "results/figures/fig3"
-DATA = STEP.parent / "results/signed_input_wl_paper/pair_fate_3x3.json"
+OUT = paths.REPO_ROOT / "results/figures/fig3"
+DATA = paths.REPO_ROOT / "results/signed_input_wl_paper/pair_fate_3x3.json"
 TYPECOL = {"stimulus": YELLOW, "memory": BLUE, "response": ORANGE}
 
 

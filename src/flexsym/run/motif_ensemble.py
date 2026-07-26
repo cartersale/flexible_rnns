@@ -22,12 +22,9 @@ import argparse
 import sys
 from pathlib import Path
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from run_motif_fixed_points import find_for_model, OUTPUT_ROOT, resolve_model_dir
-from run_motif_participation_stats import run_net
+from flexsym.run.motif_fixed_points import find_for_model, OUTPUT_ROOT, resolve_model_dir
+from flexsym.run.motif_participation_stats import run_net
 
 # lighter finder settings for the ensemble (see module docstring)
 N_INITS = 500

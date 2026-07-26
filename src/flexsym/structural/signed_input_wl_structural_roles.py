@@ -46,9 +46,6 @@ from sklearn.metrics import (
 )
 
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
 
 def labels_to_H(labels: np.ndarray, k: int) -> np.ndarray:

@@ -7,6 +7,8 @@ as in-training (not analyzed).
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import json
 from pathlib import Path
 
@@ -18,8 +20,11 @@ import numpy as np
 from matplotlib.colors import LinearSegmentedColormap, Normalize
 from matplotlib.patches import Rectangle
 
-DATA = Path("/private/tmp/claude-501/-Users-cartersale-Research-projects-w-rec-rnns-flexible-multitask/4e7bcf54-e1b0-4216-b3a3-e0f15d75d62e/scratchpad/net_perf.json")
-OUT = Path("/Users/cartersale/Research/projects/w_rec_rnns/flexible_multitask/results/figures")
+# NOTE: this previously read a throwaway scratchpad file that no longer exists.
+# Repointed at a durable location; regenerate net_perf.json from the training
+# logs if it is missing (see docs/figure_map.md).
+DATA = paths.RESULTS_ROOT / "net_perf.json"
+OUT = paths.FIGURES_ROOT
 OUT.mkdir(parents=True, exist_ok=True)
 
 # validated blue sequential ramp (dataviz reference palette), light -> dark

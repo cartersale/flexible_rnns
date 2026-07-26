@@ -17,6 +17,8 @@ Runs the 10 x 256 networks at operating k on the materialized transpose partitio
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import csv
 import os
 import sys
@@ -31,18 +33,15 @@ import tensorflow.compat.v1 as tf
 
 tf.disable_v2_behavior()
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-import tools  # noqa: E402
-from network import Model, get_perf  # noqa: E402
-from task import generate_trials  # noqa: E402
-from structural_cell_lesions import build_groups, evaluate_condition, load_partitions  # noqa: E402
+from flexsym.core import tools  # noqa: E402
+from flexsym.core.network import Model, get_perf  # noqa: E402
+from flexsym.core.task import generate_trials  # noqa: E402
+from flexsym.structural.structural_cell_lesions import build_groups, evaluate_condition, load_partitions  # noqa: E402
 
-REPO = STEP_DIR.parent
-ORIG = Path("/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/suppfig4")
-STAGED = Path("/Volumes/X9_Pro/flexible_multitask_data/new_runs/staged")
+REPO = paths.REPO_ROOT
+ORIG = paths.ORIGINAL_STORE
+STAGED = paths.STAGED_STORE
 OPK = {0: 41, 1: 51, 2: 38, 3: 14, 4: 14, 5: 14, 6: 14, 7: 14, 8: 14, 9: 15}
 OUTDIR = REPO / "results/signed_input_wl_paper/lesion_causal"
 

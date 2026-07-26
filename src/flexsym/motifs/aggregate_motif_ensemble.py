@@ -17,6 +17,8 @@ Usage:
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import collections
 import json
@@ -25,7 +27,7 @@ from pathlib import Path
 import numpy as np
 
 STEP_DIR = Path(__file__).resolve().parent
-FP_ROOT = STEP_DIR.parent / "results" / "motif_fixed_points"
+FP_ROOT = paths.REPO_ROOT / "results" / "motif_fixed_points"
 
 MOTIF_TYPES = ("line_attractor", "saddle_decision", "point_attractor", "rotation")
 

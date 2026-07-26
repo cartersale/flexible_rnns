@@ -41,6 +41,8 @@ quotient eigenvector, where lambda_J is the Jacobian eigenvalue of the motif.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import json
 import sys
@@ -48,16 +50,13 @@ from pathlib import Path
 
 import numpy as np
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from motif_classify import npload  # noqa: E402
-from motif_participation import WL_ROOT  # noqa: E402
-from run_motif_reuse_control import MOTIF_TYPES, _row_for_k  # noqa: E402
-from run_motif_reuse_diagnostics import canonical_sign  # noqa: E402
+from flexsym.motifs.motif_classify import npload  # noqa: E402
+from flexsym.motifs.motif_participation import WL_ROOT  # noqa: E402
+from flexsym.run.motif_reuse_control import MOTIF_TYPES, _row_for_k  # noqa: E402
+from flexsym.run.motif_reuse_diagnostics import canonical_sign  # noqa: E402
 
-FP_ROOT = STEP_DIR.parent / "results" / "motif_fixed_points"
+FP_ROOT = paths.REPO_ROOT / "results" / "motif_fixed_points"
 K_GRID = [8, 12, 16, 20, 25, 30, 40, 50]
 M_GRID = [1, 3, 5]
 N_PERM = 200

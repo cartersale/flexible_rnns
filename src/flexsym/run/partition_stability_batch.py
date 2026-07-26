@@ -13,6 +13,8 @@ store (seeds 0-2) and the staged new-run symlinks (seeds 3-9).
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import csv
 import json
@@ -24,16 +26,14 @@ warnings.filterwarnings("ignore")
 
 import numpy as np
 
-from structural_partition_stability import analyze_model
+from flexsym.structural.structural_partition_stability import analyze_model
 
-REPO_DIR = Path(__file__).resolve().parents[1]
+REPO_DIR = paths.REPO_ROOT
 ACTIVITY_ROOT = REPO_DIR / "results" / "activity_clusters_paper"
 ACTIVITY_NAME = "epoch_variance_unit_clusters_paper_max.npz"
 
-ORIGINAL_STORE = Path(
-    "/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/suppfig4"
-)
-STAGED_STORE = Path("/Volumes/X9_Pro/flexible_multitask_data/new_runs/staged")
+ORIGINAL_STORE = paths.ORIGINAL_STORE
+STAGED_STORE = paths.STAGED_STORE
 
 K_SUMMARIES = [
     REPO_DIR

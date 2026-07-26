@@ -9,10 +9,11 @@ import os
 
 from datetime import datetime as datetime
 
-from pathlib import Path
-import dotenv
-dotenv.load_dotenv()
-p = Path(os.environ.get("HOME_DIR"))
+# Upstream loaded a .env here and bound `p = Path(os.environ["HOME_DIR"])`.
+# That module-level `p` was never read (every other `p` in this file is a
+# function-local), but it made importing task.py fail outright when HOME_DIR
+# was unset. Root resolution now lives in flexsym.paths, which also loads .env.
+from flexsym import paths  # noqa: F401
 
 rules_dict = \
     {'all' : ['fdgo', 'reactgo', 'delaygo', 'fdanti', 'reactanti', 'delayanti',

@@ -22,13 +22,10 @@ from sklearn.decomposition import PCA
 from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
 
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from signed_input_wl_structural_roles import load_w_rec  # noqa: E402
-from structural_cell_activity_coherence import compute_hidden_by_epoch, load_structural_labels  # noqa: E402
-from structural_cell_subpartition_pilot import (  # noqa: E402
+from flexsym.structural.signed_input_wl_structural_roles import load_w_rec  # noqa: E402
+from flexsym.structural.structural_cell_activity_coherence import compute_hidden_by_epoch, load_structural_labels  # noqa: E402
+from flexsym.structural.structural_cell_subpartition_pilot import (  # noqa: E402
     choose_functional_partition,
     internal_structural_partition,
 )

@@ -18,13 +18,12 @@ Changes from v1:
 Decision rule: if the partial correlation is null under this design, report null.
 """
 from __future__ import annotations
+
+from flexsym import paths
 import sys, csv
 from pathlib import Path
 import numpy as np
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 _p = np.load
 _o = _p.__closure__[0].cell_contents if getattr(_p, "__closure__", None) else _p
 def _dl(*a, **k):
@@ -34,16 +33,16 @@ np.load = _dl
 
 import tensorflow.compat.v1 as tf  # noqa: E402
 tf.disable_v2_behavior()
-import tools  # noqa: E402
-from network import Model  # noqa: E402
-from signed_input_wl_structural_roles import apply_matrix_variant, load_w_rec  # noqa: E402
-from structural_cell_activity_coherence import compute_hidden_by_epoch  # noqa: E402
-from structural_cell_lesions import evaluate_condition  # noqa: E402
+from flexsym.core import tools  # noqa: E402
+from flexsym.core.network import Model  # noqa: E402
+from flexsym.structural.signed_input_wl_structural_roles import apply_matrix_variant, load_w_rec  # noqa: E402
+from flexsym.structural.structural_cell_activity_coherence import compute_hidden_by_epoch  # noqa: E402
+from flexsym.structural.structural_cell_lesions import evaluate_condition  # noqa: E402
 
-REPO = STEP_DIR.parent
+REPO = paths.REPO_ROOT
 DET = REPO / "results/signed_input_wl_paper/lesion_causal"
-ORIG = Path("/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/suppfig4")
-STAGED = Path("/Volumes/X9_Pro/flexible_multitask_data/new_runs/staged")
+ORIG = paths.ORIGINAL_STORE
+STAGED = paths.STAGED_STORE
 ALPHA = 0.2
 CONTRAST = ["delaygo", "delayanti", "reactgo", "reactanti"]  # delay(mem) vs react(no-mem)
 

@@ -1,16 +1,16 @@
 """Fig 3A (cell regrouping) and Fig 4A (RSA method) schematics -> fig3/, fig4/*.svg"""
 from __future__ import annotations
+
+from flexsym import paths
 import sys
 from pathlib import Path
 import numpy as np
-STEP = Path(__file__).resolve().parent
-sys.path.insert(0, str(STEP))
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse, FancyArrowPatch, Circle, Rectangle
-from figstyle import INK, MUTED, GRID, BLUE, YELLOW, GREEN, ORANGE, VIOLET, GRAY, save
+from flexsym.figures.figstyle import INK, MUTED, GRID, BLUE, YELLOW, GREEN, ORANGE, VIOLET, GRAY, save
 
-F3 = STEP.parent / "results/figures/fig3"
-F4 = STEP.parent / "results/figures/fig4"
+F3 = paths.REPO_ROOT / "results/figures/fig3"
+F4 = paths.REPO_ROOT / "results/figures/fig4"
 
 # 6 units in one role cell, fixed positions (2x3 grid)
 UPOS = {0: (-0.5, 0.35), 1: (0.0, 0.35), 2: (0.5, 0.35),

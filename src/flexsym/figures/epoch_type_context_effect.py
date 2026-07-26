@@ -8,6 +8,8 @@ zero baseline, Wilcoxon significance vs 0 (seed as unit of replication).
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import csv
 import glob
 from pathlib import Path
@@ -21,7 +23,7 @@ from matplotlib.patches import Patch
 from scipy.stats import t as tdist
 from scipy.stats import wilcoxon
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = paths.REPO_ROOT
 DATA = REPO / "results/signed_input_wl_paper/conn_func_regression_battery"
 OUT = REPO / "results/figures"
 OUT.mkdir(parents=True, exist_ok=True)

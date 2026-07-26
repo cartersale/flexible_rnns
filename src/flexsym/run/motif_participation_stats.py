@@ -16,6 +16,8 @@ once the ensemble has been processed.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import csv
 import json
@@ -25,16 +27,13 @@ from pathlib import Path
 import numpy as np
 
 import sys
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from motif_classify import classify_net, npload  # noqa: E402
-from motif_participation import (  # noqa: E402
+from flexsym.motifs.motif_classify import classify_net, npload  # noqa: E402
+from flexsym.motifs.motif_participation import (  # noqa: E402
     load_partitions, perm_z, nested_commonality, eta_squared, subspace_lumpability,
 )
 
-REPO_DIR = STEP_DIR.parent
+REPO_DIR = paths.REPO_ROOT
 FP_ROOT = REPO_DIR / "results" / "motif_fixed_points"
 
 # motif types with a well-defined participation vector

@@ -12,11 +12,11 @@ import matplotlib.pyplot as plt
 import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
 
-import task
-from task import generate_trials, generate_datasetTensors, datasetGeneratorFromTaskDef, defineDatasetFormat
-from network import Model, get_perf
-from analysis import variance
-import tools
+from flexsym.core import task
+from flexsym.core.task import generate_trials, generate_datasetTensors, datasetGeneratorFromTaskDef, defineDatasetFormat
+from flexsym.core.network import Model, get_perf
+from flexsym.core import variance
+from flexsym.core import tools
 from datetime import datetime as datetime
 
 def get_default_hp(ruleset):

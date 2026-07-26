@@ -23,6 +23,8 @@ partition; a --per-restart mode reports predictor stability across the ensemble.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import csv
 import json
@@ -34,23 +36,20 @@ warnings.filterwarnings("ignore")
 
 import numpy as np
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from signed_input_wl_structural_roles import (  # noqa: E402
+from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
     apply_matrix_variant,
     labels_to_H,
     load_w_rec,
     quotient_matrix,
 )
-from run_lumpability_check import eig_leakage, pw_constant_projector, subspace_invariance  # noqa: E402
-from run_motif_jacobian_lumpability import best_r2  # noqa: E402
+from flexsym.run.lumpability_check import eig_leakage, pw_constant_projector, subspace_invariance  # noqa: E402
+from flexsym.run.motif_jacobian_lumpability import best_r2  # noqa: E402
 
-REPO = STEP_DIR.parent
+REPO = paths.REPO_ROOT
 ENS = REPO / "results" / "signed_input_wl_paper" / "restart_ensemble"
-ORIG = Path("/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/suppfig4")
-STAGED = Path("/Volumes/X9_Pro/flexible_multitask_data/new_runs/staged")
+ORIG = paths.ORIGINAL_STORE
+STAGED = paths.STAGED_STORE
 OUT = REPO / "results" / "signed_input_wl_paper" / "subspace_dynamics"
 
 MEMORY_TASKS = ["delaygo", "delayanti", "delaydm1", "delaydm2", "contextdelaydm1",

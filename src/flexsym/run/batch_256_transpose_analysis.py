@@ -7,6 +7,8 @@ and completed output files are used for resume/skip decisions.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import csv
 import json
@@ -21,7 +23,7 @@ import numpy as np
 from tqdm import tqdm
 
 
-REPO_DIR = Path(__file__).resolve().parents[1]
+REPO_DIR = paths.REPO_ROOT
 STEP_DIR = Path(__file__).resolve().parent
 DEFAULT_CONFIG = REPO_DIR / "configs" / "batch_256_transpose_config.json"
 DEFAULT_PYTHON = REPO_DIR.parent / ".venv" / "bin" / "python"

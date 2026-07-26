@@ -1,14 +1,14 @@
 """Fig 4 (context predicts function) panels -> results/figures/fig4/*.svg"""
 from __future__ import annotations
+
+from flexsym import paths
 import sys, csv, glob
 from pathlib import Path
 import numpy as np
-STEP = Path(__file__).resolve().parent
-sys.path.insert(0, str(STEP))
 import matplotlib.pyplot as plt
-from figstyle import INK, MUTED, GRID, BLUE, YELLOW, GRAY, clean, save
+from flexsym.figures.figstyle import INK, MUTED, GRID, BLUE, YELLOW, GRAY, clean, save
 
-REPO = STEP.parent
+REPO = paths.REPO_ROOT
 BASE = REPO / "results/signed_input_wl_paper"
 OUT = REPO / "results/figures/fig4"
 ET = {"stim1": "stimulus", "delay1": "delay /\nmemory", "go1": "response"}

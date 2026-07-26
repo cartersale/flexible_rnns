@@ -18,6 +18,8 @@ equitable) and the mean, since the partition itself is not unique.
 
 from __future__ import annotations
 
+from flexsym import paths
+
 import argparse
 import csv
 import os
@@ -31,11 +33,8 @@ warnings.filterwarnings("ignore")
 import numpy as np
 from scipy.cluster.hierarchy import fcluster
 
-STEP_DIR = Path(__file__).resolve().parent
-if str(STEP_DIR) not in sys.path:
-    sys.path.insert(0, str(STEP_DIR))
 
-from signed_input_wl_structural_roles import (  # noqa: E402
+from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
     apply_matrix_variant,
     approx_wl_signed,
     gamma_signed,
@@ -43,13 +42,13 @@ from signed_input_wl_structural_roles import (  # noqa: E402
     load_w_rec,
     random_labels_same_sizes,
 )
-from structural_partition_stability import soft_wl_signed  # noqa: E402
+from flexsym.structural.structural_partition_stability import soft_wl_signed  # noqa: E402
 
-REPO = STEP_DIR.parent
+REPO = paths.REPO_ROOT
 ACT_ROOT = REPO / "results" / "activity_clusters_paper"
 ACT_NAME = "epoch_variance_unit_clusters_paper_max.npz"
-ORIGINAL = Path("/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/suppfig4")
-STAGED = Path("/Volumes/X9_Pro/flexible_multitask_data/new_runs/staged")
+ORIGINAL = paths.ORIGINAL_STORE
+STAGED = paths.STAGED_STORE
 K_SUMMARIES = [
     REPO / "results/signed_input_wl_paper/batch_rnn_softplus_diag_k20pct/k_selection_summary.csv",
     REPO / "results/signed_input_wl_paper/batch_rnn_softplus_diag_newseeds/k_selection_summary.csv",
