@@ -159,7 +159,47 @@ All `plot_slide_*.py` + `plot_network_grid.py`.
 `stepnet/data/` — resolved: model checkpoints, moved to the data volume and
 gitignored. Reached via `paths.py` (`MODEL_ROOT`), never carried into the repo.
 
-## Phase 3 — Fix paths and imports (the real work)
+## Phases 3–4 — Paths, imports, verification ✅ DONE
+
+Commit `a0063ef`. An 88-file scripted pass (reviewable as one diff) plus four
+hand-fixed one-offs. Zero `/Volumes`, `/Users`, or `/private/tmp` literals and
+zero `sys.path` manipulation remain anywhere in the package.
+
+**Phase 4 results — every check against the old repo run the same day:**
+
+| Check | Result |
+|---|---|
+| All modules import | 94/94 ✅ |
+| `run.wl_vs_strength_ari` | byte-identical ✅ |
+| `run.lumpability_check` | byte-identical ✅ |
+| `run.equitability_soft` (2 CSVs) | byte-identical ✅ |
+| `figures.fig2_panels` (4 SVGs) | identical modulo matplotlib timestamp + random ids ✅ |
+
+Comparing against a *same-day rerun* rather than a stored artefact mattered:
+the committed `wl_vs_strength_ari_256.csv` (Jul 20) has seven seed rows that
+neither repo reproduces today, because the activity inputs for seeds 3–9 are no
+longer on the volume. Pre-existing staleness, not migration damage — but a
+stored-artefact comparison would have read as a migration failure.
+
+**Incidental fixes made along the way**
+
+- `core/task.py` had a dead module-level `p = Path(os.environ["HOME_DIR"])`.
+  Never read, but it made importing `task.py` fail outright when `HOME_DIR` was
+  unset — the reason 11 modules failed the first import sweep.
+- Relative roots (`RESULTS_ROOT=./results`) resolve against the repo root, not
+  the CWD, so entry points write to the same place wherever they're invoked.
+- `slides/network_grid.py` read a throwaway scratchpad JSON that no longer
+  exists. Repointed at `RESULTS_ROOT/net_perf.json`; **it will not run until
+  that file is regenerated** — the one known-broken entry point.
+- Dropped the `plot_` prefix in `figures/` and `slides/` to match `run/`.
+- `run_seeds_parallel` launches workers via `python -m`, not by file path.
+
+**Still to do:** `results/` was copied from the old repo (`signed_input_wl_paper`,
+`activity_clusters_paper`, `signed_input_wl`, `motif_rotation`, `figures`).
+Deliberately left behind: `persistent_homology` (archived direction) and
+`paper_figures` (superseded figure generation).
+
+### Original Phase 3 spec, for reference
 
 This is where the reproducibility win is, and the main risk.
 
