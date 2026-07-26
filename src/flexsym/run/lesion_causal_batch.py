@@ -42,7 +42,7 @@ from flexsym.structural.structural_cell_lesions import build_groups, evaluate_co
 REPO = paths.REPO_ROOT
 ORIG = paths.ORIGINAL_STORE
 STAGED = paths.STAGED_STORE
-OPK = {0: 41, 1: 51, 2: 38, 3: 14, 4: 14, 5: 14, 6: 14, 7: 14, 8: 14, 9: 15}
+from flexsym.structural.operating_k import OPK
 OUTDIR = REPO / "results/signed_input_wl_paper/lesion_causal"
 
 

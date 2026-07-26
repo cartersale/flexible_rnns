@@ -48,31 +48,9 @@ ORIG = paths.ORIGINAL_STORE
 STAGED = paths.STAGED_STORE
 OUT = REPO / "results" / "signed_input_wl_paper" / "restart_ensemble"
 
-# Operating k, as used by the downstream lesion / reorg / connectivity scripts.
-#
-# This was previously a hardcoded table. That silently went stale when seeds 3-9
-# were retrained on 2026-07-25: the table still said k=14 (from checkpoints where
-# only ~70 of 256 units were active) while the current nets want k=42-44. Deriving
-# it from the activity file instead means it cannot drift again.
-#
-# Rule (matches configs/batch_rnn_softplus_diag*.json, policy "active_fraction"):
-#     k = clamp(min(activity_best_k, round(0.20 * n_active)), K_MIN, n_active - 1)
-# It reproduces the released seeds 0-2 values exactly (41, 51, 38).
-K_MIN = 3
-ACTIVE_FRACTION = 0.20
-
-
-def operating_k(model: str) -> int | None:
-    """Derive the operating k for a model from its activity clustering."""
-    path = ACTIVITY_ROOT / model / ACTIVITY_NAME
-    if not path.exists():
-        return None
-    z = np.load(path, allow_pickle=True)
-    n_active = int(np.asarray(z["ind_active"], dtype=np.int64).size)
-    structural_k = int(round(ACTIVE_FRACTION * n_active))
-    structural_k = max(K_MIN, min(structural_k, n_active - 1))
-    k = min(int(z["best_k"]), structural_k)
-    return max(K_MIN, min(k, n_active - 1))
+# Operating k is derived from each net's activity clustering -- see
+# flexsym.structural.operating_k for the rule and why it is no longer a literal.
+from flexsym.structural.operating_k import operating_k  # noqa: E402
 
 
 def resolve(model: str) -> Path | None:

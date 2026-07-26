@@ -26,7 +26,10 @@ from tqdm import tqdm
 REPO_DIR = paths.REPO_ROOT
 STEP_DIR = Path(__file__).resolve().parent
 DEFAULT_CONFIG = REPO_DIR / "configs" / "batch_256_transpose_config.json"
-DEFAULT_PYTHON = REPO_DIR.parent / ".venv" / "bin" / "python"
+# Child steps run under the SAME interpreter as this runner (sys.executable).
+# This previously defaulted to a `.venv` sibling of the repo, which after the
+# migration resolved to an environment without flexsym installed -- every step
+# died with "No module named 'flexsym'". Use --python to override deliberately.
 
 
 @dataclass(frozen=True)
@@ -204,7 +207,8 @@ def build_preselection_steps(
             "compute_variance",
             [
                 python,
-                str(STEP_DIR / "compute_variance_epoch_to_file.py"),
+                "-m",
+                "flexsym.training.compute_variance_epoch_to_file",
                 str(model_dir),
                 "--output",
                 str(variance_path),
@@ -217,7 +221,8 @@ def build_preselection_steps(
             "activity_clustering_driscoll_silhouette",
             [
                 python,
-                str(STEP_DIR / "cluster_epoch_variance.py"),
+                "-m",
+                "flexsym.training.cluster_epoch_variance",
                 str(model_dir),
                 "--variance-path",
                 str(variance_path),
@@ -245,7 +250,8 @@ def build_preselection_steps(
                 "signed_input_wl_transpose_sweep_k3_to_k60",
                 [
                     python,
-                    str(STEP_DIR / "signed_input_wl_structural_roles.py"),
+                    "-m",
+                "flexsym.structural.signed_input_wl_structural_roles",
                     str(model_dir),
                     "--activity-clusters",
                     str(activity_npz),
@@ -303,7 +309,8 @@ def build_postselection_steps(
             "materialize_selected_transpose_partition",
             [
                 python,
-                str(STEP_DIR / "signed_input_wl_structural_roles.py"),
+                "-m",
+                "flexsym.structural.signed_input_wl_structural_roles",
                 str(model_dir),
                 "--activity-clusters",
                 str(activity_npz),
@@ -332,7 +339,8 @@ def build_postselection_steps(
             "structural_cell_epoch_variance_transpose_selected_k",
             [
                 python,
-                str(STEP_DIR / "structural_cell_epoch_variance.py"),
+                "-m",
+                "flexsym.structural.structural_cell_epoch_variance",
                 "--activity-clusters",
                 str(activity_npz),
                 "--structural-sweep",
@@ -348,7 +356,8 @@ def build_postselection_steps(
             "functional_subpartition_paper_style",
             [
                 python,
-                str(STEP_DIR / "softplus_memory_subpartition_sweep.py"),
+                "-m",
+                "flexsym.structural.softplus_memory_subpartition_sweep",
                 str(model_dir),
                 "--structural-sweep",
                 str(selected_npz),
@@ -373,7 +382,8 @@ def build_postselection_steps(
             "functional_full_context_alignment_paper_style",
             [
                 python,
-                str(STEP_DIR / "softplus_memory_full_context_alignment.py"),
+                "-m",
+                "flexsym.structural.softplus_memory_full_context_alignment",
                 str(model_dir),
                 "--structural-sweep",
                 str(selected_npz),
@@ -434,7 +444,7 @@ def append_k_row(csv_path: Path, row: dict[str, Any]) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
-    parser.add_argument("--python", default=str(DEFAULT_PYTHON) if DEFAULT_PYTHON.exists() else sys.executable)
+    parser.add_argument("--python", default=sys.executable)
     parser.add_argument("--model", action="append", default=None, help="Optional model name filter; can be repeated.")
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--dry-run", action="store_true")

@@ -28,7 +28,10 @@ STEP_DIR = Path(__file__).resolve().parent
 DEFAULT_DATA_ROOT = paths.ORIGINAL_STORE
 DEFAULT_ACTIVITY_ROOT = REPO_DIR / "results" / "activity_clusters_paper"
 DEFAULT_STRUCT_ROOT = REPO_DIR / "results" / "signed_input_wl_paper"
-DEFAULT_PYTHON = REPO_DIR.parent / ".venv" / "bin" / "python"
+# Child steps run under the SAME interpreter as this runner (sys.executable).
+# This previously defaulted to a `.venv` sibling of the repo, which after the
+# migration resolved to an environment without flexsym installed -- every step
+# died with "No module named 'flexsym'". Use --python to override deliberately.
 SOFTPLUS_PATTERN = "LeakyRNN_softplus_diag_256_all_*"
 VARIANTS = ("original", "transpose", "no_diag")
 
@@ -54,6 +57,44 @@ def discover_models(data_root: Path, include_canonical: bool) -> list[Path]:
 
 def add_python(command: list[str], python: str) -> list[str]:
     return [python, *command]
+
+
+# Steps are launched as `python -m <module>`, not by file path. Before the
+# package migration this was `STEP_DIR / "<script>.py"`, which broke the moment
+# the modules moved into subpackages -- the runner would fail at step 1 with a
+# bare "No such file or directory".
+STEP_MODULES = {
+    "compute_variance_epoch_to_file.py": "flexsym.training.compute_variance_epoch_to_file",
+    "cluster_epoch_variance.py": "flexsym.training.cluster_epoch_variance",
+    "signed_input_wl_structural_roles.py": "flexsym.structural.signed_input_wl_structural_roles",
+    "structural_cell_epoch_variance.py": "flexsym.structural.structural_cell_epoch_variance",
+    "structural_cell_activity_coherence.py": "flexsym.structural.structural_cell_activity_coherence",
+    "random_partition_activity_covariance_null.py": "flexsym.structural.random_partition_activity_covariance_null",
+    "softplus_memory_subpartition_sweep.py": "flexsym.structural.softplus_memory_subpartition_sweep",
+    "softplus_memory_full_context_alignment.py": "flexsym.structural.softplus_memory_full_context_alignment",
+}
+
+# Referenced by this runner but archived during the July 2026 cleanup as
+# superseded exploratory work. They were never migrated into the package, so any
+# config enabling their steps cannot run.
+ARCHIVED_STEPS = {
+    "aggregate_structural_cell_epochs.py",
+    "plot_structural_cell_epoch_variance_figures.py",
+    "compare_computational_components_k33.py",
+}
+
+
+def step_module(script: str) -> str:
+    """Map a legacy script filename to its module path."""
+    if script in STEP_MODULES:
+        return STEP_MODULES[script]
+    if script in ARCHIVED_STEPS:
+        raise RuntimeError(
+            f"Step '{script}' was archived as superseded and is not part of the "
+            f"package. Disable the step in your config, or restore the script "
+            f"from the pre-migration repo if you still need it."
+        )
+    raise KeyError(f"No module mapping for step script '{script}'")
 
 
 def should_skip(expected: tuple[Path, ...], force: bool) -> bool:
@@ -114,7 +155,7 @@ def build_steps(
     activity_clusters = activity_dir / "epoch_variance_unit_clusters_paper_max.npz"
 
     def py(script: str, *args: object) -> list[str]:
-        return add_python([str(STEP_DIR / script), *map(str, args)], python)
+        return add_python(["-m", step_module(script), *map(str, args)], python)
 
     steps: list[Step] = []
     if not skip_hidden:
@@ -377,7 +418,7 @@ def main() -> None:
     parser.add_argument("--wl-null", type=int, default=1000)
     parser.add_argument("--covariance-null", type=int, default=200)
     parser.add_argument("--subpartition-null", type=int, default=5000)
-    parser.add_argument("--python", default=str(DEFAULT_PYTHON) if DEFAULT_PYTHON.exists() else sys.executable)
+    parser.add_argument("--python", default=sys.executable)
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--skip-hidden", action="store_true")

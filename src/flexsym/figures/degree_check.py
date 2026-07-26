@@ -36,7 +36,7 @@ CSV = REPO / "results/signed_input_wl_paper/partition_stability_soft/partition_s
 INK = "#0b0b0b"; MUTED = "#52514e"; GRID = "#e6e5e2"; BAND = "#eef4fc"
 C_MAIN = "#2a78d6"; C_SINGLE = "#eb6834"   # blue cells, orange singletons
 SIZE_COL = {128: "#2a78d6", 256: "#008300", 512: "#e87ba4", 1024: "#eda100"}
-OPK256 = {0: 41, 1: 51, 2: 38, 3: 14, 4: 14, 5: 14, 6: 14, 7: 14, 8: 14, 9: 15}
+from flexsym.structural.operating_k import OPK as OPK256
 
 
 def resolve(model):

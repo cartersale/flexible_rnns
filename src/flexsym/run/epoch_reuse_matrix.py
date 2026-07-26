@@ -28,7 +28,7 @@ from flexsym.structural.softplus_memory_subpartition_sweep import unit_features_
 REPO = paths.REPO_ROOT
 ORIG = paths.ORIGINAL_STORE
 STAGED = paths.STAGED_STORE
-OPK = {0: 41, 1: 51, 2: 38, 3: 14, 4: 14, 5: 14, 6: 14, 7: 14, 8: 14, 9: 15}
+from flexsym.structural.operating_k import OPK
 # curated task-epoch battery, grouped by computation type (order preserved)
 BATTERY = [
     ("fdgo", "stim1"), ("fdanti", "stim1"), ("delaygo", "stim1"), ("delaydm1", "stim1"),

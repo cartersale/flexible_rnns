@@ -41,7 +41,7 @@ OUT = REPO / "results/figures"; OUT.mkdir(parents=True, exist_ok=True)
 C_G = "#2a78d6"    # gamma (size-weighted)
 C_F = "#eda100"    # f_A (size-neutral)
 INK = "#0b0b0b"; MUTED = "#52514e"; GRID = "#e6e5e2"
-OPK = {0: 41, 1: 51, 2: 38, 3: 14, 4: 14, 5: 14, 6: 14, 7: 14, 8: 14, 9: 15}
+from flexsym.structural.operating_k import OPK
 
 
 def resolve(model):

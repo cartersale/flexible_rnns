@@ -36,7 +36,7 @@ REPO = paths.REPO_ROOT
 ACT = REPO / "results/activity_clusters_paper"
 ORIG = paths.ORIGINAL_STORE
 STAGED = paths.STAGED_STORE
-OPK = {0: 41, 1: 51, 2: 38, 3: 14, 4: 14, 5: 14, 6: 14, 7: 14, 8: 14, 9: 15}
+from flexsym.structural.operating_k import OPK
 TYPES = ["trained", "row-shuffle", "full-shuffle", "gaussian"]
 
 
