@@ -3,11 +3,27 @@
 Connectivity symmetry and dynamical motifs in multitask RNNs.
 
 This repo asks whether the approximate symmetries of a trained RNN's recurrent
-weight matrix — its signed-WL equitable partition into "structural cells" —
-constitute a real organising principle for the network's computation. It builds
-on the networks and task suite released with Driscoll et al. (2024); see
+weight matrix — its signed-WL equitable partition into role cells — constitute a
+real organising principle for the network's computation. It builds on the
+networks and task suite released with Driscoll et al. (2024); see
 [docs/provenance.md](docs/provenance.md) for exactly what is vendored from
 upstream and what was modified.
+
+The work is organised around three claims:
+
+1. **Connectivity defines a dynamical role structure.** `W_rec` partitions into
+   groups of units that wire to the rest of the circuit the same way, and those
+   groups are an invariant subspace of the dynamics.
+2. **The network's computational motifs are organised by that structure.** The
+   fixed-point motifs the network computes with recruit role groups
+   non-uniformly.
+3. **The quotient predicts the motifs.** Collapsing each role group to one node
+   yields a coarse-grained circuit that predicts the directions the motifs
+   occupy in state space.
+
+[docs/findings.md](docs/findings.md) records where each claim stands, **including
+the three controls that demoted results which previously looked like headlines**.
+Read it before building on any number from this repo.
 
 ## Setup
 
