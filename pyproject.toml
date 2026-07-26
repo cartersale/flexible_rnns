@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flexsym"
+version = "0.1.0"
+description = "Connectivity symmetry and dynamical motifs in multitask RNNs"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "scipy",
+    "pandas",
+    "scikit-learn",
+    "matplotlib",
+    "seaborn",
+    "tqdm",
+    "six",
+    "python-dotenv",
+    "tensorflow>=2.16",
+]
+
+# FixedPointFinder + recurrent-whisperer are NOT pip dependencies. They are
+# vendored under external/ and reached via sys.path — see README.
+
+[tool.setuptools.packages.find]
+where = ["src"]

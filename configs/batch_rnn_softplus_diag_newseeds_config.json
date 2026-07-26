@@ -1,0 +1,54 @@
+{
+  "description": "Batch analysis for LeakyRNN softplus diag NEW seeds (3-9) across sizes using transpose signed-input WL and active-fraction k selection. Replication/extension of batch_rnn_softplus_diag (seeds 0-2).",
+  "run_name": "batch_rnn_softplus_diag_newseeds",
+  "data_root": "/Volumes/X9_Pro/flexible_multitask_data/new_runs/staged",
+  "activity_root": "results/activity_clusters_paper",
+  "struct_root": "results/signed_input_wl_paper",
+  "model_globs": [
+    "LeakyRNN_softplus_diag_*_all_*"
+  ],
+  "exclude_models": [
+    "LeakyRNN_softplus_diag_1024_all_3",
+    "LeakyRNN_softplus_diag_1024_all_4",
+    "LeakyRNN_softplus_diag_1024_all_5",
+    "LeakyRNN_softplus_diag_1024_all_6",
+    "LeakyRNN_softplus_diag_1024_all_7",
+    "LeakyRNN_softplus_diag_1024_all_8",
+    "LeakyRNN_softplus_diag_1024_all_9"
+  ],
+  "matrix_variant": "transpose",
+  "k_min": 3,
+  "k_max": 60,
+  "k_selection": {
+    "policy": "active_fraction",
+    "active_fraction": 0.20,
+    "rounding": "round"
+  },
+  "saturation_within_fraction": 0.10,
+  "batch_size": 1024,
+  "wl_null": 1000,
+  "wl_n_iter": 20,
+  "wl_n_init": 20,
+  "seed": 0,
+  "activity_clustering": {
+    "normalization": "max",
+    "linkage_method": "ward",
+    "active_threshold": 0.001,
+    "output_name": "epoch_variance_unit_clusters_paper_max.npz"
+  },
+  "functional_subpartition": {
+    "enabled": true,
+    "min_cell_size": 5,
+    "memory_percentile": 60.0,
+    "max_subclusters": 6,
+    "n_null": 5000
+  },
+  "steps": {
+    "compute_variance": true,
+    "activity_clustering": true,
+    "structural_sweep": true,
+    "select_k": true,
+    "cell_epoch_variance": true,
+    "functional_subpartition": true
+  }
+}
