@@ -48,8 +48,31 @@ ORIG = paths.ORIGINAL_STORE
 STAGED = paths.STAGED_STORE
 OUT = REPO / "results" / "signed_input_wl_paper" / "restart_ensemble"
 
-# operating k as used by the downstream lesion / reorg / connectivity scripts
-OPK = {0: 41, 1: 51, 2: 38, 3: 14, 4: 14, 5: 14, 6: 14, 7: 14, 8: 14, 9: 15}
+# Operating k, as used by the downstream lesion / reorg / connectivity scripts.
+#
+# This was previously a hardcoded table. That silently went stale when seeds 3-9
+# were retrained on 2026-07-25: the table still said k=14 (from checkpoints where
+# only ~70 of 256 units were active) while the current nets want k=42-44. Deriving
+# it from the activity file instead means it cannot drift again.
+#
+# Rule (matches configs/batch_rnn_softplus_diag*.json, policy "active_fraction"):
+#     k = clamp(min(activity_best_k, round(0.20 * n_active)), K_MIN, n_active - 1)
+# It reproduces the released seeds 0-2 values exactly (41, 51, 38).
+K_MIN = 3
+ACTIVE_FRACTION = 0.20
+
+
+def operating_k(model: str) -> int | None:
+    """Derive the operating k for a model from its activity clustering."""
+    path = ACTIVITY_ROOT / model / ACTIVITY_NAME
+    if not path.exists():
+        return None
+    z = np.load(path, allow_pickle=True)
+    n_active = int(np.asarray(z["ind_active"], dtype=np.int64).size)
+    structural_k = int(round(ACTIVE_FRACTION * n_active))
+    structural_k = max(K_MIN, min(structural_k, n_active - 1))
+    k = min(int(z["best_k"]), structural_k)
+    return max(K_MIN, min(k, n_active - 1))
 
 
 def resolve(model: str) -> Path | None:
@@ -124,13 +147,21 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--n-restarts", type=int, default=20)
     p.add_argument("--matrix-variant", default="transpose")
-    p.add_argument("--seeds", type=int, nargs="*", default=sorted(OPK))
+    p.add_argument("--seeds", type=int, nargs="*", default=list(range(10)))
+    p.add_argument("--k", type=int, default=None,
+                   help="Override the derived operating k (applies to all seeds).")
     args = p.parse_args()
 
     OUT.mkdir(parents=True, exist_ok=True)
     for seed in args.seeds:
+        model = f"LeakyRNN_softplus_diag_256_all_{seed}"
+        k = args.k if args.k is not None else operating_k(model)
+        if k is None:
+            print(f"SKIP {model}: no activity clustering at "
+                  f"{ACTIVITY_ROOT / model / ACTIVITY_NAME}")
+            continue
         rec = build_net(
-            seed, OPK[seed], n_restarts=args.n_restarts, variant=args.matrix_variant
+            seed, k, n_restarts=args.n_restarts, variant=args.matrix_variant
         )
         if rec is None:
             continue

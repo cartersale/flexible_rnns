@@ -1,5 +1,40 @@
 # Findings
 
+> ## ⚠️ Numbers involving seeds 3–9 are STALE (as of 2026-07-26)
+>
+> The 256-unit seeds 3–9 were **retrained on 2026-07-25** (checkpoints rewritten
+> 14:19–15:02). Every result file in `results/` predates that. The numbers below
+> were computed on the superseded checkpoints.
+>
+> This is not a small drift. On the current checkpoints the partition object
+> itself is different:
+>
+> | | n_active | k |
+> |---|---|---|
+> | seeds 3–9, **stale** | 69–75 | 14 |
+> | seeds 3–9, **current** | 212–220 | 42–44 |
+> | seeds 0–2 (released, unchanged) | 188–256 | 38–51 |
+>
+> The old values reflect nets that had barely trained — only ~70 of 256 units
+> carried meaningful epoch variance, against ~215 now. `perf_min` likewise moved
+> from 0.781–0.904 to 0.926–0.947.
+>
+> **Exposure by claim:**
+> - **Claim 1** — the 33-net training control and the 33-net step-R² pool seeds
+>   3–9. Affected; direction unknown until recomputed.
+> - **Claim 2** — all 10-net participation and reuse statistics pool seeds 3–9,
+>   and previously mixed k=14 nets with k=38–51 nets. Most exposed.
+> - **Claim 3** — uses seeds 0–2 only. **Not affected.**
+> - The fair-context-predictor section pools all 10. Affected.
+>
+> A batch-confound claim previously recorded here (that released and new nets
+> were incommensurable) was **an artefact of the stale checkpoints** and has been
+> removed — the two batches are comparable on the current nets.
+>
+> Recompute chain: `cluster_epoch_variance` → `restart_ensemble_partitions` →
+> {lumpability, training control, reuse, lesions} → `motif_fixed_points` →
+> {inventory, participation, quotient}.
+
 Status of each claim, with the numbers as they stand in `results/`. Recomputed
 from the result files during the repo migration (2026-07-26), not copied from
 prior notes.
