@@ -1,0 +1,54 @@
+\contentsline {section}{\numberline {1}Model set and training}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Architecture and task set}{2}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Networks analysed}{3}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Structural partition identification}{3}{section.2}%
+\contentsline {paragraph}{Reporting scale.}{3}{section*.2}%
+\contentsline {paragraph}{Group-size distribution and singletons.}{3}{section*.3}%
+\contentsline {section}{\numberline {3}Lumpability of the linear recurrent map (Result 1)}{4}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Results (k-sweep, ten $256$-unit networks)}{4}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Degree/training surrogate control}{4}{subsection.3.2}%
+\contentsline {section}{\numberline {4}Partition non-identifiability and subspace stability}{5}{section.4}%
+\contentsline {section}{\numberline {5}Comparison to spectral and modularity partitions}{5}{section.5}%
+\contentsline {section}{\numberline {6}Fixed-point motifs}{5}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Taxonomy (corrected models, all ten seeds)}{6}{subsection.6.1}%
+\contentsline {section}{\numberline {7}Motif directions in the connectivity subspace (Result 3, containment)}{6}{section.7}%
+\contentsline {subsection}{\numberline {7.1}$W_{\rm rec}$-eigenbasis null (strong null; negative for containment)}{6}{subsection.7.1}%
+\contentsline {section}{\numberline {8}Quotient reduced model (Result 2)}{7}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Prediction across the k-sweep ($Q_{\rm pred}$, $r=3$, ten networks)}{7}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Compression ($A_{\rm raw}$, $k=20$, $r=3$, median over ten networks)}{8}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}Gain ablations ($A_{\rm cond}$, $k=20$, $r=3$, median over ten networks)}{8}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}Eigenvalue-matched non-motif control (negative)}{8}{subsection.8.4}%
+\contentsline {subsection}{\numberline {8.5}Held-out gains (prospective, seeds $0$--$2$)}{8}{subsection.8.5}%
+\contentsline {section}{\numberline {9}Task accessibility of motif vs.\ matched non-motif modes (delay epoch; negative)}{8}{section.9}%
+\contentsline {section}{\numberline {10}Input-interpolation branch (re-found manifold; negative)}{9}{section.10}%
+\contentsline {paragraph}{Sweep over $k$, task and seed.}{9}{section*.4}%
+\contentsline {section}{\numberline {11}Rotation into the readout at the response epoch (Result 3, decisive control)}{9}{section.11}%
+\contentsline {section}{\numberline {12}Concentration of motifs on quotient eigenmodes (Result 4)}{10}{section.12}%
+\contentsline {subsection}{\numberline {12.1}$W_{\rm rec}$-eigenbasis null (strong null; mixed)}{10}{subsection.12.1}%
+\contentsline {section}{\numberline {13}Mode-energy profiles by motif type}{11}{section.13}%
+\contentsline {paragraph}{Coordinate system (non-normality check).}{11}{section*.5}%
+\contentsline {paragraph}{Do the types share modes?}{11}{section*.6}%
+\contentsline {section}{\numberline {14}Cross-seed convergence of quotient modes}{12}{section.14}%
+\contentsline {section}{\numberline {15}Eigenvalue (timescale) control}{12}{section.15}%
+\contentsline {section}{\numberline {16}Activation robustness: released tanh networks}{13}{section.16}%
+\contentsline {paragraph}{Lumpability (Result 1): holds.}{13}{section*.7}%
+\contentsline {paragraph}{Motif inventory differs.}{13}{section*.8}%
+\contentsline {paragraph}{Concentration (Result 4): does not hold.}{13}{section*.9}%
+\contentsline {section}{\numberline {17}Cross-task participation reuse and its control (negative)}{14}{section.17}%
+\contentsline {subsection}{\numberline {17.1}Relation to the concentration result (\S \ref {sec:concentration})}{14}{subsection.17.1}%
+\contentsline {section}{\numberline {18}Trajectory decoding from the quotient coordinates}{14}{section.18}%
+\contentsline {section}{\numberline {19}Causal block-model resample (negative)}{15}{section.19}%
+\contentsline {section}{\numberline {20}Statistical conventions}{16}{section.20}%
+\contentsline {paragraph}{Multiple comparisons.}{16}{section*.10}%
+\contentsline {section}{\numberline {21}Data and code provenance}{16}{section.21}%
+\contentsline {section}{\numberline {A}Per-seed tables}{16}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}Lumpability, per seed (leakage and invariance scores at $k=8,20,50$; \S \ref {sec:lump})}{17}{subsection.A.1}%
+\contentsline {subsection}{\numberline {A.2}Degree/training surrogate control, per network (\S \ref {sec:surrogate})}{17}{subsection.A.2}%
+\contentsline {subsection}{\numberline {A.3}Quotient prediction, per seed ($k=20$, $r=3$; \S \ref {sec:quotient})}{18}{subsection.A.3}%
+\contentsline {subsection}{\numberline {A.4}Motif-direction containment, per seed ($k=20$; \S \ref {sec:containment})}{18}{subsection.A.4}%
+\contentsline {subsection}{\numberline {A.5}Rotation into the readout, per seed (\S \ref {sec:rotation})}{18}{subsection.A.5}%
+\contentsline {subsection}{\numberline {A.6}Mode concentration, per seed (top-3 energy and PR; \S \ref {sec:concentration})}{19}{subsection.A.6}%
+\contentsline {subsection}{\numberline {A.7}Eigenvalue-matched non-motif control, per seed ($k=20$; \S \ref {sec:eigmatched})}{19}{subsection.A.7}%
+\contentsline {subsection}{\numberline {A.8}Cross-task participation reuse, per seed ($k=20$; \S \ref {sec:reuse})}{19}{subsection.A.8}%
+\contentsline {subsection}{\numberline {A.9}Task accessibility, per seed (seeds $0$--$2$; \S \ref {sec:access})}{20}{subsection.A.9}%
+\contentsline {subsection}{\numberline {A.10}Fixed-point taxonomy, per seed (corrected models; \S \ref {sec:motifs})}{20}{subsection.A.10}%

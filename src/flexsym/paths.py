@@ -59,6 +59,10 @@ STAGED_STORE = _root("STAGED_STORE", MODEL_ROOT / "new_runs" / "staged")
 #: Cached network activity, keyed by (net, rule).
 CACHE_ROOT = _root("CACHE_ROOT", MODEL_ROOT / "activity_cache")
 
+#: Downloaded connectome reconstructions (hemibrain, FlyWire). Small enough to
+#: sit in the repo tree by default, but overridable onto the data volume.
+CONNECTOME_ROOT = _root("CONNECTOME_ROOT", REPO_ROOT / "data" / "connectome")
+
 # --- output roots (in the repo, gitignored) --------------------------------
 
 RESULTS_ROOT = _root("RESULTS_ROOT", REPO_ROOT / "results")

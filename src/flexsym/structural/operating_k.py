@@ -45,6 +45,19 @@ def model_name(seed: int, size: int = 256) -> str:
     return f"LeakyRNN_softplus_diag_{size}_all_{seed}"
 
 
+def k_from_clustering(best_k: int, n_active: int) -> int:
+    """The active_fraction policy, applied to one clustering result.
+
+    Split out from `operating_k` so callers holding a clustering that does not
+    live under ACTIVITY_ROOT -- e.g. the per-checkpoint trajectory runs, whose
+    clusterings sit beside their snapshots -- select k by the same rule instead
+    of re-deriving it. Re-deriving is exactly how the eight copies of the old
+    OPK literal went stale at once.
+    """
+    structural_k = max(K_MIN, min(int(round(ACTIVE_FRACTION * n_active)), n_active - 1))
+    return max(K_MIN, min(min(int(best_k), structural_k), n_active - 1))
+
+
 def operating_k(model: str) -> int | None:
     """Operating k for `model`, or None if it has no activity clustering yet."""
     path = ACTIVITY_ROOT / model / ACTIVITY_NAME
@@ -52,8 +65,7 @@ def operating_k(model: str) -> int | None:
         return None
     z = np.load(path, allow_pickle=True)
     n_active = int(np.asarray(z["ind_active"], dtype=np.int64).size)
-    structural_k = max(K_MIN, min(int(round(ACTIVE_FRACTION * n_active)), n_active - 1))
-    return max(K_MIN, min(min(int(z["best_k"]), structural_k), n_active - 1))
+    return k_from_clustering(int(z["best_k"]), n_active)
 
 
 class _OperatingK(Mapping):
