@@ -41,7 +41,7 @@ import numpy as np
 
 from flexsym import paths
 from flexsym.run.trajectory_subspace import (
-    load_snapshot, reference_set, snapshot_paths,
+    load_snapshot, npz_load, reference_set, snapshot_paths,
 )
 from flexsym.run.transfer_analysis import wl_subspace
 from flexsym.training.train_trajectory import INIT_CHOICES, build_run_dir
@@ -188,13 +188,13 @@ def analyse_run(run_dir: Path, rules=None, epochs=DEFAULT_EPOCHS,
 
     # Drives depend only on the task, not the weights -- build once per net.
     drives = {r: epoch_drives(r, hp, epochs) for r in rules}
-    n_input = int(np.load(snaps[-1], allow_pickle=True)['n_input'])
+    n_input = int(npz_load(snaps[-1])['n_input'])
     rng = np.random.default_rng(rng_seed)
 
     rows = []
     for i in picked:
         s = load_snapshot(snaps[i])
-        d = np.load(s['path'], allow_pickle=True)
+        d = npz_load(s['path'])
         W = s['W_rec']
         Win = np.asarray(d['w_in'], float)[:n_input, :].T    # (n_rnn, n_input)
         b = np.asarray(d['b_rec'], float)

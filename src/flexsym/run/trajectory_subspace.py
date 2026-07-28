@@ -50,6 +50,21 @@ REPORT_FLOOR_MSCA = 0.63
 ACTIVITY_NAME = 'epoch_variance_unit_clusters_traj.npz'
 
 
+def npz_load(path):
+    """np.load that survives `flexsym.core.task`.
+
+    Importing that module globally rebinds `np.load` to a lambda that injects
+    `allow_pickle=True`, so any later call passing the flag explicitly dies with
+    "got multiple values for keyword argument". Which of the two np.loads is live
+    depends on whether TF-touching code has been imported yet, so both paths have
+    to work.
+    """
+    try:
+        return np.load(path, allow_pickle=True)
+    except TypeError:
+        return np.load(path)
+
+
 def snapshot_paths(run_dir: Path) -> list[Path]:
     return [Path(p) for p in sorted(glob.glob(str(run_dir / 'snapshots' / 'snap_*.npz')))]
 
@@ -57,7 +72,7 @@ def snapshot_paths(run_dir: Path) -> list[Path]:
 def load_snapshot(path: Path) -> dict:
     """Load one snapshot. W_rec is stored directly, but fall back to slicing the
     kernel by the stored n_input so snapshots written by an older run still load."""
-    d = np.load(path, allow_pickle=True)
+    d = npz_load(path)
     if 'W_rec' in d:
         W_rec = np.asarray(d['W_rec'], float)
     else:
@@ -80,7 +95,7 @@ def reference_set(run_dir: Path, k_max: int = 60, batch_size: int = 1024,
 
     cache = run_dir / ACTIVITY_NAME
     if cache.exists() and not recompute:
-        z = np.load(cache, allow_pickle=True)
+        z = npz_load(cache)
         ind = np.asarray(z['ind_active'], dtype=np.int64)
         return ind, k_from_clustering(int(z['best_k']), ind.size)
 
@@ -98,7 +113,7 @@ def reference_set(run_dir: Path, k_max: int = 60, batch_size: int = 1024,
     cluster_epoch_variance(run_dir, k_min=3, k_max=k_max, normalization='max',
                            linkage_method='ward', active_threshold=1e-3,
                            output_name=ACTIVITY_NAME, variance_path=var_path)
-    z = np.load(cache, allow_pickle=True)
+    z = npz_load(cache)
     ind = np.asarray(z['ind_active'], dtype=np.int64)
     return ind, k_from_clustering(int(z['best_k']), ind.size)
 

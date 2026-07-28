@@ -53,9 +53,14 @@ def by_init_seed(rows, xkey, ykey, reduce_fn=None):
     grouped = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     for r in rows:
         y = _f(r[ykey])
-        if y is None:
+        x = float(r[xkey])
+        # Drop the step-0 snapshot explicitly. The x-axis is log, so matplotlib
+        # would drop it anyway -- but silently, leaving a curve that looks like it
+        # starts at the first training snapshot when the init point exists in the
+        # CSV. Better to exclude it on purpose and footnote it.
+        if y is None or x <= 0:
             continue
-        grouped[r['init']][int(r['seed'])][float(r[xkey])].append(y)
+        grouped[r['init']][int(r['seed'])][x].append(y)
     out = {}
     for init, seeds in grouped.items():
         out[init] = {}
@@ -109,19 +114,20 @@ def main():
     floors = defaultdict(list)
     for r in sub:
         floors[r['init']].append(float(r['floor_msca']))
-    for init, vals in floors.items():
+    for init, vals in sorted(floors.items()):
         m = float(np.mean(vals))
         axA.axhline(m, color=COLORS.get(init, MUTED), ls='--', lw=1.1, alpha=0.75)
-        axA.text(0.995, m, f'  {init} floor {m:.2f}', transform=axA.get_yaxis_transform(),
-                 ha='right', va='bottom', fontsize=7.5, color=COLORS.get(init, MUTED))
+        axA.text(0.01, m, f'{init} floor {m:.2f}', transform=axA.get_yaxis_transform(),
+                 ha='left', va='bottom', fontsize=7.5, color=COLORS.get(init, MUTED))
     axA.axhline(REPORT_FLOOR_MSCA, color=MUTED, ls=':', lw=1.1)
-    axA.text(0.005, REPORT_FLOOR_MSCA, f'  report floor {REPORT_FLOOR_MSCA}',
-             transform=axA.get_yaxis_transform(), fontsize=7.5, color=MUTED, va='top')
+    axA.text(0.99, REPORT_FLOOR_MSCA, f'report floor {REPORT_FLOOR_MSCA}',
+             transform=axA.get_yaxis_transform(), ha='right', va='bottom',
+             fontsize=7.5, color=MUTED)
     axA.set_ylabel('mean squared principal-angle cosine\nwith the final subspace',
                    fontsize=9.5, color=INK)
     axA.set_title('(a) Subspace agreement with the final network',
                   fontsize=11, color=INK, pad=8, loc='left')
-    axA.legend(loc='lower right', frameon=False, fontsize=8.5)
+    axA.legend(loc='center right', frameon=False, fontsize=8.5)
 
     # --- (b) incremental drift ----------------------------------------------
     plot_series(axB, by_init_seed(sub, 'trials', 'msca_incremental'))
@@ -177,6 +183,9 @@ def main():
 
     fig.suptitle('When does the connectivity coordinate system settle, '
                  'relative to the motifs inside it?', fontsize=12.5, color=INK)
+    fig.text(0.5, 0.005, 'x is log-scaled, so the step-0 (initialisation) snapshot '
+                         'is omitted from every panel; it is present in the CSVs.',
+             ha='center', fontsize=7.5, color=MUTED)
     for ext in ('png', 'pdf'):
         fig.savefig(OUT / f'trajectory_curves.{ext}', dpi=200)
     print(f"wrote {OUT / 'trajectory_curves.png'} (+ .pdf)")
