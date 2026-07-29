@@ -88,6 +88,33 @@ def require(path: Path, what: str) -> Path:
     return path
 
 
+def ensure_dir(path: Path, what: str) -> Path:
+    """Create `path` (with parents), or raise with an actionable message.
+
+    `Path.mkdir(parents=True)` on a deep path under an unmounted volume fails
+    obscurely: pathlib recurses upward creating parents and dies on /Volumes
+    itself with EACCES, behind a stack of chained FileNotFoundErrors that name
+    every level but the one that matters. Catch that and say what went wrong.
+
+    Use for output roots, the write-side counterpart to `require()`.
+    """
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+    except OSError as e:
+        # The deepest ancestor that does exist is the real boundary -- if it is
+        # /Volumes, the data volume simply is not mounted.
+        existing = path
+        while not existing.exists() and existing != existing.parent:
+            existing = existing.parent
+        raise OSError(
+            f"cannot create {what} at {path}\n"
+            f"  failed at {existing} ({e.strerror}).\n"
+            f"  Is the data volume mounted? Check MODEL_ROOT / DATA_ROOT in "
+            f"{REPO_ROOT / '.env'} (see .env.example), or pass --root."
+        ) from e
+    return path
+
+
 def add_external_to_syspath() -> None:
     """Put FixedPointFinder and recurrent-whisperer on sys.path.
 
