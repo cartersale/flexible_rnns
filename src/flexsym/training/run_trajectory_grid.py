@@ -49,9 +49,10 @@ def launch(job, args):
         '--seed', str(seed),
         '--n-rnn', str(args.n_rnn),
         '--max-trials', repr(args.max_trials),
-        '--n-snapshots', str(args.n_snapshots),
-        '--first-step', str(args.first_step),
+        '--n-tail', str(args.n_tail),
     ]
+    if args.tail_start is not None:
+        cmd += ['--tail-start', str(args.tail_start)]
     if not args.resume:
         cmd += ['--no-resume']
     log_f.write('# ' + ' '.join(cmd) + '\n')
@@ -71,8 +72,8 @@ def main():
     p.add_argument('--seeds', default='0-4', help='seeds per init (default 0-4)')
     p.add_argument('--n-rnn', type=int, default=256)
     p.add_argument('--max-trials', type=float, default=1e8)
-    p.add_argument('--n-snapshots', type=int, default=23)
-    p.add_argument('--first-step', type=int, default=1000)
+    p.add_argument('--n-tail', type=int, default=10)
+    p.add_argument('--tail-start', type=int, default=None)
     p.add_argument('--workers', type=int, default=10,
                    help='max nets training concurrently (default 10 = whole grid)')
     p.add_argument('--threads-per-worker', type=int, default=1)
