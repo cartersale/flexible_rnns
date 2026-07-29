@@ -11,6 +11,8 @@ external/
 
 # Local config
 .env
+.venv
+.venv-py39/
 
 # Python
 __pycache__/
@@ -19,6 +21,8 @@ __pycache__/
 build/
 dist/
 .ipynb_checkpoints/
+
+logs/
 
 # macOS
 .DS_Store

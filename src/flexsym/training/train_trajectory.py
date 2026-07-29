@@ -192,7 +192,7 @@ def train_trajectory(root, init: str, seed: int, n_rnn: int = 256,
 
     run_dir = build_run_dir(root, init, seed)
     snap_dir = run_dir / 'snapshots'
-    snap_dir.mkdir(parents=True, exist_ok=True)
+    paths.ensure_dir(snap_dir, f'snapshot dir for {init} seed{seed}')
 
     rules = rules_dict[RULESET]
     hp = build_hp(n_rnn, init, seed)
@@ -221,7 +221,18 @@ def train_trajectory(root, init: str, seed: int, n_rnn: int = 256,
     t0 = time.time()
     perf_log = []
 
-    with tf.Session() as sess:
+    # Same CPU thread-pool capping as `core.train.train`. This module runs its
+    # own session rather than going through train(), so without this it silently
+    # ignores the TF_INTRA/INTER_THREADS that `worker_env` sets and TF sizes its
+    # pools to the whole machine -- 10 such workers on one box thrash badly
+    # (~135 threads each) and run several times slower than the same 10 capped.
+    sess_config = tf.ConfigProto(
+        allow_soft_placement=True,
+        intra_op_parallelism_threads=int(os.environ.get('TF_INTRA_THREADS', 0)),
+        inter_op_parallelism_threads=int(os.environ.get('TF_INTER_THREADS', 0)),
+    )
+
+    with tf.Session(config=sess_config) as sess:
         sess.run(tf.global_variables_initializer())
 
         step = 0

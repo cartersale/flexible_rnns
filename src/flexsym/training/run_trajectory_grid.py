@@ -89,6 +89,11 @@ def main():
     seeds = parse_int_list(args.seeds)
     os.makedirs(args.log_dir, exist_ok=True)
 
+    # Preflight: every worker writes under --root, so an unreachable root fails
+    # all of them identically. Check once here rather than spawning the grid and
+    # collecting N copies of the same traceback out of N log files.
+    paths.ensure_dir(Path(args.root), 'trajectory root')
+
     # Interleave inits so a partial run still has both arms represented -- an
     # init-major order would finish all 5 diag nets before starting any control.
     grid = [(init, s) for s in seeds for init in inits]
