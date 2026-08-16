@@ -46,7 +46,14 @@ def npload(path):
 
 # --- thresholds (tunable per network from the q-histogram / spectrum) ---------
 EPS_STABLE = 0.02      # |lambda| < 1 - EPS_STABLE  => contracting
-EPS_UNSTABLE = 0.02    # |lambda| > 1 + EPS_UNSTABLE => expanding
+EPS_UNSTABLE = 0.0     # |lambda| > 1 + EPS_UNSTABLE => expanding. Zero matches
+                       # the stability threshold used throughout Driscoll et
+                       # al.'s tools_lnd.py (`max Re(lambda) > 1`, no dead
+                       # zone). On this corpus no eigenvalue is unstable by
+                       # modulus while stable by real part, so the two tests
+                       # coincide. The saddle label additionally requires
+                       # exactly one unstable mode (see classify_point), a
+                       # distinction tools_lnd does not make.
 IM_THRESH = 0.05       # |Im(lambda)| above this => genuine rotation
 COS_THRESH = 0.8       # |cos| local-tangent vs eigenvector for tangency
 Q_FP = 1e-8            # q below this => treat as a true fixed point

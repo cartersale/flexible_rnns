@@ -5,6 +5,8 @@ figs/
 # Model checkpoints / training data
 data/
 models/
+docs/
+figures/
 
 # Vendored external dependencies (FixedPointFinder, recurrent-whisperer)
 external/

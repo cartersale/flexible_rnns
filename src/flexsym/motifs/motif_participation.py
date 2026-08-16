@@ -22,6 +22,7 @@ both partitions (ind_active) before regressing against labels.
 from __future__ import annotations
 
 from flexsym import paths
+from flexsym.structural.operating_k import operating_k
 
 from pathlib import Path
 
@@ -42,19 +43,11 @@ WL_ROOT = REPO_DIR / "results" / "signed_input_wl_paper"
 ACT_ROOT = REPO_DIR / "results" / "activity_clusters_paper"
 ACT_NAME = "epoch_variance_unit_clusters_paper_max.npz"
 
-# operating signed-WL k per 256 net (from run_wl_vs_strength_ari.OPERATING_K)
-OPERATING_K = {
-    "LeakyRNN_softplus_diag_256_all_0": 33,
-    "LeakyRNN_softplus_diag_256_all_1": 51,
-    "LeakyRNN_softplus_diag_256_all_2": 38,
-    "LeakyRNN_softplus_diag_256_all_3": 14,
-    "LeakyRNN_softplus_diag_256_all_4": 14,
-    "LeakyRNN_softplus_diag_256_all_5": 14,
-    "LeakyRNN_softplus_diag_256_all_6": 14,
-    "LeakyRNN_softplus_diag_256_all_7": 14,
-    "LeakyRNN_softplus_diag_256_all_8": 14,
-    "LeakyRNN_softplus_diag_256_all_9": 15,
-}
+# Operating k is derived from each network's activity clustering by
+# flexsym.structural.operating_k -- the single source of truth. This module used to
+# carry its own copy of the old literal (seed 0 -> 33, seeds 3-9 -> 14/15), which went
+# stale when the 256 seeds 3-9 were retrained on 2026-07-25 and was missed when the
+# other copies were removed. Do not reintroduce a literal here.
 
 
 def _row_for_k(labels_by_k, k):
@@ -80,7 +73,7 @@ def load_partitions(net: str, k: int | None = None):
         raise ValueError(f"{net}: WL and activity ind_active differ")
 
     if k is None:
-        k = OPERATING_K.get(net, int(wl["chosen_k"]))
+        k = operating_k(net) or int(wl["chosen_k"])
     labels_by_k = wl["labels_struct_by_k"]
     role_labels = np.asarray(labels_by_k[_row_for_k(labels_by_k, k)], dtype=int)
     act_labels = np.asarray(act["labels_active"], dtype=int)
