@@ -29,9 +29,9 @@ import sys
 from flexsym.motifs.motif_classify import IM_THRESH  # noqa: E402  (|Im lambda| above this => rotation)
 
 REPO = paths.REPO_ROOT
-ROOT = REPO / "results/motif_fixed_points"
+ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 TAX = ROOT / "motif_taxonomy_all_nets.csv"
-OUT = REPO / "results/figures/slides"
+OUT = paths.FIGURES_ROOT / "slides"
 CACHE = ROOT / "dominant_mode_imag.npz"
 
 BG = "#ffffff"

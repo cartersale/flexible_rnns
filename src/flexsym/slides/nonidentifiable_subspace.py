@@ -31,9 +31,9 @@ import numpy as np
 from sklearn.metrics import adjusted_rand_score
 
 REPO = paths.REPO_ROOT
-ALL_SIZES = REPO / "results/signed_input_wl_paper/restart_ensemble_all_sizes"
-FALLBACK = REPO / "results/signed_input_wl_paper/restart_ensemble"
-OUT = REPO / "results/figures/slides"
+ALL_SIZES = paths.RESULTS_ROOT / "signed_input_wl_paper/restart_ensemble_all_sizes"
+FALLBACK = paths.RESULTS_ROOT / "signed_input_wl_paper/restart_ensemble"
+OUT = paths.FIGURES_ROOT / "slides"
 
 BG = "#ffffff"
 INK = "#111111"

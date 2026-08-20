@@ -38,6 +38,7 @@ warnings.filterwarnings("ignore")
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "3")
 
 REPO_DIR = paths.REPO_ROOT
+RESULTS_ROOT = paths.RESULTS_ROOT
 paths.add_external_to_syspath()  # FixedPointFinder + recurrent-whisperer
 
 import numpy as np
@@ -52,7 +53,7 @@ from FixedPointFinderTF import FixedPointFinderTF as FixedPointFinder  # noqa: E
 
 ORIGINAL_STORE = paths.ORIGINAL_STORE
 STAGED_STORE = paths.STAGED_STORE
-OUTPUT_ROOT = REPO_DIR / "results" / "motif_fixed_points"
+OUTPUT_ROOT = RESULTS_ROOT / "motif_fixed_points"
 
 # Epochs we analyse. go1 (pure response) is skipped by default: the motifs of
 # interest (memory line attractors, decision saddles) live in the delay and

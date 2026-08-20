@@ -103,7 +103,7 @@ def main():
     print(f" transpose leak_z: {', '.join(f'{z:+.1f}' for z in lz)}  (all negative: {bool(np.all(lz<0))})")
     print(f" mean transpose leak_z {lz.mean():+.2f}; mean W leak_z {np.mean([r['W_leak_z'] for r in rows]):+.2f}")
 
-    (paths.REPO_ROOT / "results/motif_fixed_points/tanh_lumpability.json").write_text(
+    (paths.RESULTS_ROOT / "motif_fixed_points/tanh_lumpability.json").write_text(
         json.dumps(rows, indent=2, default=float))
     print("wrote results/motif_fixed_points/tanh_lumpability.json")
 

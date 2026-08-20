@@ -18,7 +18,7 @@ from flexsym.run.lumpability_check import (
 )
 from flexsym.structural.signed_input_wl_structural_roles import load_w_rec, random_labels_same_sizes
 
-OUT = paths.REPO_ROOT / "results/signed_input_wl_paper/lumpability/lumpability_ksweep.csv"
+OUT = paths.RESULTS_ROOT / "signed_input_wl_paper/lumpability/lumpability_ksweep.csv"
 K_GRID = [8, 12, 16, 20, 25, 30, 40, 50]
 
 

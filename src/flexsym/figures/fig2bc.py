@@ -10,9 +10,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 REPO = paths.REPO_ROOT
-OUT = REPO / "results/figures"; OUT.mkdir(parents=True, exist_ok=True)
-LUMP = REPO / "results/signed_input_wl_paper/lumpability/lumpability.csv"
-JAC = REPO / "results/signed_input_wl_paper/motif_jacobian_lumpability.csv"
+OUT = paths.FIGURES_ROOT; OUT.mkdir(parents=True, exist_ok=True)
+LUMP = paths.RESULTS_ROOT / "signed_input_wl_paper/lumpability/lumpability.csv"
+JAC = paths.RESULTS_ROOT / "signed_input_wl_paper/motif_jacobian_lumpability.csv"
 C_T = "#2a78d6"; C_W = "#eda100"; C_RAND = "#9a9a97"; INK = "#0b0b0b"; MUTED = "#52514e"; GRID = "#e6e5e2"; BAND = "#eef4fc"
 
 

@@ -49,7 +49,7 @@ from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
 )
 
 REPO = paths.REPO_ROOT
-ACT_ROOT = REPO / "results" / "activity_clusters_paper"
+ACT_ROOT = paths.RESULTS_ROOT / "activity_clusters_paper"
 ACT_NAME = "epoch_variance_unit_clusters_paper_max.npz"
 ORIGINAL = paths.ORIGINAL_STORE
 STAGED = paths.STAGED_STORE
@@ -163,8 +163,8 @@ def _load_labels(model: str, k: int) -> tuple[np.ndarray, int] | None:
 def load_operating_k() -> dict[str, int]:
     out: dict[str, int] = {}
     for s in [
-        REPO / "results/signed_input_wl_paper/batch_rnn_softplus_diag_k20pct/k_selection_summary.csv",
-        REPO / "results/signed_input_wl_paper/batch_rnn_softplus_diag_newseeds/k_selection_summary.csv",
+        paths.RESULTS_ROOT / "signed_input_wl_paper/batch_rnn_softplus_diag_k20pct/k_selection_summary.csv",
+        paths.RESULTS_ROOT / "signed_input_wl_paper/batch_rnn_softplus_diag_newseeds/k_selection_summary.csv",
     ]:
         if not s.exists():
             continue
@@ -181,7 +181,7 @@ def main() -> None:
     p.add_argument("--m-eig", type=int, default=0, help="Top-m eigenvectors by |lambda| (0 = k).")
     p.add_argument("--variant", default="transpose")
     p.add_argument("--models", nargs="*", default=None)
-    p.add_argument("--output-dir", default=str(REPO / "results/signed_input_wl_paper/lumpability"))
+    p.add_argument("--output-dir", default=str(paths.RESULTS_ROOT / "signed_input_wl_paper/lumpability"))
     args = p.parse_args()
 
     out_dir = Path(args.output_dir)

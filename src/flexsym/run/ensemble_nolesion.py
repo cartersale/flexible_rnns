@@ -36,8 +36,8 @@ from flexsym.structural.ensemble_analyze import (  # noqa: E402
 from flexsym.structural.signed_input_wl_structural_roles import apply_matrix_variant, load_w_rec  # noqa: E402
 
 REPO = paths.REPO_ROOT
-ENS = REPO / "results" / "signed_input_wl_paper" / "restart_ensemble"
-OUT = REPO / "results" / "signed_input_wl_paper" / "restart_ensemble"
+ENS = paths.RESULTS_ROOT / "signed_input_wl_paper" / "restart_ensemble"
+OUT = paths.RESULTS_ROOT / "signed_input_wl_paper" / "restart_ensemble"
 ORIG = paths.ORIGINAL_STORE
 STAGED = paths.STAGED_STORE
 

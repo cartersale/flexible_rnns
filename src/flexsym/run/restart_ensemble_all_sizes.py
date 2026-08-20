@@ -28,9 +28,9 @@ from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
 from flexsym.structural.structural_partition_stability import _consensus_partition  # noqa: E402
 
 REPO = paths.REPO_ROOT
-ACT = REPO / "results/activity_clusters_paper"
-LUMP = REPO / "results/signed_input_wl_paper/lumpability/lumpability.csv"
-OUT = REPO / "results/signed_input_wl_paper/restart_ensemble_all_sizes"
+ACT = paths.RESULTS_ROOT / "activity_clusters_paper"
+LUMP = paths.RESULTS_ROOT / "signed_input_wl_paper/lumpability/lumpability.csv"
+OUT = paths.RESULTS_ROOT / "signed_input_wl_paper/restart_ensemble_all_sizes"
 
 
 def build(model: str, k: int, seed: int, n_restarts: int, variant: str) -> dict | None:

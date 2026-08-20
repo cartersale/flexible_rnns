@@ -37,7 +37,7 @@ from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
 from flexsym.structural.structural_cell_activity_coherence import compute_hidden_by_epoch  # noqa: E402
 
 REPO = paths.REPO_ROOT
-ACT = REPO / "results/activity_clusters_paper"
+ACT = paths.RESULTS_ROOT / "activity_clusters_paper"
 ORIG = paths.ORIGINAL_STORE
 STAGED = paths.STAGED_STORE
 from flexsym.structural.operating_k import OPK
@@ -106,7 +106,7 @@ def main():
         print(f"seed {seed}: lin R²={r2_lin:.2f}  jac R²={r2_jac:.2f}  rand={r2_rand:.2f}  z={z:+.1f}  "
               f"slowJeig={np.abs(Jw[islow]):.3f} slowR²={step_r2(vs, labels):.2f}", flush=True)
 
-    out = REPO / "results/signed_input_wl_paper/motif_jacobian_lumpability.csv"
+    out = paths.RESULTS_ROOT / "signed_input_wl_paper/motif_jacobian_lumpability.csv"
     with out.open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0].keys())); w.writeheader(); w.writerows(rows)
     import numpy as _np

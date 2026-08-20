@@ -41,7 +41,7 @@ from flexsym.run.motif_quotient_prediction import (
     condition_jacobians, indicator, load_conditions, quotient,
 )
 
-FP_ROOT = paths.REPO_ROOT / "results" / "motif_fixed_points"
+FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 K_GRID = [12, 20, 30]
 N_PERM = 300
 TOP_R = 3

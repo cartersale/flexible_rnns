@@ -33,7 +33,7 @@ from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
 )
 
 REPO = paths.REPO_ROOT
-ACT = REPO / "results/activity_clusters_paper"
+ACT = paths.RESULTS_ROOT / "activity_clusters_paper"
 ORIG = paths.ORIGINAL_STORE
 STAGED = paths.STAGED_STORE
 from flexsym.structural.operating_k import OPK
@@ -118,7 +118,7 @@ def main():
               " ".join(f"{t[:4]}={rec[f'{t}_equit_z']:+.1f}" for t in TYPES) +
               "  | lump_R² " + " ".join(f"{t[:4]}={rec[f'{t}_lump_r2']:.2f}" for t in TYPES), flush=True)
 
-    out = REPO / "results/signed_input_wl_paper/training_control.csv"
+    out = paths.RESULTS_ROOT / "signed_input_wl_paper/training_control.csv"
     with out.open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0].keys())); w.writeheader(); w.writerows(rows)
     import numpy as _np

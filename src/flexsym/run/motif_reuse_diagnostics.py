@@ -52,7 +52,7 @@ from flexsym.run.motif_reuse_control import (  # noqa: E402
     MOTIF_TYPES, _row_for_k, pair_masks, project, reuse_R,
 )
 
-FP_ROOT = paths.REPO_ROOT / "results" / "motif_fixed_points"
+FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 K_GRID = [8, 12, 20, 30, 40, 50]
 N_PERM = 100
 SUB_RANK = 3          # dimensionality of the per-motif subspace for 'angle'

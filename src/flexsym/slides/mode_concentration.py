@@ -32,7 +32,7 @@ from flexsym.run.motif_reuse_control import _row_for_k
 from flexsym.run.motif_quotient_prediction import condition_jacobians, load_conditions
 from flexsym.run.motif_quotient_mode_concentration import quotient_modes
 
-SRC = paths.REPO_ROOT / "results/motif_fixed_points/quotient_mode_concentration.json"
+SRC = paths.RESULTS_ROOT / "motif_fixed_points/quotient_mode_concentration.json"
 OUT = paths.FIGURES_ROOT / "slides"
 CANON = "LeakyRNN_softplus_diag_256_all_0"
 K = "20"

@@ -67,7 +67,7 @@ from flexsym.structural.softplus_memory_full_context_alignment import random_pro
 
 ORIGINAL = paths.ORIGINAL_STORE
 STAGED = paths.STAGED_STORE
-ACT_ROOT = paths.REPO_ROOT / "results" / "activity_clusters_paper"
+ACT_ROOT = paths.RESULTS_ROOT / "activity_clusters_paper"
 ACT_NAME = "epoch_variance_unit_clusters_paper_max.npz"
 MEM_PERIODS = [("delaygo", "delay1"), ("delayanti", "delay1")]
 # Broad battery spanning stimulus / delay(memory) / response epoch types across
@@ -224,7 +224,7 @@ def main():
     p.add_argument("--batch-size", type=int, default=1024)
     p.add_argument("--variant", default="transpose")
     p.add_argument("--seed", type=int, default=0)
-    p.add_argument("--output-dir", default=str(paths.REPO_ROOT / "results/signed_input_wl_paper/conn_func_regression"))
+    p.add_argument("--output-dir", default=str(paths.RESULTS_ROOT / "signed_input_wl_paper/conn_func_regression"))
     p.add_argument("--task-epochs", nargs="+", default=[f"{r}/{e}" for r, e in FULL_BATTERY],
                    help="task/epoch list; default = full battery (stim/delay/go across families)")
     args = p.parse_args()

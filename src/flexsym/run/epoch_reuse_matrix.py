@@ -84,7 +84,7 @@ def main():
         "types": [TYPE[e] for _, e in BATTERY],
         "matrix": M.tolist(),
     }
-    Path(REPO / "results/signed_input_wl_paper/epoch_reuse_matrix.json").write_text(json.dumps(out, indent=2))
+    Path(paths.RESULTS_ROOT / "signed_input_wl_paper/epoch_reuse_matrix.json").write_text(json.dumps(out, indent=2))
     print(f"n_cells={n_cells}")
     # summarize within-type vs between-type mean ARI
     typ = np.array([TYPE[e] for _, e in BATTERY])

@@ -28,9 +28,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 REPO = paths.REPO_ROOT
-PRED = REPO / "results/motif_fixed_points/quotient_prediction.json"
-CTRL = REPO / "results/motif_fixed_points/quotient_controls.json"
-OUT = REPO / "results/figures/slides"
+PRED = paths.RESULTS_ROOT / "motif_fixed_points/quotient_prediction.json"
+CTRL = paths.RESULTS_ROOT / "motif_fixed_points/quotient_controls.json"
+OUT = paths.FIGURES_ROOT / "slides"
 
 BG = "#ffffff"
 INK = "#111111"

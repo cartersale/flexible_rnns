@@ -29,7 +29,7 @@ from flexsym.structural.signed_input_wl_structural_roles import (
     approx_wl_signed, gamma_signed, labels_to_H, random_labels_same_sizes,
 )
 
-FP = paths.REPO_ROOT / "results/motif_fixed_points"
+FP = paths.RESULTS_ROOT / "motif_fixed_points"
 NET = lambda s: f"LeakyRNN_softplus_diag_256_all_{s}"
 
 
@@ -135,15 +135,19 @@ def main():
     print(f" corr(dSupp, dR): Spearman {rr:+.2f} p={pp:.3f}; Pearson {rp:+.2f} p={ppp:.3f}")
     print(f"  (positive corr => more concentration [lower support] goes with more negative reuse gap)")
 
-    print("\n ROW-SHUFFLE gamma diagnostic (seed 0, k=20):")
-    gd = gamma_diag(NET(0), args.k)
+    # Diagnostic runs on the first REQUESTED seed, not a hardcoded seed 0: seed 0 is a
+    # released Driscoll net and lives in the `released` cohort, so it is absent whenever
+    # RESULTS_ROOT points at our own training grid.
+    diag_seed = seeds[0]
+    print(f"\n ROW-SHUFFLE gamma diagnostic (seed {diag_seed}, k={args.k}):")
+    gd = gamma_diag(NET(diag_seed), args.k)
     for name, v in gd.items():
         print(f"   {name:11s}: gamma {v['gamma']:.3f}  own-null mean {v['null_mean']:.3f} sd {v['null_sd']:.3f}  z {v['z']:+.2f}")
 
     (FP / "reuse_concentration_linkage.json").write_text(json.dumps(
         {"per_seed": {str(s): per[s] for s in per},
          "corr_dSupp_dR": {"spearman": float(rr), "spearman_p": float(pp), "pearson": float(rp)},
-         "gamma_diag_seed0": gd}, indent=2, default=float))
+         "gamma_diag_seed": {"seed": diag_seed, **gd}}, indent=2, default=float))
     print(f"\nwrote {FP/'reuse_concentration_linkage.json'}")
 
 

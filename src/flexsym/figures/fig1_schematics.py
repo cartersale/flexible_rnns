@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch, Rectangle, Circle
 from flexsym.figures.figstyle import INK, MUTED, GRID, BLUE, YELLOW, GREEN, MAGENTA, ORANGE, AQUA, VIOLET, RED, GRAY, SURF, save, clean
 
-OUT = paths.REPO_ROOT / "results/figures/fig1"
+OUT = paths.FIGURES_ROOT / "fig1"
 
 # epoch-type colors (shared components)
 EP = {"fixation": "#c9c8c3", "stimulus": YELLOW, "delay": BLUE, "response": ORANGE}

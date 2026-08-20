@@ -27,7 +27,7 @@ from pathlib import Path
 import numpy as np
 
 STEP_DIR = Path(__file__).resolve().parent
-FP_ROOT = paths.REPO_ROOT / "results" / "motif_fixed_points"
+FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 
 MOTIF_TYPES = ("line_attractor", "saddle_decision", "point_attractor", "rotation")
 

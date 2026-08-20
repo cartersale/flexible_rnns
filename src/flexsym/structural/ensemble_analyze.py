@@ -75,7 +75,7 @@ from flexsym.structural.softplus_memory_subpartition_sweep import unit_features_
 from flexsym.structural.structural_cell_subpartition_pilot import choose_functional_partition  # noqa: E402
 
 REPO = paths.REPO_ROOT
-ACT_ROOT = REPO / "results" / "activity_clusters_paper"
+ACT_ROOT = paths.RESULTS_ROOT / "activity_clusters_paper"
 ACT_NAME = "epoch_variance_unit_clusters_paper_max.npz"
 # external drive has room; keep big activity tensors off the repo/scratch.
 CACHE_ROOT = paths.CACHE_ROOT

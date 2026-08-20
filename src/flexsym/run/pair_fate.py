@@ -103,7 +103,7 @@ def main():
     counts = {a: {b: tog[a][b].tolist() for b in TYPES} for a in TYPES}
     out = {"n_cells": int(n_cells), "types": TYPES, "P_stay_together": P,
            "base_rate": base_rate, "excess_reuse": excess, "counts": counts}
-    Path(REPO / "results/signed_input_wl_paper/pair_fate_3x3.json").write_text(json.dumps(out, indent=2))
+    Path(paths.RESULTS_ROOT / "signed_input_wl_paper/pair_fate_3x3.json").write_text(json.dumps(out, indent=2))
     print(f"n_cells={n_cells}  base rates: " + ", ".join(f"{t} {base_rate[t]:.2f}" for t in TYPES))
     print("EXCESS reuse (P_stay - chance), rows=reference, cols=destination:")
     print(f"{'ref/dest':>10} " + " ".join(f"{t:>9}" for t in TYPES))

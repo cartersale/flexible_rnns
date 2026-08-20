@@ -34,7 +34,8 @@ from flexsym.motifs.motif_participation import (  # noqa: E402
 )
 
 REPO_DIR = paths.REPO_ROOT
-FP_ROOT = REPO_DIR / "results" / "motif_fixed_points"
+RESULTS_ROOT = paths.RESULTS_ROOT
+FP_ROOT = RESULTS_ROOT / "motif_fixed_points"
 
 # motif types with a well-defined participation vector
 MOTIF_TYPES = ("line_attractor", "saddle_decision", "rotation", "point_attractor")

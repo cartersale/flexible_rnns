@@ -47,7 +47,7 @@ from flexsym.run.motif_quotient_prediction import (  # noqa: E402
 )
 from flexsym.run.motif_quotient_controls import basis_from_Q  # noqa: E402
 
-FP_ROOT = paths.REPO_ROOT / "results" / "motif_fixed_points"
+FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 MAX_FP = 120
 R_MODES = 3
 

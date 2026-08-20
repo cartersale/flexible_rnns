@@ -31,10 +31,10 @@ import numpy as np
 from flexsym.structural.signed_input_wl_structural_roles import apply_matrix_variant, approx_wl_signed, load_w_rec  # noqa: E402
 
 REPO = paths.REPO_ROOT
-ACT_ROOT = REPO / "results/activity_clusters_paper"
+ACT_ROOT = paths.RESULTS_ROOT / "activity_clusters_paper"
 ACT_NAME = "epoch_variance_unit_clusters_paper_max.npz"
 ORIGINAL = paths.ORIGINAL_STORE
-OUT = REPO / "results/figures/slides"
+OUT = paths.FIGURES_ROOT / "slides"
 
 BG = "#ffffff"
 INK = "#111111"

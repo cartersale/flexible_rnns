@@ -26,12 +26,12 @@ from matplotlib.lines import Line2D
 from flexsym.structural.signed_input_wl_structural_roles import apply_matrix_variant, approx_wl_signed, labels_to_H, load_w_rec  # noqa: E402
 
 REPO = paths.REPO_ROOT
-ACT_ROOT = REPO / "results/activity_clusters_paper"
+ACT_ROOT = paths.RESULTS_ROOT / "activity_clusters_paper"
 ACT_NAME = "epoch_variance_unit_clusters_paper_max.npz"
 ORIGINAL = paths.ORIGINAL_STORE
 STAGED = paths.STAGED_STORE
-OUT = REPO / "results/figures"; OUT.mkdir(parents=True, exist_ok=True)
-CSV = REPO / "results/signed_input_wl_paper/partition_stability_soft/partition_stability_all.csv"
+OUT = paths.FIGURES_ROOT; OUT.mkdir(parents=True, exist_ok=True)
+CSV = paths.RESULTS_ROOT / "signed_input_wl_paper/partition_stability_soft/partition_stability_all.csv"
 
 INK = "#0b0b0b"; MUTED = "#52514e"; GRID = "#e6e5e2"; BAND = "#eef4fc"
 C_MAIN = "#2a78d6"; C_SINGLE = "#eb6834"   # blue cells, orange singletons

@@ -43,7 +43,7 @@ REPO = paths.REPO_ROOT
 ORIG = paths.ORIGINAL_STORE
 STAGED = paths.STAGED_STORE
 from flexsym.structural.operating_k import OPK
-OUTDIR = REPO / "results/signed_input_wl_paper/lesion_causal"
+OUTDIR = paths.RESULTS_ROOT / "signed_input_wl_paper/lesion_causal"
 
 
 def resolve(model):

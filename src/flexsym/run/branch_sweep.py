@@ -15,7 +15,7 @@ import numpy as np
 from flexsym import paths
 from flexsym.run.motif_quotient_branch import run
 
-FP = paths.REPO_ROOT / "results/motif_fixed_points"
+FP = paths.RESULTS_ROOT / "motif_fixed_points"
 NET = lambda s: f"LeakyRNN_softplus_diag_256_all_{s}"
 
 

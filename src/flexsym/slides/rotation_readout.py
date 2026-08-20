@@ -27,7 +27,7 @@ import numpy as np
 
 from flexsym import paths
 
-SRC = paths.REPO_ROOT / "results/motif_fixed_points/rotation_readout_control.csv"
+SRC = paths.RESULTS_ROOT / "motif_fixed_points/rotation_readout_control.csv"
 OUT = paths.FIGURES_ROOT / "slides"
 CANON = "LeakyRNN_softplus_diag_256_all_0"
 

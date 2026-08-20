@@ -21,8 +21,8 @@ import numpy as np
 from matplotlib.patches import Rectangle, FancyArrowPatch
 
 REPO = paths.REPO_ROOT
-OUT = REPO / "results/figures"; OUT.mkdir(parents=True, exist_ok=True)
-CSV = REPO / "results/signed_input_wl_paper/partition_stability_soft/partition_stability_all.csv"
+OUT = paths.FIGURES_ROOT; OUT.mkdir(parents=True, exist_ok=True)
+CSV = paths.RESULTS_ROOT / "signed_input_wl_paper/partition_stability_soft/partition_stability_all.csv"
 
 C_HARD = "#2a78d6"   # blue
 C_SOFT = "#eda100"   # yellow

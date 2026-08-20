@@ -31,9 +31,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 REPO = paths.REPO_ROOT
-ROOT = REPO / "results/motif_fixed_points"
+ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 JSON = ROOT / "subspace_role_vs_activity.json"
-OUT = REPO / "results/figures/slides"
+OUT = paths.FIGURES_ROOT / "slides"
 
 BG = "#ffffff"
 INK = "#111111"

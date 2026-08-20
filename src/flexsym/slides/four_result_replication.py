@@ -27,7 +27,7 @@ import numpy as np
 
 from flexsym import paths
 
-RES = paths.REPO_ROOT / "results"
+RES = paths.RESULTS_ROOT
 FP = RES / "motif_fixed_points"
 OUT = paths.FIGURES_ROOT / "slides"
 

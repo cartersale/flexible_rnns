@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 REPO = paths.REPO_ROOT
-OUT = REPO / "results/figures"; OUT.mkdir(parents=True, exist_ok=True)
-FILES = sorted(glob.glob(str(REPO / "results/signed_input_wl_paper/conn_func_regression/conn_func_regression_LeakyRNN_softplus_diag_256_all_*.csv")))
+OUT = paths.FIGURES_ROOT; OUT.mkdir(parents=True, exist_ok=True)
+FILES = sorted(glob.glob(str(paths.RESULTS_ROOT / "signed_input_wl_paper/conn_func_regression/conn_func_regression_LeakyRNN_softplus_diag_256_all_*.csv")))
 C_MAIN = "#2a78d6"; C_CTRL = "#eda100"; C_INT = "#9a9a97"; INK = "#0b0b0b"; MUTED = "#52514e"; GRID = "#e6e5e2"
 
 

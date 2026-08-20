@@ -14,7 +14,7 @@ from flexsym.motifs.motif_classify import npload
 from flexsym.motifs.motif_participation import WL_ROOT
 from flexsym.run.motif_participation_stats import collect_motifs
 
-FP_ROOT = paths.REPO_ROOT / "results/motif_fixed_points"
+FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 
 
 def main():

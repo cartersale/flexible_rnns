@@ -56,7 +56,7 @@ from flexsym.motifs.motif_participation import WL_ROOT  # noqa: E402
 from flexsym.run.motif_reuse_control import MOTIF_TYPES, _row_for_k  # noqa: E402
 from flexsym.run.motif_reuse_diagnostics import canonical_sign  # noqa: E402
 
-FP_ROOT = paths.REPO_ROOT / "results" / "motif_fixed_points"
+FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 K_GRID = [8, 12, 16, 20, 25, 30, 40, 50]
 M_GRID = [1, 3, 5]
 N_PERM = 200

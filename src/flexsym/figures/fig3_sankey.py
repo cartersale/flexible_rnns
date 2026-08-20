@@ -16,8 +16,8 @@ from matplotlib.path import Path as MPath
 from matplotlib.patches import PathPatch, Rectangle
 from flexsym.figures.figstyle import INK, MUTED, GRID, YELLOW, BLUE, ORANGE, GRAY, save
 
-OUT = paths.REPO_ROOT / "results/figures/fig3"
-DATA = paths.REPO_ROOT / "results/signed_input_wl_paper/pair_fate_3x3.json"
+OUT = paths.FIGURES_ROOT / "fig3"
+DATA = paths.RESULTS_ROOT / "signed_input_wl_paper/pair_fate_3x3.json"
 TYPECOL = {"stimulus": YELLOW, "memory": BLUE, "response": ORANGE}
 
 

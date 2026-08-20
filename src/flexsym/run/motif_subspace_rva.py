@@ -39,7 +39,7 @@ import sys
 from flexsym.motifs.motif_classify import npload  # noqa: E402
 from flexsym.motifs.motif_participation import WL_ROOT, ACT_ROOT, ACT_NAME  # noqa: E402
 
-FP_ROOT = paths.REPO_ROOT / "results" / "motif_fixed_points"
+FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 K_GRID = [8, 12, 16, 20, 25, 30, 40, 50]
 N_PERM = 200
 MAX_VECS = 40

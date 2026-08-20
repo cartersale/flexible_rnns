@@ -32,7 +32,7 @@ REPO = paths.REPO_ROOT
 ORIG = paths.ORIGINAL_STORE
 STAGED = paths.STAGED_STORE
 from flexsym.structural.operating_k import OPK
-OUT = REPO / "results/signed_input_wl_paper/shared_component_reorg"
+OUT = paths.RESULTS_ROOT / "signed_input_wl_paper/shared_component_reorg"
 # broad battery: memory(delay1), stimulus(stim1), response(go1) across many tasks
 BATTERY = [
     ("delaygo", "delay1"), ("delayanti", "delay1"), ("delaydm1", "delay1"), ("delaydm2", "delay1"),

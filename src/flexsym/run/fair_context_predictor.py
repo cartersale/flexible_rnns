@@ -77,7 +77,7 @@ from flexsym.structural.softplus_memory_full_context_alignment import (  # noqa:
 
 ORIGINAL = paths.ORIGINAL_STORE
 STAGED = paths.STAGED_STORE
-ACT_ROOT = paths.REPO_ROOT / "results" / "activity_clusters_paper"
+ACT_ROOT = paths.RESULTS_ROOT / "activity_clusters_paper"
 ACT_NAME = "epoch_variance_unit_clusters_paper_max.npz"
 MEM_PERIODS = [("MemoryPro", "delaygo", "delay1"), ("MemoryAnti", "delayanti", "delay1")]
 
@@ -253,7 +253,7 @@ def main() -> None:
     p.add_argument("--n-draws", type=int, default=100)
     p.add_argument("--batch-size", type=int, default=1024)
     p.add_argument("--seed", type=int, default=0)
-    p.add_argument("--output-dir", default=str(paths.REPO_ROOT / "results/signed_input_wl_paper/fair_context_predictor"))
+    p.add_argument("--output-dir", default=str(paths.RESULTS_ROOT / "signed_input_wl_paper/fair_context_predictor"))
     args = p.parse_args()
 
     summary = analyse(
