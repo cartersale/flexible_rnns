@@ -24,10 +24,11 @@ from pathlib import Path
 
 
 REPO_DIR = paths.REPO_ROOT
+RESULTS_ROOT = paths.RESULTS_ROOT
 STEP_DIR = Path(__file__).resolve().parent
 DEFAULT_DATA_ROOT = paths.ORIGINAL_STORE
-DEFAULT_ACTIVITY_ROOT = REPO_DIR / "results" / "activity_clusters_paper"
-DEFAULT_STRUCT_ROOT = REPO_DIR / "results" / "signed_input_wl_paper"
+DEFAULT_ACTIVITY_ROOT = RESULTS_ROOT / "activity_clusters_paper"
+DEFAULT_STRUCT_ROOT = RESULTS_ROOT / "signed_input_wl_paper"
 # Child steps run under the SAME interpreter as this runner (sys.executable).
 # This previously defaulted to a `.venv` sibling of the repo, which after the
 # migration resolved to an environment without flexsym installed -- every step

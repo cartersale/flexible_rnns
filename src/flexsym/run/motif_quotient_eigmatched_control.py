@@ -50,7 +50,7 @@ from flexsym.run.motif_quotient_prediction import (
     score,
 )
 
-FP_ROOT = paths.REPO_ROOT / "results" / "motif_fixed_points"
+FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 K_GRID = [8, 12, 16, 20, 25, 30, 40, 50]
 M = 3                    # r: the saturating mode count from the main result
 ALIGN_MAX = 0.30         # an eig-matched control vector must be this unaligned with v

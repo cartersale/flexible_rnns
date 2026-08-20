@@ -33,7 +33,7 @@ from flexsym.run.motif_quotient_prediction import condition_jacobians, load_cond
 from flexsym.run.motif_quotient_mode_concentration import quotient_modes
 from flexsym.run.wrec_eigenbasis_null import contained, top3_energy
 
-FP = paths.REPO_ROOT / "results/motif_fixed_points"
+FP = paths.RESULTS_ROOT / "motif_fixed_points"
 NET = lambda s: f"LeakyRNN_softplus_diag_256_all_{s}"
 K_GRID = [12, 20, 30]
 

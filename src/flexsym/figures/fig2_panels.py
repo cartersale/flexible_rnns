@@ -10,8 +10,8 @@ from flexsym.figures.figstyle import INK, MUTED, GRID, BAND, BLUE, YELLOW, GREEN
 from flexsym.structural.signed_input_wl_structural_roles import apply_matrix_variant, approx_wl_signed, load_w_rec
 
 REPO = paths.REPO_ROOT
-BASE = REPO / "results/signed_input_wl_paper"
-OUT = REPO / "results/figures/fig2"
+BASE = paths.RESULTS_ROOT / "signed_input_wl_paper"
+OUT = paths.FIGURES_ROOT / "fig2"
 HUES = [BLUE, GREEN, "#e87ba4", YELLOW, AQUA, ORANGE, VIOLET, RED]
 
 

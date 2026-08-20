@@ -36,7 +36,7 @@ from flexsym.motifs.motif_participation import WL_ROOT
 from flexsym.run.motif_reuse_control import _row_for_k
 from flexsym.run.motif_quotient_prediction import condition_jacobians, load_conditions, indicator, quotient
 
-FP = paths.REPO_ROOT / "results/motif_fixed_points"
+FP = paths.RESULTS_ROOT / "motif_fixed_points"
 NET = lambda s: f"LeakyRNN_softplus_diag_256_all_{s}"
 TYPES = ["line_attractor", "point_attractor", "saddle_decision"]
 SHORT = {"line_attractor": "line", "point_attractor": "point", "saddle_decision": "saddle"}

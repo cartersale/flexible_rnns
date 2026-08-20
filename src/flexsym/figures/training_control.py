@@ -21,8 +21,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 REPO = paths.REPO_ROOT
-CSV = REPO / "results/signed_input_wl_paper/training_control.csv"
-OUT = REPO / "results/figures"; OUT.mkdir(parents=True, exist_ok=True)
+CSV = paths.RESULTS_ROOT / "signed_input_wl_paper/training_control.csv"
+OUT = paths.FIGURES_ROOT; OUT.mkdir(parents=True, exist_ok=True)
 
 TYPES = ["trained", "row-shuffle", "full-shuffle", "gaussian"]
 LABELS = ["trained", "row-shuffle\n(keeps strength)", "full-shuffle", "gaussian\n(untrained)"]

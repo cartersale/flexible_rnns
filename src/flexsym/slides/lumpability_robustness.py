@@ -31,10 +31,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 REPO = paths.REPO_ROOT
-LUMP = REPO / "results/signed_input_wl_paper/lumpability/lumpability.csv"
-STEP = REPO / "results/signed_input_wl_paper/lumpability/step_r2_all.csv"
-CTRL = REPO / "results/signed_input_wl_paper/training_control.csv"
-OUT = REPO / "results/figures/slides"
+LUMP = paths.RESULTS_ROOT / "signed_input_wl_paper/lumpability/lumpability.csv"
+STEP = paths.RESULTS_ROOT / "signed_input_wl_paper/lumpability/step_r2_all.csv"
+CTRL = paths.RESULTS_ROOT / "signed_input_wl_paper/training_control.csv"
+OUT = paths.FIGURES_ROOT / "slides"
 
 BG = "#ffffff"
 INK = "#111111"

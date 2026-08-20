@@ -32,7 +32,7 @@ from flexsym.run.motif_reuse_control import _row_for_k
 from flexsym.run.motif_quotient_prediction import condition_jacobians, load_conditions, indicator, quotient
 from flexsym.run.motif_type_mode_profiles import ortho_eigbasis, lifted
 
-FP = paths.REPO_ROOT / "results/motif_fixed_points"
+FP = paths.RESULTS_ROOT / "motif_fixed_points"
 NET = lambda s: f"LeakyRNN_softplus_diag_256_all_{s}"
 RULES = rules_dict["all"]
 

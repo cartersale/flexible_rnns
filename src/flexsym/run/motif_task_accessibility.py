@@ -45,7 +45,7 @@ from flexsym.run.motif_quotient_prediction import (
 )
 from flexsym.run.motif_quotient_eigmatched_control import matched_nonmotif_direction
 
-FP_ROOT = paths.REPO_ROOT / "results" / "motif_fixed_points"
+FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 MAX_CLOUD = 60           # fixed points subsampled per condition for cloud/persistence
 METRICS = ["input_proj", "disp_proj", "traj_var", "readout_pot",
            "persistence", "controllab", "observab"]

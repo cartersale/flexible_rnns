@@ -47,10 +47,10 @@ from flexsym.run.lumpability_check import eig_leakage, pw_constant_projector, su
 from flexsym.run.motif_jacobian_lumpability import best_r2  # noqa: E402
 
 REPO = paths.REPO_ROOT
-ENS = REPO / "results" / "signed_input_wl_paper" / "restart_ensemble"
+ENS = paths.RESULTS_ROOT / "signed_input_wl_paper" / "restart_ensemble"
 ORIG = paths.ORIGINAL_STORE
 STAGED = paths.STAGED_STORE
-OUT = REPO / "results" / "signed_input_wl_paper" / "subspace_dynamics"
+OUT = paths.RESULTS_ROOT / "signed_input_wl_paper" / "subspace_dynamics"
 
 MEMORY_TASKS = ["delaygo", "delayanti", "delaydm1", "delaydm2", "contextdelaydm1",
                 "contextdelaydm2", "multidelaydm", "dmsgo", "dmsnogo", "dmcgo", "dmcnogo"]

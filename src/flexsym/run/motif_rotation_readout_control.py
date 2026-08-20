@@ -31,8 +31,8 @@ from flexsym import paths
 from flexsym.motifs.motif_classify import npload
 from flexsym.motifs.motif_participation import WL_ROOT
 
-RESP = paths.REPO_ROOT / "results" / "motif_fixed_points_response"
-MEM = paths.REPO_ROOT / "results" / "motif_fixed_points"
+RESP = paths.RESULTS_ROOT / "motif_fixed_points_response"
+MEM = paths.RESULTS_ROOT / "motif_fixed_points"
 Q_SLOW = 1e-6
 RING_DIM = 2
 ALIGN_MAX = 0.40         # a match-plane eigenvector must be this unaligned with the ring

@@ -42,11 +42,11 @@ from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
 from flexsym.structural.structural_partition_stability import _consensus_partition  # noqa: E402
 
 REPO = paths.REPO_ROOT
-ACTIVITY_ROOT = REPO / "results" / "activity_clusters_paper"
+ACTIVITY_ROOT = paths.RESULTS_ROOT / "activity_clusters_paper"
 ACTIVITY_NAME = "epoch_variance_unit_clusters_paper_max.npz"
 ORIG = paths.ORIGINAL_STORE
 STAGED = paths.STAGED_STORE
-OUT = REPO / "results" / "signed_input_wl_paper" / "restart_ensemble"
+OUT = paths.RESULTS_ROOT / "signed_input_wl_paper" / "restart_ensemble"
 
 # Operating k is derived from each net's activity clustering -- see
 # flexsym.structural.operating_k for the rule and why it is no longer a literal.

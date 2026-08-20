@@ -30,8 +30,8 @@ from pathlib import Path
 import numpy as np
 
 REPO = paths.REPO_ROOT
-FP_ROOT = REPO / "results" / "motif_fixed_points"
-OUT = REPO / "results" / "signed_input_wl_paper" / "subspace_dynamics"
+FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
+OUT = paths.RESULTS_ROOT / "signed_input_wl_paper" / "subspace_dynamics"
 
 MEMORY_EPOCHS = {"delay1", "delay2"}
 

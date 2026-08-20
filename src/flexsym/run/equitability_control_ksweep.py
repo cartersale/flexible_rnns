@@ -34,7 +34,7 @@ import numpy as np
 from flexsym import paths
 from flexsym.motifs.motif_classify import npload
 from flexsym.run.control_ksweep import K_GRID, make_matrix
-from flexsym.run.lumpability_r2_ksweep import GRID
+from flexsym.run.lumpability_r2_ksweep import COHORTS
 from flexsym.structural.signed_input_wl_structural_roles import (
     approx_wl_signed,
     gamma_signed,
@@ -42,7 +42,7 @@ from flexsym.structural.signed_input_wl_structural_roles import (
     random_labels_same_sizes,
 )
 
-WL_ROOT = paths.REPO_ROOT / "results" / "signed_input_wl_paper"
+WL_ROOT = paths.RESULTS_ROOT / "signed_input_wl_paper"
 OUT = WL_ROOT / "lumpability" / "equitability_control_ksweep.csv"
 TYPES = ["trained", "row-shuffle"]
 N_NULL = 200
@@ -53,13 +53,16 @@ def main() -> None:
     ap.add_argument("--k-grid", default=",".join(str(k) for k in K_GRID))
     ap.add_argument("--n-null", type=int, default=N_NULL)
     ap.add_argument("--types", default=",".join(TYPES))
+    ap.add_argument("--cohort", choices=sorted(COHORTS), default="driscoll33",
+                    help="Network cohort (see run/lumpability_r2_ksweep.py).")
+    ap.add_argument("--out", type=str, default=None, help="Override the output CSV path.")
     args = ap.parse_args()
     kg = [int(x) for x in args.k_grid.split(",")]
     types = args.types.split(",")
 
     rows = []
     t0 = time.time()
-    for size, seed in GRID:
+    for size, seed in COHORTS[args.cohort]:
         model = f"LeakyRNN_softplus_diag_{size}_all_{seed}"
         npz = WL_ROOT / model / "transpose" / "signed_input_wl_sweep.npz"
         if not npz.exists():
@@ -96,12 +99,13 @@ def main() -> None:
                   + " ".join(f"k{r['k']}:{r['equit_score']:+.0f}" for r in done), flush=True)
         print(f"[{time.time()-t0:6.0f}s] {model} done", flush=True)
 
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    with OUT.open("w", newline="") as f:
+    out_path = paths.REPO_ROOT / args.out if args.out else OUT
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with out_path.open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
         w.writeheader()
         w.writerows(rows)
-    print(f"\nwrote {OUT} ({len(rows)} rows)")
+    print(f"\nwrote {out_path} ({len(rows)} rows)")
 
 
 if __name__ == "__main__":

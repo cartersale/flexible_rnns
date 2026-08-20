@@ -225,9 +225,9 @@ def run(net, task, k, n_beta, seed_n):
     Ra = R_full[ind]
     rng = np.random.default_rng(0)
 
-    d = npload(paths.REPO_ROOT / "results" / "motif_fixed_points" / net / f"{task}__delay1.npz")
+    d = npload(paths.RESULTS_ROOT / "motif_fixed_points" / net / f"{task}__delay1.npz")
     u_d = np.asarray(d["inputs"][0], float)
-    rr = npload(paths.REPO_ROOT / "results" / "motif_fixed_points_response" / net / f"{task}__go1.npz")
+    rr = npload(paths.RESULTS_ROOT / "motif_fixed_points_response" / net / f"{task}__go1.npz")
     u_r = np.asarray(rr["inputs"][0], float)
     Xd, qd = np.asarray(d["xstar"], float), np.asarray(d["qstar"], float)
     Xr, qr = np.asarray(rr["xstar"], float), np.asarray(rr["qstar"], float)
@@ -303,7 +303,7 @@ def main():
               f"{g(r,'potency_true'):>7.4f} {g(r,'potency_pred'):>7.4f} | "
               f"{g(r,'rotation_true'):>5.0f} {g(r,'rotation_pred'):>5.0f}")
 
-    out = paths.REPO_ROOT / "results" / "motif_fixed_points" / (
+    out = paths.RESULTS_ROOT / "motif_fixed_points" / (
         args.out or f"quotient_branch_{args.net[-1]}_{args.task}.json")
     json.dump(rows, open(out, "w"), indent=2, default=float)
     print(f"\nwrote {out}")

@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from flexsym.figures.figstyle import INK, MUTED, GRID, YELLOW, BLUE, ORANGE, save
 
-OUT = paths.REPO_ROOT / "results/figures/fig3"
-DATA = paths.REPO_ROOT / "results/signed_input_wl_paper/epoch_reuse_matrix.json"
+OUT = paths.FIGURES_ROOT / "fig3"
+DATA = paths.RESULTS_ROOT / "signed_input_wl_paper/epoch_reuse_matrix.json"
 TYPECOL = {"stimulus": YELLOW, "memory": BLUE, "response": ORANGE}
 ABBR = {"stim1": "stim", "delay1": "delay", "go1": "go"}
 

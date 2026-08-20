@@ -37,7 +37,8 @@ from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
 )
 
 REPO_DIR = paths.REPO_ROOT
-ACTIVITY_ROOT = REPO_DIR / "results" / "activity_clusters_paper"
+RESULTS_ROOT = paths.RESULTS_ROOT
+ACTIVITY_ROOT = RESULTS_ROOT / "activity_clusters_paper"
 ACTIVITY_NAME = "epoch_variance_unit_clusters_paper_max.npz"
 ORIGINAL_STORE = paths.ORIGINAL_STORE
 STAGED_STORE = paths.STAGED_STORE
@@ -146,7 +147,7 @@ def main() -> None:
         f"median={np.median(aris):.3f} range=[{aris.min():.3f}, {aris.max():.3f}]"
     )
 
-    out_dir = REPO_DIR / "results" / "signed_input_wl_paper" / "wl_vs_strength"
+    out_dir = RESULTS_ROOT / "signed_input_wl_paper" / "wl_vs_strength"
     out_dir.mkdir(parents=True, exist_ok=True)
     out_csv = out_dir / "wl_vs_strength_ari_256.csv"
     with out_csv.open("w", newline="") as f:

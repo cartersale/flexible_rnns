@@ -47,8 +47,8 @@ from flexsym.structural.signed_input_wl_structural_roles import (
     random_labels_same_sizes,
 )
 
-ACT_ROOT = paths.REPO_ROOT / "results" / "activity_clusters_paper"
-OUT = paths.REPO_ROOT / "results/signed_input_wl_paper/lumpability/active_threshold_sweep.csv"
+ACT_ROOT = paths.RESULTS_ROOT / "activity_clusters_paper"
+OUT = paths.RESULTS_ROOT / "signed_input_wl_paper/lumpability/active_threshold_sweep.csv"
 
 TAUS = [0.0, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1.0]
 FIXED_K = 20

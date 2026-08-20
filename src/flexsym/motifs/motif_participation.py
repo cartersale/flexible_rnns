@@ -39,8 +39,9 @@ def npload(path):
 
 STEP_DIR = Path(__file__).resolve().parent
 REPO_DIR = paths.REPO_ROOT
-WL_ROOT = REPO_DIR / "results" / "signed_input_wl_paper"
-ACT_ROOT = REPO_DIR / "results" / "activity_clusters_paper"
+RESULTS_ROOT = paths.RESULTS_ROOT
+WL_ROOT = RESULTS_ROOT / "signed_input_wl_paper"
+ACT_ROOT = RESULTS_ROOT / "activity_clusters_paper"
 ACT_NAME = "epoch_variance_unit_clusters_paper_max.npz"
 
 # Operating k is derived from each network's activity clustering by

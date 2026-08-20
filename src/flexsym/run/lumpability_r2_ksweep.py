@@ -42,11 +42,27 @@ from flexsym import paths
 from flexsym.motifs.motif_classify import npload
 from flexsym.structural.signed_input_wl_structural_roles import random_labels_same_sizes
 
-WL_ROOT = paths.REPO_ROOT / "results" / "signed_input_wl_paper"
+WL_ROOT = paths.RESULTS_ROOT / "signed_input_wl_paper"
 OUT = WL_ROOT / "lumpability" / "step_r2_ksweep.csv"
 
-#: the size x seed grid the paper reports (10 x 128/256/512, 3 x 1024).
-GRID = [(s, i) for s in (128, 256, 512) for i in range(10)] + [(1024, i) for i in range(3)]
+#: The original 33-network cohort: seeds 0-9 at 128/256/512 plus seeds 0-2 at 1024.
+#: Seeds 0-2 at every size are the RELEASED Driscoll et al. (2024) networks, so all
+#: three 1024s are released nets; seeds 3-9 were trained here.
+GRID_DRISCOLL33 = [(s, i) for s in (128, 256, 512) for i in range(10)] + [(1024, i) for i in range(3)]
+
+#: Our own training grid (MODEL_ROOT/flexsym_grid), no released networks: seeds 3-12
+#: at 128/256/512, 30 networks.
+#:
+#: 512 seeds 3-9 were excluded until 2026-08-20 because the cached results under those
+#: names came from an older, discarded 512 set (MODEL_ROOT/old_new_runs). Those networks
+#: have since been retrained into flexsym_grid, the staged symlinks repointed, and the
+#: stale results quarantined in results/retired/, so the exclusion is lifted.
+GRID_FLEXSYM = [(s, i) for s in (128, 256, 512) for i in range(3, 13)]
+
+COHORTS = {"driscoll33": GRID_DRISCOLL33, "flexsym": GRID_FLEXSYM}
+
+#: Default kept at the published cohort so existing outputs stay reproducible.
+GRID = GRID_DRISCOLL33
 
 TOP_N = 12          # matches best_eig_r2 in run/training_control.py
 N_NULL = 30         # matches the null size used there
@@ -88,6 +104,10 @@ def main() -> None:
     ap.add_argument("--models", default=None,
                     help="Comma-separated model names, overriding the softplus/diag GRID. "
                          "Use to score other architectures trained on the same 15 tasks.")
+    ap.add_argument("--cohort", choices=sorted(COHORTS), default="driscoll33",
+                    help="Network cohort: 'driscoll33' is the published 33-network grid "
+                         "(includes the released seeds 0-2); 'flexsym' is our own "
+                         "training grid only.")
     ap.add_argument("--out", type=str, default=None, help="Override the output CSV path.")
     args = ap.parse_args()
 
@@ -97,7 +117,8 @@ def main() -> None:
             parts = m.split("_")
             grid.append((int(parts[-3]), int(parts[-1]), m))
     else:
-        grid = [(size, seed, f"LeakyRNN_softplus_diag_{size}_all_{seed}") for size, seed in GRID]
+        grid = [(size, seed, f"LeakyRNN_softplus_diag_{size}_all_{seed}")
+                for size, seed in COHORTS[args.cohort]]
     out_path = paths.REPO_ROOT / args.out if args.out else OUT
 
     rows, missing = [], []

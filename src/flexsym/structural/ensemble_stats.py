@@ -43,7 +43,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 REPO = paths.REPO_ROOT
-ENS = REPO / "results" / "signed_input_wl_paper" / "restart_ensemble"
+ENS = paths.RESULTS_ROOT / "signed_input_wl_paper" / "restart_ensemble"
 
 # effect key -> (display name, expected-sign direction: +1 means larger=stronger)
 EFFECTS = {

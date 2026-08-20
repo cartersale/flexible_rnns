@@ -30,7 +30,7 @@ from flexsym.run.motif_reuse_control import _row_for_k
 from flexsym.structural.structural_cell_activity_coherence import compute_hidden_by_epoch
 from flexsym.structural.structural_cell_cross_task_fractionation import filter_valid_task_epochs
 
-FP = paths.REPO_ROOT / "results/motif_fixed_points"
+FP = paths.RESULTS_ROOT / "motif_fixed_points"
 NET = lambda s: f"LeakyRNN_softplus_diag_256_all_{s}"
 N_MAX = 15000
 EPOCHS = ["fix1", "stim1", "delay1", "stim2", "delay2", "go1"]

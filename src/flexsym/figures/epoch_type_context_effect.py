@@ -24,8 +24,8 @@ from scipy.stats import t as tdist
 from scipy.stats import wilcoxon
 
 REPO = paths.REPO_ROOT
-DATA = REPO / "results/signed_input_wl_paper/conn_func_regression_battery"
-OUT = REPO / "results/figures"
+DATA = paths.RESULTS_ROOT / "signed_input_wl_paper/conn_func_regression_battery"
+OUT = paths.FIGURES_ROOT
 OUT.mkdir(parents=True, exist_ok=True)
 
 EPOCH_TYPE = {"stim1": "stimulus", "delay1": "delay /\nmemory", "go1": "response"}

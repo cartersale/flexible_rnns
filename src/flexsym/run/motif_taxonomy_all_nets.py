@@ -25,7 +25,7 @@ from flexsym.motifs.motif_classify import classify_net  # noqa: E402
 from flexsym.figures.motif_validation import DECISION_RULES  # noqa: E402
 
 REPO = paths.REPO_ROOT
-ROOT = REPO / "results/motif_fixed_points"
+ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 OUT = ROOT / "motif_taxonomy_all_nets.csv"
 
 

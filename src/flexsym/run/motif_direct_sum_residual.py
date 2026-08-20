@@ -52,7 +52,7 @@ from flexsym.run.motif_quotient_prediction import (
 from flexsym.run.motif_reuse_control import _row_for_k
 from flexsym.structural.operating_k import OPK, model_name
 
-FP = paths.REPO_ROOT / "results" / "motif_fixed_points"
+FP = paths.RESULTS_ROOT / "motif_fixed_points"
 R_GRID = [0, 1, 2, 3, 5, 8]      # dimensions of the shared subspace removed
 TOP_M = 3
 N_NULL = 200

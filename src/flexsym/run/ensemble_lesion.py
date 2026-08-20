@@ -43,7 +43,7 @@ from flexsym.run.lesion_causal_batch import unit_activity_by_task  # noqa: E402
 from flexsym.structural.structural_cell_lesions import evaluate_condition  # noqa: E402
 
 REPO = paths.REPO_ROOT
-ENS = REPO / "results" / "signed_input_wl_paper" / "restart_ensemble"
+ENS = paths.RESULTS_ROOT / "signed_input_wl_paper" / "restart_ensemble"
 ORIG = paths.ORIGINAL_STORE
 STAGED = paths.STAGED_STORE
 

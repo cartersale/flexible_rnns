@@ -11,8 +11,8 @@ from matplotlib.colors import TwoSlopeNorm
 from flexsym.figures.figstyle import INK, MUTED, GRID, BAND, BLUE, SIZE_COL, clean, save
 
 REPO = paths.REPO_ROOT
-BASE = REPO / "results/signed_input_wl_paper"
-OUT = REPO / "results/figures/fig1"
+BASE = paths.RESULTS_ROOT / "signed_input_wl_paper"
+OUT = paths.FIGURES_ROOT / "fig1"
 CAN = "LeakyRNN_softplus_diag_256_all_0"
 SWEEP = BASE / f"{CAN}/transpose_selected_k_41/signed_input_wl_sweep.npz"
 

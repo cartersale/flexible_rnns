@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 from flexsym.figures.figstyle import INK, MUTED, GRID, BLUE, YELLOW, GREEN, clean, save
 
 REPO = paths.REPO_ROOT
-BASE = REPO / "results/signed_input_wl_paper"
-OUT = REPO / "results/figures/fig3"
+BASE = paths.RESULTS_ROOT / "signed_input_wl_paper"
+OUT = paths.FIGURES_ROOT / "fig3"
 
 
 def main():

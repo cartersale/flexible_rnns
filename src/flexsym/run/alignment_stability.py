@@ -76,7 +76,7 @@ def _dedup_load(*a: Any, **k: Any):
 
 np.load = _dedup_load
 
-ACTIVITY_ROOT = paths.REPO_ROOT / "results" / "activity_clusters_paper"
+ACTIVITY_ROOT = paths.RESULTS_ROOT / "activity_clusters_paper"
 ACTIVITY_NAME = "epoch_variance_unit_clusters_paper_max.npz"
 ORIGINAL_STORE = paths.ORIGINAL_STORE
 STAGED_STORE = paths.STAGED_STORE

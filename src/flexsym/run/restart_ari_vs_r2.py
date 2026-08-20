@@ -46,7 +46,7 @@ from flexsym.structural.signed_input_wl_structural_roles import (
     random_labels_same_sizes,
 )
 
-WL_ROOT = paths.REPO_ROOT / "results" / "signed_input_wl_paper"
+WL_ROOT = paths.RESULTS_ROOT / "signed_input_wl_paper"
 OUT = WL_ROOT / "lumpability" / "restart_ari_vs_r2.csv"
 OUT_PAIRS = WL_ROOT / "lumpability" / "restart_ari_vs_r2_pairs.csv"
 

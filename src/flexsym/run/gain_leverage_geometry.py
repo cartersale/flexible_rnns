@@ -70,7 +70,7 @@ from flexsym.run.motif_quotient_prediction import (
 from flexsym.run.motif_reuse_control import _row_for_k
 from flexsym.structural.operating_k import OPK, model_name
 
-FP = paths.REPO_ROOT / "results" / "motif_fixed_points"
+FP = paths.RESULTS_ROOT / "motif_fixed_points"
 EPS = 1e-5
 N_SURR = 200
 N_CRIT = 5          # modes counted as near-critical

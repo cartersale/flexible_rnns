@@ -29,9 +29,9 @@ from flexsym.run.training_control import TYPES, analyse_matrix, make_matrix, res
 from flexsym.structural.signed_input_wl_structural_roles import apply_matrix_variant, load_w_rec  # noqa: E402
 
 REPO = paths.REPO_ROOT
-ACT = REPO / "results/activity_clusters_paper"
-LUMP = REPO / "results/signed_input_wl_paper/lumpability/lumpability.csv"
-OUT = REPO / "results/signed_input_wl_paper/training_control_all_sizes.csv"
+ACT = paths.RESULTS_ROOT / "activity_clusters_paper"
+LUMP = paths.RESULTS_ROOT / "signed_input_wl_paper/lumpability/lumpability.csv"
+OUT = paths.RESULTS_ROOT / "signed_input_wl_paper/training_control_all_sizes.csv"
 
 
 def main():

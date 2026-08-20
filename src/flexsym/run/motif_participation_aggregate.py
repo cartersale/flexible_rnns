@@ -31,8 +31,8 @@ from scipy.stats import wilcoxon
 
 from flexsym import paths
 
-FP_ROOT = paths.REPO_ROOT / "results" / "motif_fixed_points"
-OUT_DIR = paths.REPO_ROOT / "results" / "signed_input_wl_paper" / "motif_participation"
+FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
+OUT_DIR = paths.RESULTS_ROOT / "signed_input_wl_paper" / "motif_participation"
 MOTIFS = ("line_attractor", "saddle_decision", "point_attractor", "rotation")
 FIELDS = ("eta2_role", "z_role", "eta2_activity",
           "cv_M1_activity", "cv_M3_role", "cv_M2_both",

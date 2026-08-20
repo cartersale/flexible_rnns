@@ -72,7 +72,7 @@ from flexsym.run.motif_reuse_control import _row_for_k
 from flexsym.run.motif_type_mode_profiles import ortho_eigbasis
 from flexsym.structural.operating_k import OPK, model_name
 
-FP = paths.REPO_ROOT / "results" / "motif_fixed_points"
+FP = paths.RESULTS_ROOT / "motif_fixed_points"
 TOP_M = 3           # modes spanned per condition in test C
 N_PERM = 100
 

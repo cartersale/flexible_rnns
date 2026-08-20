@@ -40,7 +40,7 @@ from flexsym.structural.structural_cell_activity_coherence import compute_hidden
 from flexsym.structural.structural_cell_lesions import evaluate_condition  # noqa: E402
 
 REPO = paths.REPO_ROOT
-DET = REPO / "results/signed_input_wl_paper/lesion_causal"
+DET = paths.RESULTS_ROOT / "signed_input_wl_paper/lesion_causal"
 ORIG = paths.ORIGINAL_STORE
 STAGED = paths.STAGED_STORE
 ALPHA = 0.2

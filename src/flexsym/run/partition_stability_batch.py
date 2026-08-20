@@ -29,7 +29,8 @@ import numpy as np
 from flexsym.structural.structural_partition_stability import analyze_model
 
 REPO_DIR = paths.REPO_ROOT
-ACTIVITY_ROOT = REPO_DIR / "results" / "activity_clusters_paper"
+RESULTS_ROOT = paths.RESULTS_ROOT
+ACTIVITY_ROOT = RESULTS_ROOT / "activity_clusters_paper"
 ACTIVITY_NAME = "epoch_variance_unit_clusters_paper_max.npz"
 
 ORIGINAL_STORE = paths.ORIGINAL_STORE
@@ -94,7 +95,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--output-dir",
-        default=str(REPO_DIR / "results/signed_input_wl_paper/partition_stability"),
+        default=str(paths.RESULTS_ROOT / "signed_input_wl_paper/partition_stability"),
     )
     parser.add_argument("--matrix-variant", default="transpose")
     parser.add_argument("--n-restarts", type=int, default=20)

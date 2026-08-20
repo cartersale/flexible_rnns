@@ -48,7 +48,7 @@ from flexsym.run.motif_quotient_prediction import (  # noqa: E402
     containment_norm,
 )
 
-FP_ROOT = paths.REPO_ROOT / "results" / "motif_fixed_points"
+FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 R_MAX = 10
 N_PERM = 60
 

@@ -58,9 +58,9 @@ from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
 )
 from flexsym.structural.structural_cell_activity_coherence import compute_hidden_by_epoch  # noqa: E402
 
-ACT_ROOT = paths.REPO_ROOT / "results" / "activity_clusters_paper"
+ACT_ROOT = paths.RESULTS_ROOT / "activity_clusters_paper"
 ACT_NAME = "epoch_variance_unit_clusters_paper_max.npz"
-OUT = paths.REPO_ROOT / "results/signed_input_wl_paper/lumpability/jacobian_lumpability_ksweep.csv"
+OUT = paths.RESULTS_ROOT / "signed_input_wl_paper/lumpability/jacobian_lumpability_ksweep.csv"
 
 K_GRID = [10, 20, 30, 40]
 ALPHA = 0.2

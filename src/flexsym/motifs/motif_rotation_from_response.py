@@ -34,7 +34,7 @@ import numpy as np
 REPO = paths.REPO_ROOT
 DRIVE = paths.MODEL_ROOT
 MODELS = DRIVE / "multitask_processed/suppfig4"
-OUT = REPO / "results/motif_rotation"
+OUT = paths.RESULTS_ROOT / "motif_rotation"
 
 Q_SLOW = 1e-6      # slow-point threshold: the line/ring-attractor cloud
 RING_DIM = 2       # a ring is locally 1-D but spans a plane
@@ -42,7 +42,7 @@ RING_DIM = 2       # a ring is locally 1-D but spans a plane
 
 def resolve_root(name: str) -> Path:
     """Heavy fixed-point trees live on the drive; fall back to the repo copy."""
-    for base in (DRIVE / "results" / name, REPO / "results" / name):
+    for base in (DRIVE / "results" / name, paths.RESULTS_ROOT / name):
         if base.exists():
             return base
     raise FileNotFoundError(f"{name} not found on drive or in repo (is X9_Pro mounted?)")

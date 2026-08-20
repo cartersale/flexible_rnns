@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse, FancyArrowPatch, Circle, Rectangle
 from flexsym.figures.figstyle import INK, MUTED, GRID, BLUE, YELLOW, GREEN, ORANGE, VIOLET, GRAY, save
 
-F3 = paths.REPO_ROOT / "results/figures/fig3"
-F4 = paths.REPO_ROOT / "results/figures/fig4"
+F3 = paths.FIGURES_ROOT / "fig3"
+F4 = paths.FIGURES_ROOT / "fig4"
 
 # 6 units in one role cell, fixed positions (2x3 grid)
 UPOS = {0: (-0.5, 0.35), 1: (0.0, 0.35), 2: (0.5, 0.35),

@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 from flexsym.figures.figstyle import INK, MUTED, GRID, BLUE, YELLOW, GRAY, clean, save
 
 REPO = paths.REPO_ROOT
-BASE = REPO / "results/signed_input_wl_paper"
-OUT = REPO / "results/figures/fig4"
+BASE = paths.RESULTS_ROOT / "signed_input_wl_paper"
+OUT = paths.FIGURES_ROOT / "fig4"
 ET = {"stim1": "stimulus", "delay1": "delay /\nmemory", "go1": "response"}
 
 

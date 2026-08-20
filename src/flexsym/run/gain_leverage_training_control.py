@@ -58,7 +58,7 @@ from flexsym.run.training_control import TYPES, make_matrix
 from flexsym.structural.operating_k import OPK, model_name
 from flexsym.structural.signed_input_wl_structural_roles import approx_wl_signed
 
-FP = paths.REPO_ROOT / "results" / "motif_fixed_points"
+FP = paths.RESULTS_ROOT / "motif_fixed_points"
 N_SURR = 200
 TOL = 1e-12
 

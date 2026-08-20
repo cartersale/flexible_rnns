@@ -32,11 +32,11 @@ from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
 )
 
 REPO = paths.REPO_ROOT
-ACT_ROOT = REPO / "results/activity_clusters_paper"
+ACT_ROOT = paths.RESULTS_ROOT / "activity_clusters_paper"
 ACT_NAME = "epoch_variance_unit_clusters_paper_max.npz"
 ORIGINAL = paths.ORIGINAL_STORE
 STAGED = paths.STAGED_STORE
-OUT = REPO / "results/figures"; OUT.mkdir(parents=True, exist_ok=True)
+OUT = paths.FIGURES_ROOT; OUT.mkdir(parents=True, exist_ok=True)
 
 C_G = "#2a78d6"    # gamma (size-weighted)
 C_F = "#eda100"    # f_A (size-neutral)

@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 from flexsym.figures.figstyle import INK, MUTED, GRID, BLUE, GRAY, clean, save
 
 REPO = paths.REPO_ROOT
-LES = REPO / "results/signed_input_wl_paper/lesion_causal"
-OUT = REPO / "results/figures/fig5"
+LES = paths.RESULTS_ROOT / "signed_input_wl_paper/lesion_causal"
+OUT = paths.FIGURES_ROOT / "fig5"
 
 
 def diag_scatter(ax, x, y, xylabel, title, p):
