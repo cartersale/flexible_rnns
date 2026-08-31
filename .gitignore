@@ -28,3 +28,6 @@ logs/
 
 # macOS
 .DS_Store
+
+# manim render output
+media/
