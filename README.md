@@ -6,8 +6,7 @@ changed* (Sale, Coraggio, Kaplan & Richardson).
 Grouping units by the total input each receives from every other group defines
 structural **roles** from the recurrent weight matrix alone, without running any
 task. This repository trains the networks the paper analyses, infers those roles,
-recovers the fixed-point motifs the networks compute with, and produces every
-number, table and figure the manuscript reports.
+recovers the fixed-point motifs the networks compute with, and produces all stats and figures reported.
 
 The networks and the 15-task suite build on Driscoll, Shenoy & Sussillo (2024).
 The five upstream files this depends on are vendored under `flexsym/core/`; the
@@ -151,9 +150,3 @@ Supplementary figures are written by `flexsym.supp.figures`:
 | generalization across size and cohort | `run.lumpability_r2_ksweep`, `run.motif_quotient_prediction`, `run.gain_configuration`, `run.gain_targeted_modulation` |
 | restart reproducibility | `run.restart_ari_vs_r2` |
 | reuse and composition | `run.motif_participation_stats`, `run.motif_operator_composition`, `run.motif_direct_sum_residual` |
-
-## Manuscript
-
-The manuscript sources are not tracked here. The code that generates its tables
-and figures is: `flexsym.supp` is the only place a reported value is formatted,
-so every number in the supplement can be traced to the result file it came from.
