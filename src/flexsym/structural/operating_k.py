@@ -7,7 +7,7 @@ went stale at once: they held k=14, derived from checkpoints where only ~70 of
 loudly -- the analyses just silently kept partitioning at the old granularity.
 
 The k is now derived from each network's activity clustering, using the same
-rule the batch configs use (`configs/batch_rnn_softplus_diag*.json`, policy
+rule the batch config uses (`configs/batch_256_transpose_config.json`, policy
 "active_fraction"):
 
     k = clamp(min(activity_best_k, round(0.20 * n_active)), K_MIN, n_active - 1)

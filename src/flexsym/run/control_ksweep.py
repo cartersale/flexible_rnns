@@ -51,7 +51,7 @@ from scipy.linalg import schur
 
 from flexsym import paths
 from flexsym.motifs.motif_classify import npload
-from flexsym.run.lumpability_r2_ksweep import COHORTS, leading_eigvecs, scores
+from flexsym.run.lumpability_r2_ksweep import COHORTS, block_prefix, leading_blocks, scores
 from flexsym.structural.signed_input_wl_structural_roles import (
     approx_wl_signed,
     random_labels_same_sizes,
@@ -105,8 +105,8 @@ def analyse(M: np.ndarray, k: int, n_null: int, top_n: int, wl_seed: int) -> dic
     k_real = int(np.unique(labels).size)
     if k_real < 2:
         return None
-    V = leading_eigvecs(M, M.shape[0])
-    Vb, Vk = V[:top_n], V[:k_real]
+    B = leading_blocks(M, M.shape[0])
+    Vb, Vk = block_prefix(B, top_n), block_prefix(B, k_real)
     best, topk = scores(Vb, Vk, labels)
     nb = np.empty(n_null)
     nk = np.empty(n_null)

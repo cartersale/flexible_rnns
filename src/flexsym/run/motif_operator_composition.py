@@ -69,7 +69,7 @@ from flexsym.run.motif_quotient_prediction import (
     quotient,
 )
 from flexsym.run.motif_reuse_control import _row_for_k
-from flexsym.run.motif_type_mode_profiles import ortho_eigbasis
+from flexsym.run.motif_type_mode_profiles import lifted_eigbasis
 from flexsym.structural.operating_k import OPK, model_name
 
 FP = paths.RESULTS_ROOT / "motif_fixed_points"
@@ -195,7 +195,7 @@ def basis_and_quotients(labels, W, conds):
     H, sizes = indicator(labels)
     S = H / np.sqrt(sizes)[None, :]
     Qs = quotient(W, H, sizes)
-    M = S @ ortho_eigbasis(Qs)
+    M = lifted_eigbasis(Qs, H)          # W H = H Qs, so eigen-directions lift through H
     per = {}
     for c in conds:
         per[c["key"]] = {

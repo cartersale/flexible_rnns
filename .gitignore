@@ -1,19 +1,19 @@
-# Analysis outputs and figures — regenerated from code, live on the data volume
-results/
-figs/
-
-# Model checkpoints / training data
-data/
-models/
-docs/
-figures/
+# Bulk data and generated output. All are repo-root paths: the leading slash
+# matters, or these also shadow src/flexsym/figures/ and the like.
+/results/
+/figs/
+/figures/
+/data/
+/models/
+/logs/
+/docs/
 
 # Vendored external dependencies (FixedPointFinder, recurrent-whisperer)
-external/
+/external/
 
 # Local config
 .env
-.venv
+.venv/
 .venv-py39/
 
 # Python
@@ -23,8 +23,6 @@ __pycache__/
 build/
 dist/
 .ipynb_checkpoints/
-
-logs/
 
 # macOS
 .DS_Store

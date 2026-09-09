@@ -6,14 +6,14 @@ discrete-map Jacobian J = dF/dh spectrum (|lambda| relative to 1):
 
   point attractor : all |lambda| < 1 - eps          (stable, no escape direction)
   saddle/decision : exactly one |lambda| > 1 + eps  (real) -> unstable eigvec = decision axis
-  rotation        : a complex-conjugate pair with |lambda| ~ 1 and |Im| > im_thresh
-  line attractor  : a connected 1-D manifold of slow points, one real lambda ~ 1
-                    whose eigenvector is tangent to the manifold. Because memory
-                    of a *direction* is a RING (closed, curved 1-D manifold), the
+  rotation        : a non-contracting complex-conjugate pair, |Im| > im_thresh
+  line attractor  : a connected 1-D manifold of slow points whose local slow
+                    direction is tangent to the manifold. Because memory of a
+                    *direction* is a RING (closed, curved 1-D manifold), the
                     tangency test is LOCAL: at each slow point the local manifold
                     tangent (leading PC of its k nearest neighbours) must align
-                    with the near-unit real eigenvector (|cos| > cos_thresh), and
-                    the neighbourhood must be locally 1-D.
+                    with the local slow direction (see _slow_direction) above
+                    cos_thresh, and the neighbourhood must be locally 1-D.
 
 Per-point classification is spectral; line-attractor detection is a property of
 the whole slow-point *set* within a condition (rule x epoch), matching the
@@ -21,10 +21,10 @@ memory-motif geometry (a continuum of marginally stable points).
 
 A per-unit participation vector p_m (>= 0, unit norm) is built for the dominant
 motif, from |loadings| so it is invariant to eigenvector sign / ring phase:
-  line attractor : mean over slow points of |near-unit real eigenvector|
+  line attractor : mean over slow points of |local slow direction|
   saddle         : mean over saddles of |unstable eigenvector| (decision axis)
-  rotation       : mean over rotation points of the eigenplane magnitude
-                   sqrt(Re^2 + Im^2) per unit
+A condition labelled "rotation" gets no participation vector or motif direction,
+since Re(z) and Im(z) of a complex eigenvector depend on the solver's phase.
 """
 
 from __future__ import annotations
@@ -112,14 +112,21 @@ def classify_point(eigvals, eps_stable=EPS_STABLE, eps_unstable=EPS_UNSTABLE,
     return label, n_unstable, top_mag, top_im
 
 
-def _real_near_unit_eigvec(eigvals, eigvecs, im_thresh=IM_THRESH):
-    """Right eigenvector of the (near-real) eigenvalue closest to +1."""
+def _slow_direction(eigvals, eigvecs, im_thresh=IM_THRESH):
+    """Local slow direction of a Jacobian, or None if the point has none.
+
+    Among eigenvalues with |Im lambda| <= im_thresh, the one whose real part is closest
+    to +1 supplies its eigenvector. A point with no such eigenvalue contributes no
+    tangency comparison: its leading eigenvector would be complex, and Re(z) depends on
+    the phase the eigensolver happens to return, so it is not a well-defined direction.
+    Across the ten 256-unit networks no slow point fell in that case (19,454 points in
+    487 slow-point sets), so the exclusion is a guard rather than a filter.
+    """
     real_mask = np.abs(eigvals.imag) <= im_thresh
     if not np.any(real_mask):
-        idx = _top_eig(eigvals)
-    else:
-        cand = np.where(real_mask)[0]
-        idx = cand[np.argmin(np.abs(eigvals[cand].real - 1.0))]
+        return None
+    cand = np.where(real_mask)[0]
+    idx = cand[np.argmin(np.abs(eigvals[cand].real - 1.0))]
     v = np.real(eigvecs[:, idx])
     n = np.linalg.norm(v)
     return v / n if n > 0 else v
@@ -180,19 +187,22 @@ def detect_line_attractor(xstar, Js, cos_thresh=COS_THRESH, im_thresh=IM_THRESH,
     global_pr = _participation_ratio(np.linalg.svd(X, compute_uv=False))
     tangents, local_dims = _local_tangents(X)
 
-    aligns = np.empty(M)
-    absvecs = np.zeros((M, N))
-    signed = np.zeros((M, N))
+    aligns, absvecs, signed = [], [], []
     for i in range(M):
         w, V = np.linalg.eig(Js[i].astype(np.float64))
-        u = _real_near_unit_eigvec(w, V, im_thresh)
-        if not np.all(np.isfinite(u)):
-            u = np.zeros(N)
-        absvecs[i] = np.abs(u)
-        signed[i] = u
+        u = _slow_direction(w, V, im_thresh)
+        if u is None or not np.all(np.isfinite(u)):
+            continue                       # no well-defined slow direction at this point
         t = tangents[i]
         denom = (np.linalg.norm(t) * np.linalg.norm(u)) or 1.0
-        aligns[i] = abs(float(np.dot(t, u))) / denom
+        aligns.append(abs(float(np.dot(t, u))) / denom)
+        absvecs.append(np.abs(u))
+        signed.append(u)
+    if not aligns:
+        return False, 0.0, global_pr, np.nan, None, None
+    aligns = np.asarray(aligns)
+    absvecs = np.asarray(absvecs)
+    signed = np.asarray(signed)
     med = float(np.median(aligns))
     local_dim_med = float(np.nanmedian(local_dims))
     participation = absvecs.mean(axis=0)
@@ -267,21 +277,10 @@ def classify_condition(npz_path, q_fp=Q_FP, q_slow=Q_SLOW, **kw) -> ConditionMot
             vecs.append(v)
         participation = acc
         signed = np.array(vecs) if vecs else None
-    elif cond == "rotation":
-        rot_idx = np.where(fp_mask & (labels == "rotation"))[0]
-        acc = np.zeros(N)
-        vecs = []
-        for i in rot_idx:
-            w, V = np.linalg.eig(J[i].astype(np.float64))
-            v = V[:, _top_eig(w)]
-            re = np.real(v); im = np.imag(v)
-            acc += np.sqrt(re ** 2 + im ** 2)     # eigenplane magnitude
-            for comp in (re, im):                 # both plane axes are directions
-                nc = np.linalg.norm(comp)
-                if nc > 0:
-                    vecs.append(comp / nc)
-        participation = acc
-        signed = np.array(vecs) if vecs else None
+    # A condition labelled "rotation" carries no participation vector or motif
+    # direction. Re(z) and Im(z) of a complex eigenvector are defined only up to
+    # the eigensolver's phase, so neither is a well-defined direction, and no
+    # condition in the analysed networks met the criterion.
     if participation is not None:
         nrm = np.linalg.norm(participation)
         participation = participation / nrm if nrm > 0 else participation

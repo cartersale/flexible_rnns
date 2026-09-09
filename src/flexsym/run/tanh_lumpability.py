@@ -23,7 +23,10 @@ from flexsym.structural.signed_input_wl_structural_roles import (
 from flexsym.run.lumpability_check import eig_leakage, subspace_invariance, pw_constant_projector
 from flexsym.motifs.motif_participation import WL_ROOT
 
-K_GRID = [8, 12, 16, 20, 25, 30, 40, 50]
+# The full k = 3..60 grid, matching lumpability_r2_ksweep, so that a tanh row's
+# position in labels_struct_by_k is its k - 3 and the architectures are compared
+# on one grid. The earlier coarse grid left k_req mislabelled for these nets.
+K_GRID = list(range(3, 61))
 
 
 def model_dir(net):

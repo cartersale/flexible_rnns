@@ -20,14 +20,6 @@ dependencies = [
     "tensorflow>=2.16",
 ]
 
-[project.optional-dependencies]
-# Connectome clients, needed only by flexsym.connectome / run.fetch_connectome.
-# Kept optional so the RNN analyses do not acquire two API clients as hard deps.
-connectome = [
-    "neuprint-python>=0.6.3",
-    "caveclient>=8.2.1",
-]
-
 # FixedPointFinder + recurrent-whisperer are NOT pip dependencies. They are
 # vendored under external/ and reached via sys.path — see README.
 

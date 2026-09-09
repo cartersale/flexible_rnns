@@ -7,8 +7,12 @@ Motivation and the corrections this addresses:
     distorted. We therefore decompose motif energy in an ORTHONORMAL basis. Two are built and
     cross-checked: (i) an eigen-ordered orthonormal basis that keeps BOTH real and imaginary
     parts of complex eigenvectors (so a conjugate pair contributes its full 2-D real invariant
-    plane) then Gram-Schmidt (QR); (ii) the REAL SCHUR vectors of Q. Both are orthonormal and
-    their leading columns span the dominant (by |lambda|) invariant subspace. We report the
+    plane) then Gram-Schmidt (QR) IN UNIT SPACE, after lifting through H (since W H = H Q,
+    an eigenvector z of Q lifts as H z); (ii) the REAL SCHUR vectors of the same quotient
+    written in orthonormal role coordinates, Qtilde = D^-1/2 H' W H D^-1/2, which satisfies
+    W S = S Qtilde for S = H D^-1/2 and is therefore the operator that may be lifted through
+    S. Both are orthonormal in unit space and their leading columns span the dominant (by
+    |lambda|) invariant subspace. We report the
     participation ratio in the orthonormal basis and confirm it is not an artifact of the earlier
     real-parts-only construction.
   * NO cross-network mode correspondence is claimed: mode j of seed 0 is not mode j of seed 1.
@@ -34,7 +38,8 @@ from flexsym import paths
 from flexsym.motifs.motif_classify import npload
 from flexsym.motifs.motif_participation import WL_ROOT
 from flexsym.run.motif_reuse_control import _row_for_k
-from flexsym.run.motif_quotient_prediction import condition_jacobians, load_conditions, indicator, quotient
+from flexsym.run.motif_quotient_prediction import (
+    condition_jacobians, load_conditions, indicator, quotient, quotient_ortho)
 
 FP = paths.RESULTS_ROOT / "motif_fixed_points"
 NET = lambda s: f"LeakyRNN_softplus_diag_256_all_{s}"
@@ -44,9 +49,14 @@ PAIRS = [("line_attractor", "point_attractor"), ("line_attractor", "saddle_decis
          ("point_attractor", "saddle_decision")]
 
 
-def ortho_eigbasis(Q):
-    """Orthonormal basis of R^k ordered by |lambda|, keeping real AND imag parts of complex
-    conjugate eigenpairs (full 2-D invariant planes), then Gram-Schmidt (QR)."""
+def eig_real_blocks(Q):
+    """Real invariant directions of Q in RAW role coordinates, ordered by |lambda|.
+
+    Each real eigenvalue contributes one column; each complex-conjugate pair
+    contributes the real and imaginary parts of one member, i.e. its full 2-D
+    real invariant plane. The columns are NOT orthonormal (Q is non-normal);
+    orthonormalisation happens after the lift to unit space, where it belongs.
+    """
     lam, V = np.linalg.eig(Q)
     order = np.argsort(-np.abs(lam))
     cols, used = [], set()
@@ -60,8 +70,18 @@ def ortho_eigbasis(Q):
             j = np.argmin(np.abs(lam - np.conj(lam[i])))     # its conjugate partner
             used.add(j)
         used.add(i)
-    M = np.column_stack(cols)
-    B, _ = np.linalg.qr(M)
+    return np.column_stack(cols)
+
+
+def lifted_eigbasis(Q, H):
+    """Orthonormal unit-space basis from the eigen-directions of the RAW quotient Q.
+
+    W H = H Q, so an eigenvector z of Q lifts as H z. The lift is therefore
+    through H, and orthonormality is restored by QR in unit space. (Lifting z
+    through S = H D^-1/2 instead would mix coordinate systems: S is the correct
+    lift only for eigenvectors of Qtilde = D^1/2 Q D^-1/2.)
+    """
+    B, _ = np.linalg.qr(H @ eig_real_blocks(Q))
     return B[:, :Q.shape[0]]
 
 
@@ -156,14 +176,15 @@ def run_net(net, k, n_perm, rng):
     role = np.asarray(ls[_row_for_k(ls, k)], int)
     H, sizes = indicator(role)
     S = H / np.sqrt(sizes)[None, :]
-    Q = quotient(W, H, sizes)
+    Q = quotient(W, H, sizes)                              # raw role coordinates: W H = H Q
+    Qt = quotient_ortho(W, H, sizes)                       # orthonormal role coordinates: W S = S Qt
 
     # defensible bases
-    M_eig = lifted(ortho_eigbasis(Q), S)                   # complex-aware eigen-ordered orthonormal
-    M_schur = lifted(schur_basis(Q), S)                    # real Schur orthonormal
+    M_eig = lifted_eigbasis(Q, H)                          # eigen-ordered, lifted through H
+    M_schur = lifted(schur_basis(Qt), S)                   # Schur of Qtilde, lifted through S
     # artifact check: earlier real-parts-only construction
     lam, V = np.linalg.eig(Q); order = np.argsort(-np.abs(lam))
-    M_realonly, _ = np.linalg.qr(S @ np.real(V[:, order]))
+    M_realonly, _ = np.linalg.qr(H @ np.real(V[:, order]))
 
     prof_eig, pr_eig, keep = energy_profiles(P, M_eig)
     prof_sch, pr_sch, _ = energy_profiles(P, M_schur)
@@ -177,9 +198,9 @@ def run_net(net, k, n_perm, rng):
     _, szs = np.unique(role, return_counts=True)
     for _ in range(n_perm):
         perm = np.repeat(np.arange(len(szs)), szs); rng.shuffle(perm)
-        Hr, sr = indicator(perm); Sr = Hr / np.sqrt(sr)[None, :]
+        Hr, sr = indicator(perm)
         Qr = quotient(W, Hr, sr)
-        Mr = lifted(ortho_eigbasis(Qr), Sr)
+        Mr = lifted_eigbasis(Qr, Hr)
         pr_, _, _ = energy_profiles(P, Mr)
         cr, _ = compare(pr_, types, rules, Mr)
         for key in obs:

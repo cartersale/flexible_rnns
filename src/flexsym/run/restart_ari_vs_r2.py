@@ -40,7 +40,7 @@ from sklearn.metrics import adjusted_rand_score
 
 from flexsym import paths
 from flexsym.motifs.motif_classify import npload
-from flexsym.run.lumpability_r2_ksweep import GRID, leading_eigvecs, scores
+from flexsym.run.lumpability_r2_ksweep import COHORTS, GRID, block_prefix, leading_blocks, scores
 from flexsym.structural.signed_input_wl_structural_roles import (
     approx_wl_signed,
     random_labels_same_sizes,
@@ -70,15 +70,18 @@ def overlap(Pa: np.ndarray, Pb: np.ndarray, k: int) -> float:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
+    ap.add_argument("--cohort", choices=sorted(COHORTS), default=None,
+                    help="network cohort; default keeps the published grid")
     ap.add_argument("--k-grid", default=",".join(str(k) for k in K_GRID))
     ap.add_argument("--n-restarts", type=int, default=N_RESTARTS)
     ap.add_argument("--top-n", type=int, default=12)
     args = ap.parse_args()
     kg = [int(x) for x in args.k_grid.split(",")]
+    grid = COHORTS[args.cohort] if args.cohort else GRID
 
     rows, pair_rows = [], []
     t0 = time.time()
-    for size, seed in GRID:
+    for size, seed in grid:
         model = f"LeakyRNN_softplus_diag_{size}_all_{seed}"
         npz = WL_ROOT / model / "transpose" / "signed_input_wl_sweep.npz"
         if not npz.exists():
@@ -86,7 +89,7 @@ def main() -> None:
             continue
         W = np.asarray(npload(npz)["W_rec"], dtype=float)
         Wp, Wn = np.maximum(W, 0.0), np.maximum(-W, 0.0)
-        V_all = leading_eigvecs(W, W.shape[0])
+        B_all = leading_blocks(W, W.shape[0])
 
         for k in kg:
             labs, r2b, r2t = [], [], []
@@ -97,7 +100,7 @@ def main() -> None:
                     continue
                 labs.append(np.asarray(lab, int))
                 kk = int(np.unique(lab).size)
-                b, t = scores(V_all[: args.top_n], V_all[:kk], lab)
+                b, t = scores(block_prefix(B_all, args.top_n), block_prefix(B_all, kk), lab)
                 r2b.append(b)
                 r2t.append(t)
             if len(labs) < 2:
@@ -106,7 +109,8 @@ def main() -> None:
             # matched random partitions: one per restart, same cell-size profile
             rlabs = [random_labels_same_sizes(l, seed=1000 + i) for i, l in enumerate(labs)]
             rprojs = [projector(l) for l in rlabs]
-            rr2t = [scores(V_all[: args.top_n], V_all[: int(np.unique(l).size)], l)[1]
+            rr2t = [scores(block_prefix(B_all, args.top_n),
+                           block_prefix(B_all, int(np.unique(l).size)), l)[1]
                     for l in rlabs]
 
             aris, ovs, r_aris, r_ovs = [], [], [], []

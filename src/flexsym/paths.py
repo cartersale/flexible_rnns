@@ -59,14 +59,17 @@ STAGED_STORE = _root("STAGED_STORE", MODEL_ROOT / "new_runs" / "staged")
 #: Cached network activity, keyed by (net, rule).
 CACHE_ROOT = _root("CACHE_ROOT", MODEL_ROOT / "activity_cache")
 
-#: Downloaded connectome reconstructions (hemibrain, FlyWire). Small enough to
-#: sit in the repo tree by default, but overridable onto the data volume.
-CONNECTOME_ROOT = _root("CONNECTOME_ROOT", REPO_ROOT / "data" / "connectome")
-
 # --- output roots (in the repo, gitignored) --------------------------------
 
-RESULTS_ROOT = _root("RESULTS_ROOT", REPO_ROOT / "results")
-FIGURES_ROOT = _root("FIGURES_ROOT", RESULTS_ROOT / "figures")
+#: The directory holding every cohort subtree. Only code that reads across
+#: cohorts (flexsym.supp) should use this; an analysis reads RESULTS_ROOT.
+RESULTS_STORE = _root("RESULTS_STORE", REPO_ROOT / "results")
+
+#: The cohort an analysis reads and writes: `main` for the locally trained grid
+#: behind the main text, `released` for the Driscoll networks behind the
+#: supplement. The two are reported separately and never pooled, so selecting
+#: the cohort here keeps a run from mixing them.
+RESULTS_ROOT = _root("RESULTS_ROOT", RESULTS_STORE / "main")
 
 # --- vendored external dependencies ----------------------------------------
 

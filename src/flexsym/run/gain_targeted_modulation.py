@@ -47,7 +47,7 @@ from flexsym.run.motif_quotient_prediction import (
     quotient,
 )
 from flexsym.run.motif_reuse_control import _row_for_k
-from flexsym.structural.operating_k import OPK
+from flexsym.structural.operating_k import operating_k
 
 warnings.filterwarnings("ignore")
 np.seterr(all="ignore")
@@ -120,13 +120,13 @@ def run_condition(cd, W, role, H, sizes, frac):
     }
 
 
-def run_net(seed, fracs=FRACS, verbose=True):
-    net = f"LeakyRNN_softplus_diag_256_all_{seed}"
+def run_net(seed, fracs=FRACS, verbose=True, size=256):
+    net = f"LeakyRNN_softplus_diag_{size}_all_{seed}"
     wl = npload(WL_ROOT / net / "transpose" / "signed_input_wl_sweep.npz")
     W = np.asarray(wl["W_rec"], float)
     ind = np.asarray(wl["ind_active"], int)
     conds = load_conditions(net, ind, W, condition_jacobians(net, ind, W))
-    k = int(OPK[seed])
+    k = int(operating_k(net))
     role = np.asarray(wl["labels_struct_by_k"][_row_for_k(wl["labels_struct_by_k"], k)], int)
     H, sizes = indicator(role)
     if verbose:
@@ -181,6 +181,7 @@ def summarise(rows, frac):
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--size", type=int, default=256)
     ap.add_argument("--seeds", default="3-12")
     ap.add_argument("--fracs", default="0.25,1.0",
                     help="delta as a multiple of the condition's mean per-unit gain")
@@ -198,7 +199,7 @@ def main():
     rows = []
     for s in seeds:
         try:
-            rows += run_net(s, fracs)
+            rows += run_net(s, fracs, size=args.size)
         except (FileNotFoundError, KeyError) as e:
             print(f"[skip] seed {s}: {type(e).__name__}: {e}", flush=True)
 

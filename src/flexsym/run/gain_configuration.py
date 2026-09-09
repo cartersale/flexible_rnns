@@ -66,7 +66,7 @@ from flexsym.run.motif_quotient_prediction import (
     quotient,
 )
 from flexsym.run.motif_reuse_control import _row_for_k
-from flexsym.structural.operating_k import OPK, model_name
+from flexsym.structural.operating_k import model_name, operating_k
 
 FP = paths.RESULTS_ROOT / "motif_fixed_points"
 TOP_M = 3
@@ -312,8 +312,7 @@ def run_net(net, k, rng, n_perm=N_PERM):
             # 3b: is dg aligned with the leverage of the motif-carrying mode?
             # j* must be indexed in the BASE eigenbasis Va_, because Sa_ columns
             # are base modes. Using Vb_ here mismatched the two orderings.
-            S_lift = H / np.sqrt(sizes)[None, :]
-            M = S_lift @ np.real(Va_)
+            M = H @ np.real(Va_)        # eigen-directions of Q lift through H, not H D^-1/2
             M /= np.maximum(np.linalg.norm(M, axis=0), TOL)
             energy = (M.T @ byk[kb]["v"]) ** 2
             jstar = int(np.argmax(energy))
@@ -350,6 +349,7 @@ def wilc(a, b):
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--size", type=int, default=256)
     ap.add_argument("--seeds", default="0-9")
     ap.add_argument("--n-perm", type=int, default=N_PERM)
     ap.add_argument("--out", default="gain_configuration.json")
@@ -365,11 +365,15 @@ def main():
 
     per_net = {}
     for s in seeds:
-        net = model_name(s)
+        net = model_name(s, args.size)
         if not (FP / net / "participation_cache_v2.npz").exists():
             print(f"[skip] {net}")
             continue
-        r = run_net(net, OPK[s], rng, args.n_perm)
+        k_op = operating_k(net)
+        if k_op is None:
+            print(f"[skip] {net}: no activity clustering")
+            continue
+        r = run_net(net, k_op, rng, args.n_perm)
         if r:
             per_net[net] = r
             print(f"[done] seed {s}  k={r['k']}  n_cond={r['n_cond']}  "

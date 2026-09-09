@@ -78,22 +78,93 @@ def step_r2(v: np.ndarray, labels: np.ndarray) -> float:
     return float(1.0 - ((v - pred) ** 2).sum() / denom) if denom > 0 else 0.0
 
 
-def leading_eigvecs(M: np.ndarray, n: int) -> np.ndarray:
-    """The n eigenvectors of largest |lambda|, real part, unit-normalised, as rows."""
+def leading_blocks(M: np.ndarray, n: int) -> list[np.ndarray]:
+    """The leading real spectral blocks of M, as orthonormal bases, until n dimensions.
+
+    Eigenvalues are taken in order of decreasing |lambda|. A real eigenvalue gives a
+    one-column block, its unit eigenvector; a complex-conjugate pair gives a two-column
+    orthonormal basis of its real invariant plane, and the partner is not visited again.
+    A block is never split, so the last one may carry the total past n.
+
+    Blocks rather than individual vectors because Re(z) and Im(z) of a complex
+    eigenvector depend on the phase the eigensolver happens to return, while the plane
+    they span does not.
+    """
     w, V = np.linalg.eig(M)
-    order = np.argsort(-np.abs(w))[:n]
-    out = []
+    order = np.argsort(-np.abs(w))
+    blocks, used, dims = [], set(), 0
     for i in order:
-        v = np.real(V[:, i])
-        nv = np.linalg.norm(v)
-        if nv:
-            out.append(v / nv)
-    return np.asarray(out)
+        if dims >= n:
+            break
+        if i in used:
+            continue
+        used.add(i)
+        if abs(w[i].imag) < 1e-9:
+            v = np.real(V[:, i])
+            nv = np.linalg.norm(v)
+            if not nv:
+                continue
+            B = (v / nv)[:, None]
+        else:
+            used.add(int(np.argmin(np.abs(w - np.conj(w[i])))))   # conjugate partner
+            B, _ = np.linalg.qr(np.column_stack([np.real(V[:, i]), np.imag(V[:, i])]))
+        blocks.append(B)
+        dims += B.shape[1]
+    return blocks
 
 
-def scores(vecs_best: np.ndarray, vecs_topk: np.ndarray, labels: np.ndarray) -> tuple[float, float]:
-    best = max(step_r2(v, labels) for v in vecs_best)
-    topk = float(np.mean([step_r2(v, labels) for v in vecs_topk]))
+def step_r2_block(B: np.ndarray, labels: np.ndarray) -> float:
+    """Piecewise-constant R^2 of a real spectral block.
+
+    1 - ||(I-P)B||_F^2 / ||(I-P_1)B||_F^2 with P the projector onto the role-constant
+    subspace and P_1 the projector onto the constant vector. For a one-column block this
+    is exactly step_r2 of that eigenvector; for a two-column block it scores the whole
+    invariant plane and is unchanged by any rotation of Re(z) and Im(z) within it.
+    """
+    B = np.asarray(B, dtype=float)
+    if B.ndim == 1:
+        B = B[:, None]
+    res = B.copy()
+    for c in np.unique(labels):
+        m = labels == c
+        res[m] -= B[m].mean(axis=0)
+    tot = B - B.mean(axis=0)
+    denom = float((tot ** 2).sum())
+    return float(1.0 - (res ** 2).sum() / denom) if denom > 0 else 0.0
+
+
+def block_prefix(blocks: list[np.ndarray], n: int) -> list[np.ndarray]:
+    """The leading blocks covering at least n real dimensions, never splitting one."""
+    out, dims = [], 0
+    for B in blocks:
+        if dims >= n:
+            break
+        out.append(B)
+        dims += B.shape[1]
+    return out
+
+
+def leading_eigvecs(M: np.ndarray, n: int) -> np.ndarray:
+    """The columns of the leading real spectral blocks, unit-normalised, as rows.
+
+    For display and for code that wants individual directions. The reported statistic is
+    computed per block (see step_r2_block), because a single column of a complex block
+    turns with the eigenvector's phase.
+    """
+    out = []
+    for B in leading_blocks(M, n):
+        out.extend(B.T)
+    return np.asarray(out[:n])
+
+
+def scores(blocks_best: list[np.ndarray], blocks_topk: list[np.ndarray],
+           labels: np.ndarray) -> tuple[float, float]:
+    """Best and mean block R^2. The mean weights each block by its dimension, so it is
+    still an average over real directions and reduces to the per-eigenvector mean when
+    every leading eigenvalue is real."""
+    best = max(step_r2_block(B, labels) for B in blocks_best)
+    vals = [(step_r2_block(B, labels), B.shape[1]) for B in blocks_topk]
+    topk = float(sum(v * d for v, d in vals) / sum(d for _, d in vals))
     return best, topk
 
 
@@ -133,7 +204,7 @@ def main() -> None:
         ls = np.asarray(d["labels_struct_by_k"], dtype=int)
         n_active = W.shape[0]
         # one eigendecomposition per network; every k reuses it
-        V_all = leading_eigvecs(W, n_active)
+        B_all = leading_blocks(W, n_active)
 
         for row in range(ls.shape[0]):
             labels = ls[row]
@@ -141,8 +212,10 @@ def main() -> None:
             if k < 2:
                 continue
             k_req = row + 3                               # sweep rows are k = 3..60
-            Vb = V_all[: args.top_n]
-            Vk = V_all[:k]
+            # blocks are added until at least the requested number of real dimensions
+            # is covered, so a complex pair is never split at the cutoff
+            Vb = block_prefix(B_all, args.top_n)
+            Vk = block_prefix(B_all, k)
             best, topk = scores(Vb, Vk, labels)
             nb = np.empty(args.n_null)
             nk = np.empty(args.n_null)

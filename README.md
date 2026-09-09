@@ -1,29 +1,17 @@
 # flexsym
 
-Connectivity symmetry and dynamical motifs in multitask RNNs.
+Code for *Connectivity predicts where computation forms and where it can be
+changed* (Sale, Coraggio, Kaplan & Richardson).
 
-This repo asks whether the approximate symmetries of a trained RNN's recurrent
-weight matrix — its signed-WL equitable partition into role cells — constitute a
-real organising principle for the network's computation. It builds on the
-networks and task suite released with Driscoll et al. (2024); see
-[docs/provenance.md](docs/provenance.md) for exactly what is vendored from
-upstream and what was modified.
+Grouping units by the total input each receives from every other group defines
+structural **roles** from the recurrent weight matrix alone, without running any
+task. This repository trains the networks the paper analyses, infers those roles,
+recovers the fixed-point motifs the networks compute with, and produces every
+number, table and figure the manuscript reports.
 
-The work is organised around three claims:
-
-1. **Connectivity defines a dynamical role structure.** `W_rec` partitions into
-   groups of units that wire to the rest of the circuit the same way, and those
-   groups are an invariant subspace of the dynamics.
-2. **The network's computational motifs are organised by that structure.** The
-   fixed-point motifs the network computes with recruit role groups
-   non-uniformly.
-3. **The quotient predicts the motifs.** Collapsing each role group to one node
-   yields a coarse-grained circuit that predicts the directions the motifs
-   occupy in state space.
-
-[docs/findings.md](docs/findings.md) records where each claim stands, **including
-the three controls that demoted results which previously looked like headlines**.
-Read it before building on any number from this repo.
+The networks and the 15-task suite build on Driscoll, Shenoy & Sussillo (2024).
+The five upstream files this depends on are vendored under `flexsym/core/`; the
+rest of that project is not reproduced here.
 
 ## Setup
 
@@ -35,14 +23,16 @@ pip install -e .
 cp .env.example .env    # then edit the roots for your machine
 ```
 
-`.env` defines where the bulk data lives (see `.env.example`). Nothing in the
-code hardcodes an absolute path — everything routes through `flexsym.paths`.
+`.env` defines where the bulk data lives. Nothing in the code hardcodes an
+absolute path: every root resolves through `flexsym.paths`, and a relative value
+resolves against the repository root rather than the working directory, so a
+module writes to the same place wherever it is invoked from. Roots are not
+validated at import, so importing a module does not require the data volume to
+be mounted.
 
-### External dependencies
-
-Fixed-point finding needs FixedPointFinder and recurrent-whisperer, which are
-not pip-installable here. They live under `external/` (gitignored) and are
-reached via `sys.path`:
+Fixed-point finding additionally needs FixedPointFinder and recurrent-whisperer,
+which are not pip-installable. They are reached through `sys.path` from
+`external/`:
 
 ```bash
 mkdir -p external && cd external
@@ -52,39 +42,118 @@ git clone https://github.com/mattgolub/recurrent-whisperer.git
 
 ## Data
 
-Trained networks and processed data from the original paper are at the Allen
-Institute database — buckets `multitask_shared` (networks) and
-`multitask_processed` (processed data, including fixed point locations):
+The networks released with Driscoll et al. (2024) are at the Allen Institute
+database, buckets `multitask_shared` (networks) and `multitask_processed`
+(processed data, including fixed point locations):
 https://open.quiltdata.com/b/aind-trained-networks/tree/
 
-The size × seed training grid used here is generated locally by
-`flexsym.training`. The fixed-point outputs are large (tens of GB) and are
-expected to live on a separate volume pointed at by `MODEL_ROOT`.
+The size × seed grid the main text analyses is trained locally by
+`flexsym.training`. Checkpoints and fixed-point output run to tens of GB and are
+expected on a separate volume pointed at by `MODEL_ROOT`.
+
+Analysis output is written under `results/`, split by cohort so that results
+computed on different sets of checkpoints cannot be pooled by accident:
+`results/main/` for the locally trained grid, which backs the main text, and
+`results/released/` for the Driscoll networks, which back the supplement.
+`RESULTS_ROOT` in `.env` selects between them.
 
 ## Layout
 
 ```
 src/flexsym/
-  paths.py       resolves every data/results root from .env
+  paths.py       every filesystem root, resolved from .env
   core/          vendored upstream: network, task, train, tools, variance
-  training/      training the size x seed network grid
-  structural/    signed-WL partition, stability, ensembles, lesions
-  motifs/        fixed-point inventory, motif classification, participation
-  figures/       paper panels and diagnostic plots
-  slides/        presentation figures
-  run/           analysis entry points
+  training/      the size x seed training grid and its epoch-variance clustering
+  structural/    signed-WL role partition, operating k, activity coherence
+  motifs/        motif classification and per-unit participation
+  run/           analysis entry points, one per reported result
+  figures/       the panels of Figures 1-3
+  supp/          every supplementary table and figure
 ```
 
-Entry points are modules, not scripts — run them with `-m`:
+Entry points are modules, not scripts:
 
 ```bash
 python -m flexsym.run.motif_fixed_points --help
-python -m flexsym.figures.fig2_panels
+python -m flexsym.figures.paper_fig2_panels
 ```
 
-## Documentation
+## Reproducing the results
 
-- [docs/methods.md](docs/methods.md) — what each analysis does
-- [docs/figure_map.md](docs/figure_map.md) — each figure → the module that makes it
-- [docs/findings.md](docs/findings.md) — current results and their status
-- [docs/provenance.md](docs/provenance.md) — relation to the upstream repo
+The stages are ordered; each reads what the previous one wrote.
+
+1. **Train the grid.** `flexsym.training.run_seeds_parallel` fans
+   `train_softplus_diag` across cores, one process per (size, seed).
+2. **Cluster units by epoch variance.**
+   `flexsym.training.compute_variance_epoch_to_file`, then
+   `flexsym.training.cluster_epoch_variance`. This produces the activity-defined
+   clustering the role partition is compared against.
+3. **Infer the roles.** `flexsym.structural.signed_input_wl_structural_roles`
+   computes the signed Weisfeiler-Leman partition over a k-sweep.
+   `flexsym.run.batch_256_transpose_analysis` drives stages 2 and 3 over a cohort
+   with per-network k selection, checkpointed per model and per step:
+
+   ```bash
+   python -m flexsym.run.batch_256_transpose_analysis \
+       --config configs/batch_256_transpose_config.json
+   ```
+
+   `flexsym.structural.operating_k` is the single source of truth for each
+   network's operating k.
+4. **Recover the motifs.** `flexsym.run.motif_fixed_points` finds fixed and slow
+   points and their Jacobians; `flexsym.motifs.motif_classify` assigns each
+   task × epoch condition a motif type. This stage needs the external
+   dependencies above.
+5. **Run the analyses.** The modules under `flexsym.run`, listed below.
+6. **Build the manuscript.** `flexsym.supp.tables` and `flexsym.supp.figures`
+   write the supplement; `flexsym.figures.paper_fig*` write the main figures.
+
+## What produces what
+
+Main figures, into `figures/figN/pieces/`:
+
+| Figure | Module |
+|---|---|
+| 1, schematic panel | `figures.paper_fig1_data`, then `figures.paper_fig1` |
+| 1, coarse-graining | `figures.paper_fig1_partition` |
+| 1, surrogate controls | `figures.paper_fig1_controls` |
+| 2 | `figures.paper_fig2_panels`, `figures.paper_fig2_motif_example` |
+| 3 | `figures.paper_fig3_panels` |
+
+Supplementary tables, written by `flexsym.supp.tables` from the result each
+analysis leaves in `results/`:
+
+| Table | Analysis |
+|---|---|
+| networks, tasks, performance | the training grid and its logs |
+| taxonomy, taxonomy decision | `run.motif_taxonomy_all_nets` |
+| lumpability k-sweep | `run.lumpability_r2_ksweep` |
+| surrogates | `run.control_ksweep` |
+| equitability | `run.equitability_control_ksweep` |
+| released cohort | `run.lumpability_r2_ksweep`, `run.tanh_lumpability` |
+| participation | `run.motif_participation_aggregate`, `run.motif_participation_stats` |
+| partition family | `run.partition_family_comparison`, `run.motif_subspace_rva` |
+| quotient k-sweep, quotient m | `run.motif_quotient_prediction` |
+| eigenvalue recovery | `run.quotient_lambda_pairs` |
+| eigenvalue-matched control | `run.motif_quotient_eigmatched_control` |
+| held-out gains | `run.motif_quotient_heldout` |
+| quotient ablation, compression | `run.motif_quotient_controls` |
+| routing, composition | `run.quotient_mode_motif_alignment` |
+| operator reuse | `run.motif_operator_composition` |
+| gain swap, susceptibility | `run.gain_configuration` |
+| allocation | `run.gain_leverage_geometry` |
+| targeted modulation | `run.gain_targeted_modulation` |
+
+Supplementary figures are written by `flexsym.supp.figures`:
+
+| Figure | Analysis |
+|---|---|
+| generalization across size and cohort | `run.lumpability_r2_ksweep`, `run.motif_quotient_prediction`, `run.gain_configuration`, `run.gain_targeted_modulation` |
+| restart reproducibility | `run.restart_ari_vs_r2` |
+| reuse and composition | `run.motif_participation_stats`, `run.motif_operator_composition`, `run.motif_direct_sum_residual` |
+
+## Manuscript
+
+The manuscript sources are not tracked here. The code that generates its tables
+and figures is: `flexsym.supp` is the only place a reported value is formatted,
+so every number in the supplement can be traced to the result file it came from.

@@ -53,8 +53,7 @@ def quotient_modes(W, labels):
     Q = quotient(W, H, sizes)
     lam, V = np.linalg.eig(Q)
     order = np.argsort(-np.abs(lam))
-    S = H / np.sqrt(sizes)[None, :]                       # orthonormal-column lift, S'S = I
-    M = S @ np.real(V[:, order])                          # lifted modes (may be non-orthonormal)
+    M = H @ np.real(V[:, order])                          # W H = H Q: eigen-directions lift via H
     M, _ = np.linalg.qr(M)                                # orthonormalise, keeps |lambda| order
     return M, np.abs(lam)[order]
 

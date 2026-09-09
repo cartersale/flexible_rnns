@@ -131,8 +131,25 @@ def indicator(labels):
 
 
 def quotient(M, H, sizes):
-    """(H'H)^-1 H' M H : row-averaged block sums."""
+    """(H'H)^-1 H' M H : row-averaged block sums.
+
+    This is the quotient in the RAW role coordinates in which W H = H Q holds
+    exactly for an equitable partition, so an eigenvector z of Q lifts to units
+    as H z (NOT as H D^-1/2 z -- see quotient_ortho).
+    """
     return (H.T @ M @ H) / sizes[:, None]
+
+
+def quotient_ortho(M, H, sizes):
+    """D^-1/2 H' M H D^-1/2 : the same quotient in ORTHONORMAL role coordinates.
+
+    With S = H D^-1/2 (S'S = I), an equitable partition gives M S = S Qtilde,
+    where Qtilde = D^1/2 Q D^-1/2 is similar to Q and so has the same spectrum.
+    Use this operator whenever the lift to unit space is performed through S;
+    lifting eigenvectors of the raw Q through S mixes the two coordinate systems.
+    """
+    r = np.sqrt(sizes)
+    return (H.T @ M @ H) / r[:, None] / r[None, :]
 
 
 def lifted_basis(Q, H, sizes, m):

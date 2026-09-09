@@ -57,7 +57,9 @@ def model_sort_key(path: Path) -> tuple[str, int]:
 
 
 def discover_models(cfg: dict[str, Any]) -> list[Path]:
-    data_root = Path(cfg["data_root"])
+    # Defaults to the released-network store resolved from .env; a config may
+    # override it, but nothing tracked here hardcodes an absolute path.
+    data_root = Path(cfg["data_root"]) if cfg.get("data_root") else paths.ORIGINAL_STORE
     exclude = set(cfg.get("exclude_models", []))
     models: dict[str, Path] = {}
     for pattern in cfg.get("model_globs", ["Leaky*_256_all_*"]):
@@ -287,7 +289,6 @@ def build_postselection_steps(
     model_root: Path,
     structural_k: int,
 ) -> list[Step]:
-    fn_cfg = cfg["functional_subpartition"]
     k_policy = cfg.get("k_selection", {}).get("policy")
     selected_dir = (
         model_root / f"transpose_selected_k_{structural_k}"
@@ -295,13 +296,6 @@ def build_postselection_steps(
         else model_root / "transpose_selected_k"
     )
     selected_npz = selected_dir / "signed_input_wl_sweep.npz"
-    cell_var_dir = selected_dir / "cell_epoch_variance"
-    cell_var_npz = cell_var_dir / f"structural_cell_epoch_variance_k_{structural_k}.npz"
-    sub_dir = (
-        model_root / f"functional_subpartition_transpose_k_{structural_k}"
-        if k_policy == "active_fraction"
-        else model_root / "functional_subpartition_transpose"
-    )
     selected_k_min = structural_k if cfg.get("k_selection", {}).get("policy") == "active_fraction" else int(cfg["k_min"])
     selected_k_max = structural_k if cfg.get("k_selection", {}).get("policy") == "active_fraction" else int(cfg["k_max"])
     return [
@@ -334,79 +328,6 @@ def build_postselection_steps(
                 str(cfg["seed"]),
             ],
             (selected_npz, selected_dir / f"contingency_struct_vs_act_k_{structural_k}.csv"),
-        ),
-        Step(
-            "structural_cell_epoch_variance_transpose_selected_k",
-            [
-                python,
-                "-m",
-                "flexsym.structural.structural_cell_epoch_variance",
-                "--activity-clusters",
-                str(activity_npz),
-                "--structural-sweep",
-                str(selected_npz),
-                "--output-dir",
-                str(cell_var_dir),
-                "--k",
-                str(structural_k),
-            ],
-            (cell_var_npz,),
-        ),
-        Step(
-            "functional_subpartition_paper_style",
-            [
-                python,
-                "-m",
-                "flexsym.structural.softplus_memory_subpartition_sweep",
-                str(model_dir),
-                "--structural-sweep",
-                str(selected_npz),
-                "--cell-variance",
-                str(cell_var_npz),
-                "--output-dir",
-                str(sub_dir),
-                "--k",
-                str(structural_k),
-                "--min-cell-size",
-                str(fn_cfg["min_cell_size"]),
-                "--memory-percentile",
-                str(fn_cfg["memory_percentile"]),
-                "--batch-size",
-                str(cfg["batch_size"]),
-                "--max-subclusters",
-                str(fn_cfg["max_subclusters"]),
-            ],
-            (sub_dir / "softplus_memory_subpartition_sweep_summary.json",),
-        ),
-        Step(
-            "functional_full_context_alignment_paper_style",
-            [
-                python,
-                "-m",
-                "flexsym.structural.softplus_memory_full_context_alignment",
-                str(model_dir),
-                "--structural-sweep",
-                str(selected_npz),
-                "--cell-variance",
-                str(cell_var_npz),
-                "--output-dir",
-                str(sub_dir),
-                "--k",
-                str(structural_k),
-                "--min-cell-size",
-                str(fn_cfg["min_cell_size"]),
-                "--memory-percentile",
-                str(fn_cfg["memory_percentile"]),
-                "--batch-size",
-                str(cfg["batch_size"]),
-                "--max-subclusters",
-                str(fn_cfg["max_subclusters"]),
-                "--n-null",
-                str(fn_cfg["n_null"]),
-                "--seed",
-                str(cfg["seed"]),
-            ],
-            (sub_dir / "softplus_memory_functional_full_context_wiring_alignment_null_summary.json",),
         ),
     ]
 
@@ -523,8 +444,6 @@ def main() -> None:
             post_steps = build_postselection_steps(
                 model_dir, cfg, args.python, activity_npz, sweep_dir, model_root, selected_k
             )
-            if not cfg["functional_subpartition"]["enabled"]:
-                post_steps = post_steps[:2]
             for step in tqdm(post_steps, desc=f"{model_dir.name} selected k={selected_k}", unit="step", leave=False):
                 result = run_command(step, force=args.force, dry_run=args.dry_run, log_file=log_file)
                 checkpoint["steps"].append(result)

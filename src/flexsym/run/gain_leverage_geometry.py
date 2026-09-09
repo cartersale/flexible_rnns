@@ -151,7 +151,6 @@ def run_net(net, k, rng, n_surr=N_SURR):
     role = np.asarray(ls[_row_for_k(ls, k)], int)
     H, sizes = indicator(role)
     Qs = quotient(W, H, sizes)
-    Slift = H / np.sqrt(sizes)[None, :]
     alpha = float(np.median([c["alpha"] for c in conds]))
     byk = {c["key"]: c for c in conds}
     present = set(byk)
@@ -181,7 +180,7 @@ def run_net(net, k, rng, n_surr=N_SURR):
                 fd_checks.append(float(np.corrcoef(m1[ok], m2[ok])[0, 1]))
 
             # mode classes, all in the base eigenbasis Va
-            M = Slift @ np.real(Va)
+            M = H @ np.real(Va)         # eigen-directions of Q lift through H, not H D^-1/2
             M /= np.maximum(np.linalg.norm(M, axis=0), TOL)
             energy = (M.T @ byk[kb]["v"]) ** 2
             jstar = int(np.argmax(energy))

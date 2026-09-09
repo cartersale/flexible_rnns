@@ -1,18 +1,16 @@
 {
-  "description": "Batch analysis for non-canonical 256-node softplus trained networks using transpose signed-input WL and dynamic k selection.",
+  "description": "Signed-WL structural partition of the transpose-variant recurrent matrix for the 256-unit softplus networks, with per-network k selection. Produces the partition cache every reported analysis reads.",
   "run_name": "batch_256_transpose",
-  "data_root": "/Volumes/X9_Pro/flexible_multitask_data/multitask_processed/suppfig4",
   "activity_root": "results/activity_clusters_paper",
   "struct_root": "results/signed_input_wl_paper",
   "model_globs": [
     "Leaky*_softplus_*_256_all_*"
   ],
-  "exclude_models": [
-  ],
+  "exclude_models": [],
   "matrix_variant": "transpose",
   "k_min": 3,
   "k_max": 60,
-  "saturation_within_fraction": 0.10,
+  "saturation_within_fraction": 0.1,
   "batch_size": 1024,
   "wl_null": 1000,
   "wl_n_iter": 20,
@@ -23,20 +21,5 @@
     "linkage_method": "ward",
     "active_threshold": 0.001,
     "output_name": "epoch_variance_unit_clusters_paper_max.npz"
-  },
-  "functional_subpartition": {
-    "enabled": true,
-    "min_cell_size": 5,
-    "memory_percentile": 60.0,
-    "max_subclusters": 6,
-    "n_null": 5000
-  },
-  "steps": {
-    "compute_variance": true,
-    "activity_clustering": true,
-    "structural_sweep": true,
-    "select_k": true,
-    "cell_epoch_variance": true,
-    "functional_subpartition": true
   }
 }
