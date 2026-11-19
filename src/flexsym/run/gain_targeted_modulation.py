@@ -23,20 +23,22 @@ import json
 import warnings
 
 import numpy as np
-from scipy.optimize import linear_sum_assignment
 from scipy.stats import wilcoxon
 
 from flexsym import paths
 from flexsym.motifs.motif_classify import npload
 from flexsym.motifs.motif_participation import WL_ROOT
-from flexsym.run.gain_leverage_geometry import qmat, rotation_sensitivity
-from flexsym.run.motif_quotient_prediction import (
-    condition_jacobians,
-    indicator,
-    load_conditions,
-    quotient,
-)
+from flexsym.run.motif_quotient_prediction import condition_jacobians, load_conditions
 from flexsym.run.motif_reuse_control import _row_for_k
+from flexsym.structural.gain import (
+    gain_operator,
+    role_gain,
+    rotation_sensitivity,
+    track,
+    unit_cols,
+)
+from flexsym.structural.partition import indicator
+from flexsym.structural.quotient import quotient
 from flexsym.structural.operating_k import operating_k
 
 warnings.filterwarnings("ignore")
@@ -48,20 +50,6 @@ OV_MIN = 0.80           # mode-identity floor for the across-role correlation
 FRACS = (0.25, 1.0)     # delta, as a multiple of the condition's mean per-unit gain
 
 
-def full_jacobian(W, g, alpha):
-    return (1 - alpha) * np.eye(len(g)) + alpha * (g[:, None] * W)
-
-
-def unit_cols(V):
-    return V / np.maximum(np.linalg.norm(V, axis=0), TOL)
-
-
-def track(Vb, Vp):
-    """Match perturbed modes to base modes by |eigenvector overlap|."""
-    r, c = linear_sum_assignment(-np.abs(Vb.conj().T @ Vp))
-    return c[np.argsort(r)]
-
-
 def run_condition(cd, W, role, H, sizes, frac):
     """One condition at one delta. Returns a row dict, or None if (alpha, g) is degenerate."""
     g, alpha = cd["g"], cd["alpha"]
@@ -69,15 +57,15 @@ def run_condition(cd, W, role, H, sizes, frac):
         return None
     kk = H.shape[1]
     Qs = quotient(W, H, sizes)
-    gbar = (H.T @ g) / sizes
+    gbar = role_gain(g, H, sizes)
     Sev = rotation_sensitivity(Qs, gbar, alpha)[1]
-    lam_q, Vq = np.linalg.eig(qmat(Qs, gbar, alpha))
+    lam_q, Vq = np.linalg.eig(gain_operator(Qs, gbar, alpha))
     Vq = unit_cols(Vq)
     j = int(np.argmax(np.abs(lam_q)))
     sev = Sev[:, j]
     istar = int(np.argmax(np.abs(sev)))
 
-    Jf = full_jacobian(W, g, alpha)
+    Jf = gain_operator(W, g, alpha)
     lam_f, Vf = np.linalg.eig(Jf)
     Vf = unit_cols(Vf)
     fm = int(np.argmax(np.abs(Vf.conj().T @ unit_cols(H @ Vq[:, [j]]).ravel())))
@@ -88,7 +76,7 @@ def run_condition(cd, W, role, H, sizes, frac):
     for c in range(kk):                       # every role -> the exact permutation null
         gp = g.copy()
         gp[role == c] += delta
-        lam_p, Vp = np.linalg.eig(full_jacobian(W, gp, alpha))
+        lam_p, Vp = np.linalg.eig(gain_operator(W, gp, alpha))
         Vp = unit_cols(Vp)
         m = track(Vf, Vp)
         act[c] = abs(lam_p[m[fm]]) - abs(lam_f[fm])

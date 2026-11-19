@@ -28,14 +28,12 @@ from scipy.stats import wilcoxon
 from flexsym import paths
 from flexsym.motifs.motif_classify import npload
 from flexsym.motifs.motif_participation import WL_ROOT
-from flexsym.run.motif_operator_composition import TRIPLES, med, top_span
-from flexsym.run.motif_quotient_prediction import (
-    condition_jacobians,
-    indicator,
-    load_conditions,
-    quotient,
-)
+from flexsym.run.motif_operator_composition import TRIPLES, med
+from flexsym.run.motif_quotient_prediction import condition_jacobians, load_conditions
 from flexsym.run.motif_reuse_control import _row_for_k
+from flexsym.structural.lift import lifted_basis
+from flexsym.structural.partition import indicator, orthonormal_indicator
+from flexsym.structural.quotient import quotient
 from flexsym.structural.operating_k import OPK, model_name
 
 FP = paths.RESULTS_ROOT / "motif_fixed_points"
@@ -92,10 +90,10 @@ def run_net(net, k, rng, n_null=N_NULL):
     ls = wl["labels_struct_by_k"]
     role = np.asarray(ls[_row_for_k(ls, k)], int)
     H, sizes = indicator(role)
-    S = H / np.sqrt(sizes)[None, :]
+    S = orthonormal_indicator(H, sizes)
 
     byk = {c["key"]: c for c in conds}
-    spans = {c["key"]: top_span(quotient(c["Jb"], H, sizes), H, sizes, TOP_M)
+    spans = {c["key"]: lifted_basis(quotient(c["Jb"], H, sizes), H, TOP_M)[0]
              for c in conds}
 
     out = {}

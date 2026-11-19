@@ -26,6 +26,7 @@ import sys
 
 from flexsym.motifs.motif_classify import npload  # noqa: E402
 from flexsym.motifs.motif_participation import WL_ROOT, ACT_ROOT, ACT_NAME  # noqa: E402
+from flexsym.structural.partition import indicator  # noqa: E402
 
 FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 K_GRID = [8, 12, 16, 20, 25, 30, 40, 50]
@@ -38,10 +39,7 @@ def frac_vec(V, labels):
 
     P projects onto the group-constant subspace; ||P v||^2 = sum_g (sum_{i in g} v_i)^2 / n_g.
     """
-    cats, inv = np.unique(labels, return_inverse=True)
-    G = np.zeros((len(labels), cats.size))
-    G[np.arange(len(labels)), inv] = 1.0
-    sizes = G.sum(0)                       # (k,)
+    G, sizes = indicator(labels)           # sizes (k,)
     gs = V @ G                             # (m, k) group sums
     pnorm2 = ((gs ** 2) / sizes).sum(1)    # (m,)
     vnorm2 = (V ** 2).sum(1)

@@ -24,9 +24,10 @@ from flexsym import paths
 from flexsym.motifs.motif_classify import npload
 from flexsym.motifs.motif_participation import WL_ROOT
 from flexsym.run.motif_reuse_control import MOTIF_TYPES, _row_for_k
-from flexsym.run.motif_quotient_prediction import (
-    condition_jacobians, indicator, load_conditions, quotient,
-)
+from flexsym.run.motif_quotient_prediction import condition_jacobians, load_conditions
+from flexsym.structural.lift import lifted_real_modes
+from flexsym.structural.partition import indicator
+from flexsym.structural.quotient import quotient
 
 FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 K_GRID = [12, 20, 30]
@@ -37,12 +38,7 @@ TOP_R = 3
 def quotient_modes(W, labels):
     """Eigenvectors of the quotient, lifted to units and orthonormalised, sorted by |lambda|."""
     H, sizes = indicator(labels)
-    Q = quotient(W, H, sizes)
-    lam, V = np.linalg.eig(Q)
-    order = np.argsort(-np.abs(lam))
-    M = H @ np.real(V[:, order])                          # W H = H Q: eigen-directions lift via H
-    M, _ = np.linalg.qr(M)                                # orthonormalise, keeps |lambda| order
-    return M, np.abs(lam)[order]
+    return lifted_real_modes(quotient(W, H, sizes), H)
 
 
 def concentration(P, M):

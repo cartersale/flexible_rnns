@@ -38,17 +38,20 @@ from flexsym.motifs.motif_classify import npload  # noqa: E402
 from flexsym.motifs.motif_participation import WL_ROOT  # noqa: E402
 from flexsym.run.motif_reuse_control import MOTIF_TYPES, _row_for_k  # noqa: E402
 from flexsym.run.motif_reuse_diagnostics import canonical_sign  # noqa: E402
+from flexsym.structural.gain import gain_operator, recover_alpha_gain, role_gain  # noqa: E402
+from flexsym.structural.lift import lifted_basis  # noqa: E402
+from flexsym.structural.partition import containment_norm, indicator  # noqa: E402
+from flexsym.structural.quotient import quotient  # noqa: E402
 
 FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 K_GRID = [8, 12, 16, 20, 25, 30, 40, 50]
 M_GRID = [1, 3, 5]
 N_PERM = 200
 MAX_FP = 150            # fixed points averaged into Jbar per condition
-W_THRESH = 1e-3         # |W| above which the row-ratio gain recovery is used
 
 
 # --------------------------------------------------------------------------- #
-# per-condition mean Jacobian + exact (alpha, gains) recovery
+# per-condition mean Jacobian
 # --------------------------------------------------------------------------- #
 def condition_jacobians(net, ind_active, W, cache_name="jbar_cache.npz"):
     """Mean Jacobian per condition (active units), cached to disk.
@@ -85,73 +88,9 @@ def condition_jacobians(net, ind_active, W, cache_name="jbar_cache.npz"):
     return dict(zip(keys, jbars))
 
 
-def recover_alpha_gain(Jb, W):
-    """Exact (alpha, g) from J = (1-alpha) I + alpha diag(g) W.
-
-    r_i = alpha * g_i is the constant row ratio J[i,j]/W[i,j] over off-diagonal
-    entries with |W| above threshold; alpha then follows from the diagonal.
-    """
-    n = W.shape[0]
-    off = ~np.eye(n, dtype=bool)
-    use = off & (np.abs(W) > W_THRESH)
-    with np.errstate(all="ignore"):
-        num = np.where(use, Jb * W, 0.0).sum(1)
-        den = np.where(use, W * W, 0.0).sum(1)
-    r = np.where(den > 0, num / np.maximum(den, 1e-30), 0.0)     # least squares
-    one_minus_a = np.median(np.diag(Jb) - r * np.diag(W))
-    alpha = float(np.clip(1.0 - one_minus_a, 1e-6, 1.0))
-    return alpha, r / alpha
-
-
 # --------------------------------------------------------------------------- #
-# quotients
+# scoring
 # --------------------------------------------------------------------------- #
-def indicator(labels):
-    cats, inv = np.unique(labels, return_inverse=True)
-    H = np.zeros((len(labels), cats.size))
-    H[np.arange(len(labels)), inv] = 1.0
-    return H, H.sum(0)
-
-
-def quotient(M, H, sizes):
-    """(H'H)^-1 H' M H : row-averaged block sums.
-
-    This is the quotient in the RAW role coordinates in which W H = H Q holds
-    exactly for an equitable partition, so an eigenvector z of Q lifts to units
-    as H z (NOT as H D^-1/2 z -- see quotient_ortho).
-    """
-    return (H.T @ M @ H) / sizes[:, None]
-
-
-def quotient_ortho(M, H, sizes):
-    """D^-1/2 H' M H D^-1/2 : the same quotient in ORTHONORMAL role coordinates.
-
-    With S = H D^-1/2 (S'S = I), an equitable partition gives M S = S Qtilde,
-    where Qtilde = D^1/2 Q D^-1/2 is similar to Q and so has the same spectrum.
-    Use this operator whenever the lift to unit space is performed through S;
-    lifting eigenvectors of the raw Q through S mixes the two coordinate systems.
-    """
-    r = np.sqrt(sizes)
-    return (H.T @ M @ H) / r[:, None] / r[None, :]
-
-
-def lifted_basis(Q, H, sizes, m):
-    """Top-m eigenvectors of Q by |lambda|, lifted to units and orthonormalised.
-
-    Returns (B, lambdas) with B (N, r), r <= m.
-    """
-    lam, V = np.linalg.eig(Q)
-    order = np.argsort(-np.abs(lam))[:m]
-    lam = lam[order]
-    U = H @ np.real(V[:, order])           # lift: piecewise constant on groups
-    # complex pairs contribute their real and imaginary parts
-    if np.any(np.abs(np.imag(V[:, order])) > 1e-12):
-        U = np.hstack([U, H @ np.imag(V[:, order])])
-    Bq, R = np.linalg.qr(U)
-    keep = np.abs(np.diag(R)) > 1e-10
-    return Bq[:, keep], lam
-
-
 def score(v, B, PHv_norm):
     """A_raw and A_cond for a motif direction v against basis B."""
     vn = np.linalg.norm(v)
@@ -159,12 +98,6 @@ def score(v, B, PHv_norm):
         return np.nan, np.nan
     proj = np.linalg.norm(B.T @ v)
     return float(proj / vn), (float(proj / PHv_norm) if PHv_norm > 0 else np.nan)
-
-
-def containment_norm(v, H, sizes):
-    """||P_H v||."""
-    gs = H.T @ v
-    return float(np.sqrt(np.sum(gs ** 2 / sizes)))
 
 
 # --------------------------------------------------------------------------- #
@@ -179,12 +112,12 @@ def eval_labels(labels, W, conds, m_grid):
     for c in conds:
         v = c["v"]
         PHv = containment_norm(v, H, sizes)
-        gbar = (H.T @ c["g"]) / sizes
-        Qp = (1 - c["alpha"]) * np.eye(len(sizes)) + c["alpha"] * (gbar[:, None] * Qs)
+        gbar = role_gain(c["g"], H, sizes)
+        Qp = gain_operator(Qs, gbar, c["alpha"])
         Qt = quotient(c["Jb"], H, sizes)
         for tag, Q in (("struct", Qs), ("pred", Qp), ("task", Qt)):
             for m in m_grid:
-                B, lam = lifted_basis(Q, H, sizes, m)
+                B, lam = lifted_basis(Q, H, m)
                 a_raw, a_cond = score(v, B, PHv)
                 out[f"{tag}_m{m}"].append(a_cond)
                 if tag == "pred" and m == m_grid[-1] and np.isfinite(c["lam_J"]):

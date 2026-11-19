@@ -34,13 +34,12 @@ from flexsym.figures.figstyle import (
 )
 from flexsym.motifs.motif_classify import npload
 from flexsym.motifs.motif_participation import WL_ROOT
-from flexsym.run.gain_configuration import (
-    diag_percentile, participation_ratio, susceptibility, swap_matrix,
-)
-from flexsym.run.motif_quotient_prediction import (
-    condition_jacobians, indicator, load_conditions, quotient,
-)
+from flexsym.run.gain_configuration import diag_percentile, participation_ratio, swap_matrix
+from flexsym.run.motif_quotient_prediction import condition_jacobians, load_conditions
 from flexsym.run.motif_reuse_control import _row_for_k
+from flexsym.structural.gain import gain_operator, role_gain, susceptibility
+from flexsym.structural.partition import indicator
+from flexsym.structural.quotient import quotient
 from flexsym.structural.operating_k import OPK, model_name
 
 matplotlib.rcParams["svg.fonttype"] = "none"
@@ -140,7 +139,7 @@ def panel_A():
         same = [c for c in conds if c["motif"] == m]
         if not same:
             continue
-        gb = [np.linalg.norm((H.T @ c["g"]) / sizes) for c in same]
+        gb = [np.linalg.norm(role_gain(c["g"], H, sizes)) for c in same]
         picks.append(same[int(np.argsort(gb)[len(gb) // 2])])
 
     fig = plt.figure(figsize=(7.1, 3.6))
@@ -158,11 +157,11 @@ def panel_A():
                   color=INK, pad=6)
     axQ.set_xlabel(f"{k} roles", fontsize=8.0, color=MUTED)
 
-    gmean = np.array([(H.T @ c["g"]) / sizes for c in conds]).mean(0)
+    gmean = np.array([role_gain(c["g"], H, sizes) for c in conds]).mean(0)
     axS = fig.add_subplot(gs[:, 2])
     for i, c in enumerate(picks):
         col = MOTIF_COL[c["motif"]]
-        gb = (H.T @ c["g"]) / sizes
+        gb = role_gain(c["g"], H, sizes)
         axg = fig.add_subplot(gs[i, 1])
         axg.bar(np.arange(len(gb)), gb, width=0.9, color=col, zorder=3)
         axg.plot(np.arange(len(gb)), gmean, color=MUTED, lw=0.8, zorder=5)
@@ -182,7 +181,7 @@ def panel_A():
             axg.text(1.0, 1.04, "grey: mean over conditions", transform=axg.transAxes,
                      ha="right", va="bottom", fontsize=6.2, color=MUTED)
 
-        Qc = (1 - c["alpha"]) * np.eye(len(sizes)) + c["alpha"] * (gb[:, None] * Qs)
+        Qc = gain_operator(Qs, gb, c["alpha"])
         mag = np.sort(np.abs(np.linalg.eigvals(Qc)))[::-1][:12]
         axS.plot(np.arange(1, len(mag) + 1), mag, "-o", ms=3.2, lw=1.6, color=col,
                  zorder=5, label=f"{c['key'].split('__')[0]}")
@@ -409,7 +408,7 @@ def panel_F():
     H, sizes = indicator(labels)
     Qs = quotient(W, H, sizes)
     alpha = float(np.median([c["alpha"] for c in conds]))
-    gref = np.median(np.array([(H.T @ c["g"]) / sizes for c in conds]), axis=0)
+    gref = np.median(np.array([role_gain(c["g"], H, sizes) for c in conds]), axis=0)
     S, lam, _ = susceptibility(Qs, gref, alpha)
     order = np.argsort(-np.abs(lam))[:10]
     M = S[:, order]

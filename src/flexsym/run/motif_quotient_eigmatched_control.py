@@ -25,16 +25,11 @@ from flexsym.motifs.motif_classify import npload
 from flexsym.motifs.motif_participation import WL_ROOT
 from flexsym.run.motif_reuse_control import MOTIF_TYPES, _row_for_k
 from flexsym.run.motif_reuse_diagnostics import canonical_sign
-from flexsym.run.motif_quotient_prediction import (
-    condition_jacobians,
-    containment_norm,
-    indicator,
-    lifted_basis,
-    load_conditions,
-    quotient,
-    recover_alpha_gain,
-    score,
-)
+from flexsym.run.motif_quotient_prediction import condition_jacobians, load_conditions, score
+from flexsym.structural.gain import gain_operator, recover_alpha_gain, role_gain
+from flexsym.structural.lift import lifted_basis
+from flexsym.structural.partition import containment_norm, indicator
+from flexsym.structural.quotient import quotient
 
 FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 K_GRID = [8, 12, 16, 20, 25, 30, 40, 50]
@@ -97,9 +92,9 @@ def run_net(net, k_grid, n_perm, rng):
             for c in kept:
                 d = c[key]
                 PHd = containment_norm(d, H, sizes)
-                gbar = (H.T @ c["g"]) / sizes
-                Qp = (1 - c["alpha"]) * np.eye(len(sizes)) + c["alpha"] * (gbar[:, None] * Qs)
-                B, _ = lifted_basis(Qp, H, sizes, M)
+                gbar = role_gain(c["g"], H, sizes)
+                Qp = gain_operator(Qs, gbar, c["alpha"])
+                B, _ = lifted_basis(Qp, H, M)
                 _, a_cond = score(d, B, PHd)
                 vals.append(a_cond)
             return np.array(vals, dtype=float)

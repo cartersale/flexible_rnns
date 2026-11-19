@@ -32,10 +32,10 @@ import numpy as np
 from flexsym.motifs.motif_classify import npload  # noqa: E402
 from flexsym.motifs.motif_participation import WL_ROOT  # noqa: E402
 from flexsym.run.motif_reuse_control import MOTIF_TYPES, _row_for_k  # noqa: E402
-from flexsym.run.motif_quotient_prediction import (  # noqa: E402
-    indicator, quotient, containment_norm, recover_alpha_gain,
-)
-from flexsym.run.motif_quotient_controls import basis_from_Q  # noqa: E402
+from flexsym.structural.gain import gain_operator, recover_alpha_gain, role_gain  # noqa: E402
+from flexsym.structural.lift import lifted_basis  # noqa: E402
+from flexsym.structural.partition import containment_norm, indicator  # noqa: E402
+from flexsym.structural.quotient import quotient  # noqa: E402
 
 FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 MAX_FP = 120
@@ -104,9 +104,9 @@ def predict(v_test, g_train, W, labels, alpha):
     """A_cond of the top-R quotient modes built from held-out gains."""
     H, sizes = indicator(labels)
     Qs = quotient(W, H, sizes)
-    gbar = (H.T @ g_train) / sizes
-    Q = (1 - alpha) * np.eye(len(sizes)) + alpha * (gbar[:, None] * Qs)
-    B, _ = basis_from_Q(Q, H, R_MODES)
+    gbar = role_gain(g_train, H, sizes)
+    Q = gain_operator(Qs, gbar, alpha)
+    B, _ = lifted_basis(Q, H, R_MODES)
     if B.shape[1] == 0:
         return np.nan
     PHv = containment_norm(v_test, H, sizes)

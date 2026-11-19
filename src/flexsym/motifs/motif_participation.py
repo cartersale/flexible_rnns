@@ -176,7 +176,7 @@ def subspace_lumpability(vecs, role_labels, n_rand=200, max_vecs=60, rng=None):
     of the motif's signed eigenvectors on the role partition to size-matched
     random partitions -> z.
     """
-    from flexsym.structural.signed_input_wl_structural_roles import random_labels_same_sizes
+    from flexsym.structural.partition import random_labels_same_sizes
 
     rng = rng or np.random.default_rng(0)
     V = np.asarray(vecs, dtype=float)

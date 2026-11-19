@@ -39,14 +39,12 @@ from scipy.stats import wilcoxon
 from flexsym import paths
 from flexsym.motifs.motif_classify import npload
 from flexsym.motifs.motif_participation import WL_ROOT
-from flexsym.run.motif_quotient_prediction import (
-    condition_jacobians,
-    indicator,
-    load_conditions,
-    quotient,
-)
+from flexsym.run.motif_quotient_prediction import condition_jacobians, load_conditions
 from flexsym.run.motif_reuse_control import _row_for_k
-from flexsym.run.motif_type_mode_profiles import lifted_eigbasis
+from flexsym.structural.gain import role_gain
+from flexsym.structural.lift import lifted_basis, lifted_eigbasis
+from flexsym.structural.partition import containment_norm, indicator
+from flexsym.structural.quotient import quotient
 from flexsym.structural.operating_k import OPK, model_name
 
 FP = paths.RESULTS_ROOT / "motif_fixed_points"
@@ -170,14 +168,13 @@ def type_auc(S, types, rules, mask=None):
 def basis_and_quotients(labels, W, conds):
     """Orthonormal lifted quotient basis + per-condition Q, gbar for a partition."""
     H, sizes = indicator(labels)
-    S = H / np.sqrt(sizes)[None, :]
     Qs = quotient(W, H, sizes)
     M = lifted_eigbasis(Qs, H)          # W H = H Qs, so eigen-directions lift through H
     per = {}
     for c in conds:
         per[c["key"]] = {
             "Q": quotient(c["Jb"], H, sizes),
-            "gbar": (H.T @ c["g"]) / sizes,
+            "gbar": role_gain(c["g"], H, sizes),
         }
     return M, per, H, sizes
 
@@ -250,17 +247,6 @@ def transport_mismatched(per, present, rng, n=200):
 # --------------------------------------------------------------------------- #
 # test C: direct sum
 # --------------------------------------------------------------------------- #
-def top_span(Q, H, sizes, m):
-    """Lifted top-m invariant subspace of Q, orthonormalised (unit coordinates)."""
-    lam, V = np.linalg.eig(Q)
-    order = np.argsort(-np.abs(lam))[:m]
-    U = H @ np.real(V[:, order])
-    if np.any(np.abs(np.imag(V[:, order])) > 1e-12):
-        U = np.hstack([U, H @ np.imag(V[:, order])])
-    B, R = np.linalg.qr(U)
-    return B[:, np.abs(np.diag(R)) > 1e-10]
-
-
 def contained(v, B, denom):
     if B.shape[1] == 0 or denom <= 0:
         return np.nan
@@ -269,14 +255,13 @@ def contained(v, B, denom):
 
 def direct_sum(conds, per, H, sizes, rng, n_null=100):
     byk = {c["key"]: c for c in conds}
-    spans = {k: top_span(per[k]["Q"], H, sizes, TOP_M) for k in per}
+    spans = {k: lifted_basis(per[k]["Q"], H, TOP_M)[0] for k in per}
     out = {}
     for kc, ka, kb in TRIPLES:
         if not all(x in byk for x in (kc, ka, kb)):
             continue
         v = byk[kc]["v"]
-        gs = H.T @ v
-        ph = float(np.sqrt(np.sum(gs ** 2 / sizes)))          # ||P_H v||
+        ph = containment_norm(v, H, sizes)
         Ba, Bb = spans[ka], spans[kb]
         Bab = np.linalg.qr(np.hstack([Ba, Bb]))[0][:, :Ba.shape[1] + Bb.shape[1]]
         rho = contained(v, Bab, ph)

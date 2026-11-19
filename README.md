@@ -63,12 +63,20 @@ src/flexsym/
   paths.py       every filesystem root, resolved from .env
   core/          vendored upstream: network, task, train, tools, variance
   training/      the size x seed training grid and its epoch-variance clustering
-  structural/    signed-WL role partition, operating k, activity coherence
+  structural/    signed-WL role partition, operating k, activity coherence;
+                 and the shared linear algebra every analysis imports:
+                   partition.py  indicators, the role-constant projector, signed WL
+                   quotient.py   raw and orthonormal quotients, equitability error
+                   lift.py       quotient eigenspaces and their lift to units
+                   gain.py       (1-a)I + a diag(g)M, gain recovery, gain sensitivity
   motifs/        motif classification and per-unit participation
   run/           analysis entry points, one per reported result
   figures/       the panels of Figures 1-3
   supp/          every supplementary table and figure
 ```
+
+The shared modules are tested against matrices with known quotients and
+spectra (`pip install -e .[test]`, then `pytest`).
 
 Entry points are modules, not scripts:
 

@@ -36,7 +36,6 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.cluster.hierarchy import fcluster
-from sklearn.cluster import KMeans
 from sklearn.metrics import (
     adjusted_mutual_info_score,
     adjusted_rand_score,
@@ -45,104 +44,14 @@ from sklearn.metrics import (
     normalized_mutual_info_score,
 )
 
+from flexsym.structural.partition import (
+    approx_wl_signed,
+    labels_to_H,
+    random_labels_same_sizes,
+)
+from flexsym.structural.quotient import gamma_signed, quotient_matrix
 
 
-
-def labels_to_H(labels: np.ndarray, k: int) -> np.ndarray:
-    labels = np.asarray(labels, dtype=np.int64)
-    n = len(labels)
-    H = np.zeros((n, k), dtype=float)
-    valid = (labels >= 0) & (labels < k)
-    H[np.arange(n)[valid], labels[valid]] = 1.0
-    return H
-
-
-def checked_matmul(A: np.ndarray, B: np.ndarray, name: str) -> np.ndarray:
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", message=".*encountered in matmul.*")
-        out = A @ B
-    if not np.isfinite(out).all():
-        n_bad = int(np.size(out) - np.isfinite(out).sum())
-        raise FloatingPointError(f"{name} produced {n_bad} non-finite values.")
-    return out
-
-
-def random_labels_same_sizes(labels: np.ndarray, seed: int | None = None) -> np.ndarray:
-    rng = np.random.default_rng(seed)
-    shuffled = np.array(labels, copy=True)
-    rng.shuffle(shuffled)
-    return shuffled
-
-
-def _canonicalize_labels(labels: np.ndarray) -> np.ndarray:
-    """Map arbitrary cluster ids to 0..n_clusters-1 by first occurrence."""
-    mapping: dict[int, int] = {}
-    out = np.empty_like(labels, dtype=np.int64)
-    next_label = 0
-    for i, label in enumerate(labels):
-        label_int = int(label)
-        if label_int not in mapping:
-            mapping[label_int] = next_label
-            next_label += 1
-        out[i] = mapping[label_int]
-    return out
-
-
-def approx_wl_signed(
-    W_pos: np.ndarray,
-    W_neg: np.ndarray,
-    k: int,
-    *,
-    n_iter: int = 20,
-    seed: int = 0,
-    n_init: int = 20,
-) -> tuple[np.ndarray, np.ndarray]:
-    n = W_pos.shape[0]
-    rng = np.random.default_rng(seed)
-    labels = rng.integers(0, k, size=n)
-    H = labels_to_H(labels, k)
-
-    for _ in range(n_iter):
-        X = np.concatenate(
-            [
-                checked_matmul(W_pos, H, "W_pos @ H"),
-                checked_matmul(W_neg, H, "W_neg @ H"),
-            ],
-            axis=1,
-        )
-        labels_new = KMeans(
-            n_clusters=k,
-            n_init=n_init,
-            random_state=seed,
-        ).fit_predict(X)
-        labels_new = _canonicalize_labels(labels_new)
-
-        if np.array_equal(labels_new, labels):
-            break
-
-        labels = labels_new
-        H = labels_to_H(labels, k)
-
-    return labels, H
-
-
-def gamma_ep(W: np.ndarray, H: np.ndarray) -> float:
-    cell_sizes = H.sum(axis=0)
-    D_inv_diag = 1.0 / np.maximum(cell_sizes, 1e-12)
-    WH = checked_matmul(W, H, "W @ H")
-    cell_means = checked_matmul(H.T, WH, "H.T @ WH") * D_inv_diag[:, None]
-    projected = checked_matmul(H, cell_means, "H @ cell_means")
-    return float(np.linalg.norm(WH - projected, ord="fro"))
-
-
-def gamma_signed(W_pos: np.ndarray, W_neg: np.ndarray, H: np.ndarray) -> float:
-    return gamma_ep(W_pos, H) + gamma_ep(W_neg, H)
-
-
-def quotient_matrix(W: np.ndarray, H: np.ndarray) -> np.ndarray:
-    cell_sizes = H.sum(axis=0)
-    D_inv_diag = 1.0 / np.maximum(cell_sizes, 1e-12)
-    return checked_matmul(checked_matmul(H.T, W, "H.T @ W"), H, "H.T @ W @ H") * D_inv_diag[:, None]
 
 
 def contingency_table(labels_struct: np.ndarray, labels_act: np.ndarray, k: int) -> np.ndarray:

@@ -17,8 +17,9 @@ from flexsym import paths
 from flexsym.motifs.motif_classify import npload
 from flexsym.motifs.motif_participation import WL_ROOT
 from flexsym.run.motif_reuse_control import _row_for_k
-from flexsym.run.motif_quotient_prediction import condition_jacobians, load_conditions, indicator
+from flexsym.run.motif_quotient_prediction import condition_jacobians, load_conditions
 from flexsym.run.motif_quotient_mode_concentration import quotient_modes
+from flexsym.structural.partition import indicator, orthonormal_indicator
 
 FP = paths.RESULTS_ROOT / "motif_fixed_points"
 NET = lambda s: f"LeakyRNN_softplus_diag_256_all_{s}"
@@ -61,7 +62,7 @@ def run_net(net, kg):
             continue
         # connectivity: group-constant subspace (orthonormal) + quotient eigenmodes
         H, sizes = indicator(role)
-        S = H / np.sqrt(sizes)[None, :]                   # orthonormal columns spanning col(H)
+        S = orthonormal_indicator(H, sizes)                   # orthonormal columns spanning col(H)
         Mq, _ = quotient_modes(W, role)                   # lifted quotient eigenmodes (k)
         # W_rec eigenbasis matched to dimension k
         E, _ = wrec_eigvecs(W, kk)

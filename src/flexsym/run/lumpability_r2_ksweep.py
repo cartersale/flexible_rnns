@@ -25,7 +25,8 @@ import numpy as np
 
 from flexsym import paths
 from flexsym.motifs.motif_classify import npload
-from flexsym.structural.signed_input_wl_structural_roles import random_labels_same_sizes
+from flexsym.structural.lift import block_prefix, leading_blocks
+from flexsym.structural.partition import random_labels_same_sizes
 
 WL_ROOT = paths.RESULTS_ROOT / "signed_input_wl_paper"
 OUT = WL_ROOT / "lumpability" / "step_r2_ksweep.csv"
@@ -56,41 +57,6 @@ def step_r2(v: np.ndarray, labels: np.ndarray) -> float:
     return float(1.0 - ((v - pred) ** 2).sum() / denom) if denom > 0 else 0.0
 
 
-def leading_blocks(M: np.ndarray, n: int) -> list[np.ndarray]:
-    """The leading real spectral blocks of M, as orthonormal bases, until n dimensions.
-
-    Eigenvalues are taken in order of decreasing |lambda|. A real eigenvalue gives a
-    one-column block, its unit eigenvector; a complex-conjugate pair gives a two-column
-    orthonormal basis of its real invariant plane, and the partner is not visited again.
-    A block is never split, so the last one may carry the total past n.
-
-    Blocks rather than individual vectors because Re(z) and Im(z) of a complex
-    eigenvector depend on the phase the eigensolver happens to return, while the plane
-    they span does not.
-    """
-    w, V = np.linalg.eig(M)
-    order = np.argsort(-np.abs(w))
-    blocks, used, dims = [], set(), 0
-    for i in order:
-        if dims >= n:
-            break
-        if i in used:
-            continue
-        used.add(i)
-        if abs(w[i].imag) < 1e-9:
-            v = np.real(V[:, i])
-            nv = np.linalg.norm(v)
-            if not nv:
-                continue
-            B = (v / nv)[:, None]
-        else:
-            used.add(int(np.argmin(np.abs(w - np.conj(w[i])))))   # conjugate partner
-            B, _ = np.linalg.qr(np.column_stack([np.real(V[:, i]), np.imag(V[:, i])]))
-        blocks.append(B)
-        dims += B.shape[1]
-    return blocks
-
-
 def step_r2_block(B: np.ndarray, labels: np.ndarray) -> float:
     """Piecewise-constant R^2 of a real spectral block.
 
@@ -109,30 +75,6 @@ def step_r2_block(B: np.ndarray, labels: np.ndarray) -> float:
     tot = B - B.mean(axis=0)
     denom = float((tot ** 2).sum())
     return float(1.0 - (res ** 2).sum() / denom) if denom > 0 else 0.0
-
-
-def block_prefix(blocks: list[np.ndarray], n: int) -> list[np.ndarray]:
-    """The leading blocks covering at least n real dimensions, never splitting one."""
-    out, dims = [], 0
-    for B in blocks:
-        if dims >= n:
-            break
-        out.append(B)
-        dims += B.shape[1]
-    return out
-
-
-def leading_eigvecs(M: np.ndarray, n: int) -> np.ndarray:
-    """The columns of the leading real spectral blocks, unit-normalised, as rows.
-
-    For display and for code that wants individual directions. The reported statistic is
-    computed per block (see step_r2_block), because a single column of a complex block
-    turns with the eigenvector's phase.
-    """
-    out = []
-    for B in leading_blocks(M, n):
-        out.extend(B.T)
-    return np.asarray(out[:n])
 
 
 def scores(blocks_best: list[np.ndarray], blocks_topk: list[np.ndarray],

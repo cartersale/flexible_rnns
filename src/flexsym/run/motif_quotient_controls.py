@@ -36,9 +36,12 @@ from flexsym.motifs.motif_classify import npload  # noqa: E402
 from flexsym.motifs.motif_participation import WL_ROOT  # noqa: E402
 from flexsym.run.motif_reuse_control import _row_for_k  # noqa: E402
 from flexsym.run.motif_quotient_prediction import (  # noqa: E402
-    condition_jacobians, load_conditions, indicator, quotient,
-    containment_norm,
+    condition_jacobians, load_conditions,
 )
+from flexsym.structural.gain import gain_operator, role_gain  # noqa: E402
+from flexsym.structural.lift import lifted_basis, select_modes  # noqa: E402
+from flexsym.structural.partition import containment_norm, indicator  # noqa: E402
+from flexsym.structural.quotient import quotient  # noqa: E402
 
 FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 R_MAX = 10
@@ -46,43 +49,8 @@ N_PERM = 60
 
 
 # --------------------------------------------------------------------------- #
-# mode selection + scoring
+# scoring
 # --------------------------------------------------------------------------- #
-def select_modes(lam, rule, r, lam_J=None):
-    if rule == "top":
-        key = -np.abs(lam)
-    elif rule == "unit":
-        key = np.abs(lam - 1.0)
-    elif rule == "unstable":
-        key = -np.real(lam)
-    elif rule == "match":                       # closest to the motif's own lambda
-        key = np.abs(lam - lam_J)
-    else:
-        raise ValueError(rule)
-    return np.argsort(key)[:r]
-
-
-def basis_from_Q(Q, H, r, rule="top", lam_J=None, eig=None):
-    lam, V = np.linalg.eig(Q) if eig is None else eig
-    idx = select_modes(lam, rule, r, lam_J)
-    U = H @ np.real(V[:, idx])
-    if np.any(np.abs(np.imag(V[:, idx])) > 1e-12):
-        U = np.hstack([U, H @ np.imag(V[:, idx])])
-    B, R = np.linalg.qr(U)
-    return B[:, np.abs(np.diag(R)) > 1e-10], lam[idx]
-
-
-def basis_from_full(M, r, rule="top", lam_J=None):
-    """Top-r modes of a full N x N operator (no partition)."""
-    lam, V = np.linalg.eig(M)
-    idx = select_modes(lam, rule, r, lam_J)
-    U = np.real(V[:, idx])
-    if np.any(np.abs(np.imag(V[:, idx])) > 1e-12):
-        U = np.hstack([U, np.imag(V[:, idx])])
-    B, R = np.linalg.qr(U)
-    return B[:, np.abs(np.diag(R)) > 1e-10]
-
-
 def align(v, B):
     if B is None or B.shape[1] == 0:
         return np.nan
@@ -95,18 +63,18 @@ def align(v, B):
 def build_predictors(c, H, sizes, Qs, alpha, rng, donor_g=None):
     """dict name -> (k x k quotient) for the ablation family (C3)."""
     kk = len(sizes)
-    gbar = (H.T @ c["g"]) / sizes
+    gbar = role_gain(c["g"], H, sizes)
     I = np.eye(kk)
     P = {
-        "Q_pred": (1 - alpha) * I + alpha * (gbar[:, None] * Qs),
+        "Q_pred": gain_operator(Qs, gbar, alpha),
         "no_gain": (1 - alpha) * I + alpha * Qs,
         "scalar_gain": (1 - alpha) * I + alpha * float(np.mean(c["g"])) * Qs,
         "gain_only": (1 - alpha) * I + alpha * np.diag(gbar),
-        "perm_gain": (1 - alpha) * I + alpha * (rng.permutation(gbar)[:, None] * Qs),
+        "perm_gain": gain_operator(Qs, rng.permutation(gbar), alpha),
     }
     if donor_g is not None:
-        gd = (H.T @ donor_g) / sizes
-        P["cross_gain"] = (1 - alpha) * I + alpha * (gd[:, None] * Qs)
+        gd = role_gain(donor_g, H, sizes)
+        P["cross_gain"] = gain_operator(Qs, gd, alpha)
     return P
 
 
@@ -134,7 +102,7 @@ def eval_all(labels, W, conds, rng, r_list, donors):
             for r in r_list:
                 if r > kk:
                     continue
-                B, _ = basis_from_Q(Q, H, r, eig=eigs[name])
+                B, _ = lifted_basis(Q, H, r, eig=eigs[name])
                 pr = np.linalg.norm(B.T @ v) if B.shape[1] else np.nan
                 push(f"{name}|r{r}", pr / nv, pr / PHv if PHv > 0 else np.nan)
                 if name == "Q_pred":       # generic rule, per motif class (C6)
@@ -156,7 +124,7 @@ def eval_all(labels, W, conds, rng, r_list, donors):
             if r > kk:
                 continue
             for tag, rl in (("sel_motif", rule), ("sel_match", "match")):
-                B, _ = basis_from_Q(Ps["Q_pred"], H, r, rule=rl,
+                B, _ = lifted_basis(Ps["Q_pred"], H, r, rule=rl,
                                     lam_J=c["lam_J"], eig=eigs["Q_pred"])
                 pr = np.linalg.norm(B.T @ v) if B.shape[1] else np.nan
                 push(f"{tag}|r{r}", pr / nv, pr / PHv if PHv > 0 else np.nan)
@@ -183,10 +151,10 @@ def full_space_predictors(conds, W, r_list):
         v = c["v"]
         for r in r_list:
             for name, B in (
-                ("full_J", basis_from_full(c["Jb"], r)),
-                ("full_W", basis_from_full(W, r)),
+                ("full_J", lifted_basis(c["Jb"], None, r)[0]),
+                ("full_W", lifted_basis(W, None, r)[0]),
                 ("W_svd", np.linalg.qr(Vt[:r].T)[0]),
-                ("full_J_match", basis_from_full(c["Jb"], r, "match", c["lam_J"])),
+                ("full_J_match", lifted_basis(c["Jb"], None, r, "match", c["lam_J"])[0]),
             ):
                 acc.setdefault(f"{name}|r{r}", []).append(align(v, B))
     return {k: float(np.nanmean(vv)) for k, vv in acc.items()}

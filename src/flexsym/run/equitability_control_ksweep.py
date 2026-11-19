@@ -24,12 +24,12 @@ from flexsym import paths
 from flexsym.motifs.motif_classify import npload
 from flexsym.run.control_ksweep import K_GRID, make_matrix
 from flexsym.run.lumpability_r2_ksweep import COHORTS
-from flexsym.structural.signed_input_wl_structural_roles import (
+from flexsym.structural.partition import (
     approx_wl_signed,
-    gamma_signed,
     labels_to_H,
     random_labels_same_sizes,
 )
+from flexsym.structural.quotient import gamma_signed
 
 WL_ROOT = paths.RESULTS_ROOT / "signed_input_wl_paper"
 OUT = WL_ROOT / "lumpability" / "equitability_control_ksweep.csv"

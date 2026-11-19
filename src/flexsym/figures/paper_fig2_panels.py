@@ -189,7 +189,8 @@ def _example_roles(k=K):
     """Role labels, per-role mean participation and the quotient, for the example."""
     from flexsym.motifs.motif_classify import npload
     from flexsym.run.motif_reuse_control import _row_for_k
-    from flexsym.run.motif_quotient_prediction import indicator, quotient
+    from flexsym.structural.partition import indicator
+    from flexsym.structural.quotient import quotient
 
     wl = npload(WL_ROOT / EX_NET / "transpose" / "signed_input_wl_sweep.npz")
     r = _row_for_k(wl["labels_struct_by_k"], k)

@@ -28,66 +28,26 @@ import argparse
 import json
 
 import numpy as np
-from scipy.optimize import linear_sum_assignment
 from scipy.stats import wilcoxon
 
 from flexsym import paths
 from flexsym.motifs.motif_classify import npload
 from flexsym.motifs.motif_participation import WL_ROOT
-from flexsym.run.gain_configuration import susceptibility
 from flexsym.run.motif_operator_composition import FAMILIES, key, med
-from flexsym.run.motif_quotient_prediction import (
-    condition_jacobians,
-    indicator,
-    load_conditions,
-    quotient,
-)
+from flexsym.run.motif_quotient_prediction import condition_jacobians, load_conditions
 from flexsym.run.motif_reuse_control import _row_for_k
+from flexsym.structural.gain import role_gain, rotation_sensitivity, susceptibility
+from flexsym.structural.partition import indicator
+from flexsym.structural.quotient import quotient
 from flexsym.structural.operating_k import OPK, model_name
 
 FP = paths.RESULTS_ROOT / "motif_fixed_points"
-EPS = 1e-5
 N_SURR = 200
 N_CRIT = 5          # modes counted as near-critical
 R_SUB = 3           # dimension of the high-leverage subspace
 TOL = 1e-12
 CLASSES = ["star", "critical", "other"]
 SENS = ["ev", "rot"]
-
-
-def qmat(Qs, g, alpha):
-    return (1 - alpha) * np.eye(len(g)) + alpha * (g[:, None] * Qs)
-
-
-def unit_cols(V):
-    return V / np.maximum(np.linalg.norm(V, axis=0), TOL)
-
-
-def rotation_sensitivity(Qs, g, alpha, eps=EPS):
-    """Finite-difference ||dv_j/dg_i|| and d|lambda_j|/dg_i, mode-matched.
-
-    Returns (Rot (k,k), dLam_fd (k,k), lam, V).
-    """
-    k = len(g)
-    lam, V = np.linalg.eig(qmat(Qs, g, alpha))
-    V = unit_cols(V)
-    Rot = np.zeros((k, k))
-    dLam = np.zeros((k, k))
-    for i in range(k):
-        gp = g.copy()
-        gp[i] += eps
-        lp, Vp = np.linalg.eig(qmat(Qs, gp, alpha))
-        Vp = unit_cols(Vp)
-        A = np.abs(V.conj().T @ Vp)
-        r, c = linear_sum_assignment(-A)
-        for j, cc in zip(r, c):
-            v0, v1 = V[:, j], Vp[:, cc]
-            ph = np.vdot(v0, v1)
-            if abs(ph) > TOL:
-                v1 = v1 * np.conj(ph) / abs(ph)      # phase/sign alignment
-            Rot[i, j] = np.linalg.norm(v1 - v0) / eps
-            dLam[i, j] = (abs(lp[cc]) - abs(lam[j])) / eps
-    return Rot, dLam, lam, V
 
 
 def colnorm(S):
@@ -138,8 +98,8 @@ def run_net(net, k, rng, n_surr=N_SURR):
             ka, kb = key(a, epoch), key(b, epoch)
             if ka not in present or kb not in present:
                 continue
-            ga = (H.T @ byk[ka]["g"]) / sizes
-            gb = (H.T @ byk[kb]["g"]) / sizes
+            ga = role_gain(byk[ka]["g"], H, sizes)
+            gb = role_gain(byk[kb]["g"], H, sizes)
             dg = gb - ga
             nd = np.linalg.norm(dg)
             if nd <= TOL:

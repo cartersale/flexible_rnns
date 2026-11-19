@@ -33,11 +33,10 @@ from scipy.spatial.distance import pdist
 
 from flexsym import paths
 from flexsym.figures.figstyle import MUTED, INK
-from flexsym.run.lumpability_r2_ksweep import TOP_N, leading_eigvecs, step_r2
-from flexsym.structural.signed_input_wl_structural_roles import (
-    labels_to_H,
-    quotient_matrix,
-)
+from flexsym.run.lumpability_r2_ksweep import TOP_N, step_r2
+from flexsym.structural.lift import leading_eigvecs
+from flexsym.structural.partition import labels_to_H
+from flexsym.structural.quotient import quotient_matrix
 
 matplotlib.rcParams["svg.fonttype"] = "none"
 matplotlib.rcParams["font.family"] = "sans-serif"

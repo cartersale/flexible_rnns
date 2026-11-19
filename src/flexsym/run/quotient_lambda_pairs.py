@@ -20,13 +20,11 @@ import numpy as np
 from flexsym import paths
 from flexsym.motifs.motif_classify import npload
 from flexsym.motifs.motif_participation import WL_ROOT
-from flexsym.run.motif_quotient_prediction import (
-    condition_jacobians,
-    indicator,
-    load_conditions,
-    quotient,
-)
+from flexsym.run.motif_quotient_prediction import condition_jacobians, load_conditions
 from flexsym.run.motif_reuse_control import _row_for_k
+from flexsym.structural.gain import gain_operator, role_gain
+from flexsym.structural.partition import indicator
+from flexsym.structural.quotient import quotient
 
 FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 K = 20
@@ -38,8 +36,8 @@ def best_aligned(labels, W, c, v, m=M):
     """(lambda of the best-aligned quotient mode, lambda of the nearest one)."""
     H, sizes = indicator(labels)
     Qs = quotient(W, H, sizes)
-    gbar = (H.T @ c["g"]) / sizes
-    Qp = (1 - c["alpha"]) * np.eye(len(sizes)) + c["alpha"] * (gbar[:, None] * Qs)
+    gbar = role_gain(c["g"], H, sizes)
+    Qp = gain_operator(Qs, gbar, c["alpha"])
     lam, V = np.linalg.eig(Qp)
     order = np.argsort(-np.abs(lam))[:m]
     lam, V = lam[order], V[:, order]

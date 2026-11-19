@@ -14,10 +14,11 @@ import glob
 import numpy as np
 
 from flexsym import paths
-from flexsym.structural.signed_input_wl_structural_roles import (
-    approx_wl_signed, load_w_rec, labels_to_H, random_labels_same_sizes,
+from flexsym.structural.signed_input_wl_structural_roles import load_w_rec
+from flexsym.structural.partition import (
+    approx_wl_signed, pw_constant_projector, random_labels_same_sizes,
 )
-from flexsym.run.lumpability_check import eig_leakage, subspace_invariance, pw_constant_projector
+from flexsym.run.lumpability_check import eig_leakage, subspace_invariance
 from flexsym.motifs.motif_participation import WL_ROOT
 
 # k = 3..60, as in lumpability_r2_ksweep; row index in labels_struct_by_k is k - 3.

@@ -34,6 +34,7 @@ import numpy as np
 
 from flexsym.motifs.motif_classify import npload  # noqa: E402
 from flexsym.motifs.motif_participation import WL_ROOT, ACT_ROOT, ACT_NAME  # noqa: E402
+from flexsym.structural.partition import indicator  # noqa: E402
 
 FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 K_GRID = [8, 12, 16, 20, 25, 30, 40, 50]
@@ -46,10 +47,7 @@ MOTIF_TYPES = ("line_attractor", "saddle_decision", "rotation", "point_attractor
 # --------------------------------------------------------------------------- #
 def project(P, labels):
     """Group-constant projection of every row of P (m, N): unit -> group mean."""
-    cats, inv = np.unique(labels, return_inverse=True)
-    G = np.zeros((len(labels), cats.size))
-    G[np.arange(len(labels)), inv] = 1.0
-    sizes = G.sum(0)                       # every group is non-empty by construction
+    G, sizes = indicator(labels)           # every group is non-empty by construction
     with np.errstate(all="ignore"):        # numpy>=2 BLAS raises spurious FP flags
         return (P @ G / sizes) @ G.T
 

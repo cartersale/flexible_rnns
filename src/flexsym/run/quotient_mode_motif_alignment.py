@@ -42,11 +42,9 @@ from scipy.stats import spearmanr, wilcoxon
 from flexsym import paths
 from flexsym.motifs.motif_classify import npload
 from flexsym.motifs.motif_participation import WL_ROOT
-from flexsym.run.motif_quotient_prediction import (
-    condition_jacobians, indicator, load_conditions,
-)
+from flexsym.run.motif_quotient_prediction import condition_jacobians, load_conditions
 from flexsym.run.motif_reuse_control import MOTIF_TYPES, _row_for_k
-from flexsym.structural.signed_input_wl_structural_roles import random_labels_same_sizes
+from flexsym.structural.partition import indicator, project, random_labels_same_sizes
 
 OUT = paths.RESULTS_ROOT / "signed_input_wl_paper/lumpability/quotient_mode_motif_alignment.csv"
 K_GRID = [8, 12, 16, 20, 25, 30, 40, 50]
@@ -123,8 +121,9 @@ def span_alignment(md: dict, idx: np.ndarray, v: np.ndarray) -> float:
 def projector_apply(labels: np.ndarray):
     """P = H (H'H)^-1 H' as a callable, without forming the n x n matrix."""
     H, sizes = indicator(labels)
+
     def apply(X):
-        return H @ ((H.T @ X) / sizes[:, None])
+        return project(X, H, sizes)
     return apply
 
 

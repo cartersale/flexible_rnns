@@ -25,11 +25,9 @@ from sklearn.metrics import adjusted_rand_score
 
 from flexsym import paths
 from flexsym.motifs.motif_classify import npload
-from flexsym.run.lumpability_r2_ksweep import COHORTS, GRID, block_prefix, leading_blocks, scores
-from flexsym.structural.signed_input_wl_structural_roles import (
-    approx_wl_signed,
-    random_labels_same_sizes,
-)
+from flexsym.run.lumpability_r2_ksweep import COHORTS, GRID, scores
+from flexsym.structural.lift import block_prefix, leading_blocks
+from flexsym.structural.partition import approx_wl_signed, random_labels_same_sizes
 
 WL_ROOT = paths.RESULTS_ROOT / "signed_input_wl_paper"
 OUT = WL_ROOT / "lumpability" / "restart_ari_vs_r2.csv"

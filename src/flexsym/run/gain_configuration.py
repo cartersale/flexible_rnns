@@ -34,21 +34,18 @@ import argparse
 import json
 
 import numpy as np
-from scipy.optimize import linear_sum_assignment
 from scipy.stats import wilcoxon
 
 from flexsym import paths
 from flexsym.motifs.motif_classify import npload
 from flexsym.motifs.motif_participation import WL_ROOT
 from flexsym.run.motif_operator_composition import FAMILIES, key, med
-from flexsym.run.motif_quotient_prediction import (
-    condition_jacobians,
-    indicator,
-    lifted_basis,
-    load_conditions,
-    quotient,
-)
+from flexsym.run.motif_quotient_prediction import condition_jacobians, load_conditions
 from flexsym.run.motif_reuse_control import _row_for_k
+from flexsym.structural.gain import gain_operator, match_modes, role_gain, susceptibility
+from flexsym.structural.lift import lifted_basis
+from flexsym.structural.partition import containment_norm, indicator
+from flexsym.structural.quotient import quotient
 from flexsym.structural.operating_k import model_name, operating_k
 
 FP = paths.RESULTS_ROOT / "motif_fixed_points"
@@ -60,23 +57,6 @@ TOL = 1e-12
 # --------------------------------------------------------------------------- #
 # bases
 # --------------------------------------------------------------------------- #
-def unit_basis(W, g, alpha, m):
-    """Top-m eigenvector basis of the full-resolution predicted Jacobian."""
-    J = (1 - alpha) * np.eye(len(W)) + alpha * (g[:, None] * W)
-    lam, V = np.linalg.eig(J)
-    order = np.argsort(-np.abs(lam))[:m]
-    U = np.real(V[:, order])
-    if np.any(np.abs(np.imag(V[:, order])) > 1e-12):
-        U = np.hstack([U, np.imag(V[:, order])])
-    B, R = np.linalg.qr(U)
-    return B[:, np.abs(np.diag(R)) > 1e-10]
-
-
-def containment(v, H, sizes):
-    gs = H.T @ v
-    return float(np.sqrt(np.sum(gs ** 2 / sizes)))
-
-
 def swap_matrix(conds, labels, W, Qs_cache=None, shuffle_rng=None):
     """S[i,j] = ||B(gbar_j)' v_i|| / ||P_H v_i|| for a given partition."""
     H, sizes = indicator(labels)
@@ -84,14 +64,13 @@ def swap_matrix(conds, labels, W, Qs_cache=None, shuffle_rng=None):
     n = len(conds)
     gbars = []
     for c in conds:
-        gb = (H.T @ c["g"]) / sizes
+        gb = role_gain(c["g"], H, sizes)
         if shuffle_rng is not None:
             gb = gb[shuffle_rng.permutation(len(gb))]
         gbars.append(gb)
-    bases = [lifted_basis((1 - c["alpha"]) * np.eye(len(sizes))
-                          + c["alpha"] * (gb[:, None] * Qs), H, sizes, TOP_M)[0]
+    bases = [lifted_basis(gain_operator(Qs, gb, c["alpha"]), H, TOP_M)[0]
              for c, gb in zip(conds, gbars)]
-    denom = [containment(c["v"], H, sizes) for c in conds]
+    denom = [containment_norm(c["v"], H, sizes) for c in conds]
     S = np.full((n, n), np.nan)
     for i, c in enumerate(conds):
         if denom[i] <= TOL:
@@ -105,7 +84,7 @@ def swap_matrix(conds, labels, W, Qs_cache=None, shuffle_rng=None):
 
 def swap_matrix_unit(conds, W):
     n = len(conds)
-    bases = [unit_basis(W, c["g"], c["alpha"], TOP_M) for c in conds]
+    bases = [lifted_basis(gain_operator(W, c["g"], c["alpha"]), None, TOP_M)[0] for c in conds]
     S = np.full((n, n), np.nan)
     for i, c in enumerate(conds):
         for j in range(n):
@@ -136,26 +115,6 @@ def diag_margin(S):
 # --------------------------------------------------------------------------- #
 # susceptibility
 # --------------------------------------------------------------------------- #
-def susceptibility(Qs, gbar, alpha):
-    """d|lambda_j| / d g_i at the operating point gbar.
-
-    Returns (Ssens (k roles x k modes, real), lam (k,), Vr (right eigvecs)).
-    """
-    k = len(gbar)
-    Q = (1 - alpha) * np.eye(k) + alpha * (gbar[:, None] * Qs)
-    lam, Vr = np.linalg.eig(Q)
-    Vl = np.linalg.inv(Vr).conj().T          # left eigenvectors, u_j' v_j = 1
-    QsV = Qs @ Vr
-    S = np.zeros((k, k))
-    for j in range(k):
-        dl = alpha * np.conj(Vl[:, j]) * QsV[:, j]          # d lambda_j / d g_i
-        if abs(lam[j]) > TOL:
-            S[:, j] = np.real(np.conj(lam[j]) / abs(lam[j]) * dl)   # d|lambda|
-        else:
-            S[:, j] = np.real(dl)
-    return S, lam, Vr
-
-
 def participation_ratio(x):
     p = np.abs(x)
     s = p.sum()
@@ -163,15 +122,6 @@ def participation_ratio(x):
         return np.nan
     p = p / s
     return float(1.0 / (p ** 2).sum())
-
-
-def match_modes(V1, V2):
-    """Greedy-optimal mode correspondence by |right-eigenvector overlap|."""
-    A = np.abs(np.real(V1).T @ np.real(V2))
-    A /= np.maximum(np.linalg.norm(np.real(V1), axis=0)[:, None]
-                    * np.linalg.norm(np.real(V2), axis=0)[None, :], TOL)
-    r, c = linear_sum_assignment(-A)
-    return r, c, A[r, c]
 
 
 # --------------------------------------------------------------------------- #
@@ -233,14 +183,14 @@ def run_net(net, k, rng, n_perm=N_PERM):
                             "own_b": S_role[ib, ib], "swapped_b": S_role[ib, ia]})
 
     # ---- 2. susceptibility ------------------------------------------------ #
-    gref = np.median(np.array([(H.T @ c["g"]) / sizes for c in conds]), axis=0)
+    gref = np.median(np.array([role_gain(c["g"], H, sizes) for c in conds]), axis=0)
     Ssens, lam_ref, Vref = susceptibility(Qs, gref, alpha)
     order = np.argsort(-np.abs(lam_ref))
     pr_role = [participation_ratio(Ssens[:, j]) for j in order[:10]]
 
     Ha, sa = indicator(actl)
     Qa = quotient(W, Ha, sa)
-    ga = np.median(np.array([(Ha.T @ c["g"]) / sa for c in conds]), axis=0)
+    ga = np.median(np.array([role_gain(c["g"], Ha, sa) for c in conds]), axis=0)
     Sa, lam_a, _ = susceptibility(Qa, ga, alpha)
     pr_act = [participation_ratio(Sa[:, j])
               for j in np.argsort(-np.abs(lam_a))[:10]]
@@ -251,7 +201,7 @@ def run_net(net, k, rng, n_perm=N_PERM):
         rng.shuffle(perm)
         Hr, sr = indicator(perm)
         Qr = quotient(W, Hr, sr)
-        gr = np.median(np.array([(Hr.T @ c["g"]) / sr for c in conds]), axis=0)
+        gr = np.median(np.array([role_gain(c["g"], Hr, sr) for c in conds]), axis=0)
         Sr_, lam_r, _ = susceptibility(Qr, gr, alpha)
         pr_rand.append(np.median([participation_ratio(Sr_[:, j])
                                   for j in np.argsort(-np.abs(lam_r))[:10]]))
@@ -268,8 +218,8 @@ def run_net(net, k, rng, n_perm=N_PERM):
             ka, kb = key(a, epoch), key(b, epoch)
             if ka not in present or kb not in present:
                 continue
-            ga_ = (H.T @ byk[ka]["g"]) / sizes
-            gb_ = (H.T @ byk[kb]["g"]) / sizes
+            ga_ = role_gain(byk[ka]["g"], H, sizes)
+            gb_ = role_gain(byk[kb]["g"], H, sizes)
             dg = gb_ - ga_
             if np.linalg.norm(dg) <= TOL:
                 continue

@@ -31,11 +31,9 @@ from scipy.linalg import schur
 
 from flexsym import paths
 from flexsym.motifs.motif_classify import npload
-from flexsym.run.lumpability_r2_ksweep import COHORTS, block_prefix, leading_blocks, scores
-from flexsym.structural.signed_input_wl_structural_roles import (
-    approx_wl_signed,
-    random_labels_same_sizes,
-)
+from flexsym.run.lumpability_r2_ksweep import COHORTS, scores
+from flexsym.structural.lift import block_prefix, leading_blocks
+from flexsym.structural.partition import approx_wl_signed, random_labels_same_sizes
 
 WL_ROOT = paths.RESULTS_ROOT / "signed_input_wl_paper"
 OUT = WL_ROOT / "lumpability" / "control_ksweep.csv"

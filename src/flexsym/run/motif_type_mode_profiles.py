@@ -17,15 +17,17 @@ Size-matched random quotients give the null.
 from __future__ import annotations
 import argparse, json
 import numpy as np
-from scipy.linalg import schur, subspace_angles
+from scipy.linalg import subspace_angles
 from scipy.stats import wilcoxon
 
 from flexsym import paths
 from flexsym.motifs.motif_classify import npload
 from flexsym.motifs.motif_participation import WL_ROOT
 from flexsym.run.motif_reuse_control import _row_for_k
-from flexsym.run.motif_quotient_prediction import (
-    condition_jacobians, load_conditions, indicator, quotient, quotient_ortho)
+from flexsym.run.motif_quotient_prediction import condition_jacobians, load_conditions
+from flexsym.structural.lift import lift_ortho, lifted_eigbasis, lifted_real_modes, schur_basis
+from flexsym.structural.partition import indicator, orthonormal_indicator
+from flexsym.structural.quotient import quotient, quotient_ortho
 
 FP = paths.RESULTS_ROOT / "motif_fixed_points"
 NET = lambda s: f"LeakyRNN_softplus_diag_256_all_{s}"
@@ -33,63 +35,6 @@ TYPES = ["line_attractor", "point_attractor", "saddle_decision"]
 SHORT = {"line_attractor": "line", "point_attractor": "point", "saddle_decision": "saddle"}
 PAIRS = [("line_attractor", "point_attractor"), ("line_attractor", "saddle_decision"),
          ("point_attractor", "saddle_decision")]
-
-
-def eig_real_blocks(Q):
-    """Real invariant directions of Q in RAW role coordinates, ordered by |lambda|.
-
-    Each real eigenvalue contributes one column; each complex-conjugate pair
-    contributes the real and imaginary parts of one member, i.e. its full 2-D
-    real invariant plane. The columns are NOT orthonormal (Q is non-normal);
-    orthonormalisation happens after the lift to unit space, where it belongs.
-    """
-    lam, V = np.linalg.eig(Q)
-    order = np.argsort(-np.abs(lam))
-    cols, used = [], set()
-    for i in order:
-        if i in used:
-            continue
-        if abs(lam[i].imag) < 1e-9:
-            cols.append(np.real(V[:, i]))
-        else:
-            cols.append(np.real(V[:, i])); cols.append(np.imag(V[:, i]))
-            j = np.argmin(np.abs(lam - np.conj(lam[i])))     # its conjugate partner
-            used.add(j)
-        used.add(i)
-    return np.column_stack(cols)
-
-
-def lifted_eigbasis(Q, H):
-    """Orthonormal unit-space basis from the eigen-directions of the RAW quotient Q.
-
-    W H = H Q, so an eigenvector z of Q lifts as H z. The lift is therefore
-    through H, and orthonormality is restored by QR in unit space. (Lifting z
-    through S = H D^-1/2 instead would mix coordinate systems: S is the correct
-    lift only for eigenvectors of Qtilde = D^1/2 Q D^-1/2.)
-    """
-    B, _ = np.linalg.qr(H @ eig_real_blocks(Q))
-    return B[:, :Q.shape[0]]
-
-
-def schur_basis(Q):
-    """Real Schur vectors, reordered so leading columns carry the largest |lambda|."""
-    T, Z = schur(Q, output="real")
-    # eigenvalues from 1x1 / 2x2 diagonal blocks
-    n = Q.shape[0]; i = 0; blocks = []
-    while i < n:
-        if i + 1 < n and abs(T[i + 1, i]) > 1e-9:
-            ev = np.linalg.eigvals(T[i:i + 2, i:i + 2]); blocks.append((i, 2, max(np.abs(ev)))); i += 2
-        else:
-            blocks.append((i, 1, abs(T[i, i]))); i += 1
-    cols = []
-    for start, size, _ in sorted(blocks, key=lambda b: -b[2]):
-        cols.extend(range(start, start + size))
-    return Z[:, cols]
-
-
-def lifted(B, S):
-    """Lift a k-dim orthonormal basis to units via S (n_active x k, orthonormal cols)."""
-    return S @ B                                            # (n_active, k), orthonormal columns
 
 
 def energy_profiles(P, M):
@@ -161,16 +106,15 @@ def run_net(net, k, n_perm, rng):
     ls = wl["labels_struct_by_k"]
     role = np.asarray(ls[_row_for_k(ls, k)], int)
     H, sizes = indicator(role)
-    S = H / np.sqrt(sizes)[None, :]
+    S = orthonormal_indicator(H, sizes)
     Q = quotient(W, H, sizes)                              # raw role coordinates: W H = H Q
     Qt = quotient_ortho(W, H, sizes)                       # orthonormal role coordinates: W S = S Qt
 
     # orthonormal bases
     M_eig = lifted_eigbasis(Q, H)                          # eigen-ordered, lifted through H
-    M_schur = lifted(schur_basis(Qt), S)                   # Schur of Qtilde, lifted through S
+    M_schur = lift_ortho(schur_basis(Qt), S)               # Schur of Qtilde, lifted through S
     # real-parts-only construction, for comparison
-    lam, V = np.linalg.eig(Q); order = np.argsort(-np.abs(lam))
-    M_realonly, _ = np.linalg.qr(H @ np.real(V[:, order]))
+    M_realonly, _ = lifted_real_modes(Q, H)
 
     prof_eig, pr_eig, keep = energy_profiles(P, M_eig)
     prof_sch, pr_sch, _ = energy_profiles(P, M_schur)

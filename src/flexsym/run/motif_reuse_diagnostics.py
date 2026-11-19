@@ -31,6 +31,7 @@ import numpy as np
 
 from flexsym.motifs.motif_classify import npload  # noqa: E402
 from flexsym.motifs.motif_participation import WL_ROOT  # noqa: E402
+from flexsym.structural.partition import indicator  # noqa: E402
 from flexsym.run.motif_reuse_control import (  # noqa: E402
     MOTIF_TYPES, _row_for_k, pair_masks, project, reuse_R,
 )
@@ -95,19 +96,15 @@ def stat_corr(P, same, diff):
 def stat_rank(P, labels, same, diff):
     """Spearman correlation of the k group means (ordering of groups only)."""
     from scipy.stats import rankdata
-    cats, inv = np.unique(labels, return_inverse=True)
-    G = np.zeros((len(labels), cats.size))
-    G[np.arange(len(labels)), inv] = 1.0
-    M = (P @ G) / G.sum(0)                       # (m, k) group means
+    G, sizes = indicator(labels)
+    M = (P @ G) / sizes                          # (m, k) group means
     return _R_from_C(np.corrcoef(rankdata(M, axis=1)), same, diff)
 
 
 def stat_top(P, labels, same, diff, frac=0.25):
     """Jaccard overlap of the top-frac highest-loading groups."""
-    cats, inv = np.unique(labels, return_inverse=True)
-    G = np.zeros((len(labels), cats.size))
-    G[np.arange(len(labels)), inv] = 1.0
-    M = (P @ G) / G.sum(0)
+    G, sizes = indicator(labels)
+    M = (P @ G) / sizes
     k = M.shape[1]
     t = max(1, int(round(frac * k)))
     top = np.zeros_like(M, dtype=bool)
@@ -141,10 +138,7 @@ def stat_angle(Bs, labels, same, diff):
 
 def concentration(P, labels):
     """Effective number of groups carrying each motif (lower = concentrated)."""
-    cats, inv = np.unique(labels, return_inverse=True)
-    G = np.zeros((len(labels), cats.size))
-    G[np.arange(len(labels)), inv] = 1.0
-    sizes = G.sum(0)
+    G, sizes = indicator(labels)
     M = (P @ G) / sizes
     E = sizes * M ** 2                            # energy per group
     W = E / np.maximum(E.sum(1, keepdims=True), 1e-12)

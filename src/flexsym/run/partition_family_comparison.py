@@ -25,8 +25,9 @@ from flexsym import paths
 from flexsym.motifs.motif_classify import npload
 from flexsym.motifs.motif_participation import WL_ROOT
 from flexsym.run.motif_reuse_control import _row_for_k
-from flexsym.run.motif_quotient_prediction import condition_jacobians, load_conditions, indicator
+from flexsym.run.motif_quotient_prediction import condition_jacobians, load_conditions
 from flexsym.run.motif_quotient_mode_concentration import quotient_modes
+from flexsym.structural.partition import indicator, orthonormal_indicator
 from flexsym.run.wrec_eigenbasis_null import contained, top3_energy
 
 FP = paths.RESULTS_ROOT / "motif_fixed_points"
@@ -56,7 +57,7 @@ def modularity_labels(W, k):
 def leakage(W, labels, m=None):
     """Mean fraction of top-m |lambda| eigenvector energy outside col(H)."""
     H, sizes = indicator(labels)
-    S = H / np.sqrt(sizes)[None, :]
+    S = orthonormal_indicator(H, sizes)
     lam, V = np.linalg.eig(W)
     order = np.argsort(-np.abs(lam))
     m = m or (labels.max() + 1)
@@ -69,7 +70,7 @@ def leakage(W, labels, m=None):
 
 def metrics(W, labels, P):
     H, sizes = indicator(labels)
-    S = H / np.sqrt(sizes)[None, :]
+    S = orthonormal_indicator(H, sizes)
     Mq, _ = quotient_modes(W, labels)
     return {
         "leakage": leakage(W, labels),

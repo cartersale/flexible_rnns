@@ -20,6 +20,14 @@ dependencies = [
     "tensorflow>=2.16",
 ]
 
+[project.optional-dependencies]
+test = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# numpy>=2 with Accelerate BLAS raises spurious FP flags from matmul.
+filterwarnings = ["ignore:.*encountered in matmul:RuntimeWarning"]
+
 # FixedPointFinder + recurrent-whisperer are NOT pip dependencies. They are
 # vendored under external/ and reached via sys.path — see README.
 

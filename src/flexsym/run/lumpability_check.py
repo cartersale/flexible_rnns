@@ -31,8 +31,8 @@ import numpy as np
 from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
     apply_matrix_variant,
     load_w_rec,
-    random_labels_same_sizes,
 )
+from flexsym.structural.partition import pw_constant_projector, random_labels_same_sizes  # noqa: E402
 
 REPO = paths.REPO_ROOT
 ACT_ROOT = paths.RESULTS_ROOT / "activity_clusters_paper"
@@ -46,16 +46,6 @@ def resolve(model: str) -> Path | None:
         if (store / model).exists():
             return store / model
     return None
-
-
-def pw_constant_projector(labels: np.ndarray, k: int) -> np.ndarray:
-    H = np.zeros((labels.size, k), dtype=float)
-    H[np.arange(labels.size), labels] = 1.0
-    sizes = H.sum(axis=0)
-    keep = sizes > 0
-    H = H[:, keep]
-    # P = H (H^T H)^{-1} H^T ; H^T H is diagonal(cell sizes)
-    return H @ np.diag(1.0 / H.sum(axis=0)) @ H.T
 
 
 def eig_leakage(M: np.ndarray, P: np.ndarray, m: int) -> float:
