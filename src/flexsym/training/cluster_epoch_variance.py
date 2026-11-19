@@ -1,8 +1,7 @@
 """Cluster recurrent units by variance across task epochs.
 
-This script consumes the ``variance_epoch.pkl`` files produced by
-``analysis/variance.py`` and saves a compact clustering artifact. If requested,
-it can compute ``variance_epoch.pkl`` first.
+Reads ``variance_epoch.pkl`` (computing it first if requested) and saves a
+clustering artifact.
 """
 
 from __future__ import annotations
@@ -66,8 +65,7 @@ def cluster_epoch_variance(
     """Cluster units using their task-epoch variance profiles.
 
     The variance file stores ``h_var_all`` as units x task_epochs. This function
-    also saves ``V`` as task_epochs x units to match the notation in analysis
-    notes.
+    also saves ``V`` as task_epochs x units.
     """
 
     model_dir = Path(model_dir)

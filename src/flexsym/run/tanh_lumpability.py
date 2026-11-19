@@ -1,14 +1,11 @@
-"""Lumpability of the signed connectivity partition on the released tanh 256-unit networks.
+"""Eigenvector leakage of the signed partition on the released tanh 256-unit networks.
 
-The full pipeline was only ever run for the softplus nets. This script reproduces, self-contained,
-the two prerequisites for the tanh nets and tests Result 1 (lumpability) on them:
-  1. active units  ind_active = { i : sum_epochs Var_trials h_i > 1e-3 } (the softplus definition,
-     flexsym.core.variance), from a forward pass over the 15 tasks;
-  2. the signed Weisfeiler-Leman partition of the transpose-variant active W_rec across a k-sweep.
-It then measures eigenvector leakage and subspace invariance of W_rec onto the group-constant
-subspace against size-matched random partitions (the Result-1 statistic), and writes the WL sweep
-npz in the format the motif/concentration code expects, so concentration can be run once the tanh
-fixed points are found.
+  1. active units  ind_active = { i : sum_epochs Var_trials h_i > 1e-3 }
+     (flexsym.core.variance), from a forward pass over the 15 tasks;
+  2. signed Weisfeiler-Leman partition of the transpose-variant active W_rec over a k-sweep;
+  3. eigenvector leakage and subspace invariance against size-matched random partitions.
+
+Writes the WL sweep npz in the format used by the motif code.
 """
 from __future__ import annotations
 import argparse, json
@@ -23,9 +20,7 @@ from flexsym.structural.signed_input_wl_structural_roles import (
 from flexsym.run.lumpability_check import eig_leakage, subspace_invariance, pw_constant_projector
 from flexsym.motifs.motif_participation import WL_ROOT
 
-# The full k = 3..60 grid, matching lumpability_r2_ksweep, so that a tanh row's
-# position in labels_struct_by_k is its k - 3 and the architectures are compared
-# on one grid. The earlier coarse grid left k_req mislabelled for these nets.
+# k = 3..60, as in lumpability_r2_ksweep; row index in labels_struct_by_k is k - 3.
 K_GRID = list(range(3, 61))
 
 

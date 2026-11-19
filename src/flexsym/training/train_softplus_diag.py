@@ -1,16 +1,9 @@
 """Train a single softplus / diagonal-init LeakyRNN on the 'all' ruleset.
 
-Single-(size, seed) entry point used by ``run_seeds_parallel.py``. Mirrors the
-hyperparameters and directory-naming convention of ``general_model_train.py`` but
-fixes the activation/init to softplus-diag and exposes the network size and random
-seed on the command line, so a grid of (size, seed) networks can be launched as
-independent processes.
+Hyperparameters and directory naming follow ``general_model_train.py``, with
+activation/init fixed to softplus-diag and network size and seed on the command line.
 
-Run directly for one network:
-
-    python train_softplus_diag.py --n-rnn 256 --seed 3
-
-or let ``run_seeds_parallel.py`` fan out a (sizes x seeds) grid across CPU cores.
+    python -m flexsym.training.train_softplus_diag --n-rnn 256 --seed 3
 """
 from __future__ import division
 
@@ -31,13 +24,12 @@ ACTIVATION = 'softplus'
 INIT = 'diag'
 RULESET = 'all'
 
-# the network sizes used in the paper for this architecture
+# default network sizes
 DEFAULT_SIZES = [128, 256, 512, 1024]
 
 # regularization / noise / learning exponents, matching general_model_train.py.
 # Each constant is an exponent fed through _coeff(): 0 means "off" (coefficient 0),
-# a negative value like -6 means 10**-6. A bare 10**0 would be 1.0 -- a catastrophic
-# L1 penalty -- which is exactly the bug that produced the first seeds-3-9 batch.
+# a negative value like -6 means 10**-6.
 L2W = -6           # l2 weight regularization
 L2H = -6           # l2 activity regularization
 L1W = 0            # l1 weight regularization (off)
@@ -124,7 +116,7 @@ def train_network(n_rnn, seed, max_steps=1e8, display_step=10000,
               .format(n_rnn, seed, status.get('final_perf_min'),
                       status.get('target_perf')))
     elif os.path.exists(not_converged):
-        # A previous timed-out run later finished cleanly on resume; clear stale flag.
+        # Converged on resume after a timeout; clear the flag.
         os.remove(not_converged)
     return filedir
 

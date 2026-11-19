@@ -1,38 +1,23 @@
-"""Random-partition control for the cross-task motif-reuse result.
-
-The reuse statistic
+"""Partition-conditioned cross-task motif reuse.
 
     R = mean corr( p_a, p_b | same motif type, different tasks )
       - mean corr( p_a, p_b | different motif type, different tasks )
 
-was previously computed on the RAW per-unit participation vectors, so it says
-nothing about the connectivity partition: it is a statement about units, not
-about role groups. This script makes reuse partition-conditioned and asks
-whether it is SPECIFIC to connectivity.
+Each participation profile is coarse-grained before correlating: p -> P p, with P
+the group-constant projector. R is compared across
 
-Method. Coarse-grain each participation profile onto a partition before
-correlating: p -> P p, where P is the group-constant projector (each unit gets
-its group's mean). R computed on the projected profiles measures how much of the
-same-computation-reuses-the-same-units signal survives being described only at
-the level of that partition's groups. Then compare
+    R_connectivity   (signed-WL roles)
+    R_random         (partitions with the same group-size distribution)
+    R_activity       (activity clusters, at the same k)
 
-    R_connectivity   (signed-WL role groups)
-    R_random         (partitions with the SAME group-size distribution)
-    R_activity       (activity clusters, at the SAME k)
+  * matched k: role and activity labels from the same row of the WL sweep
+    (labels_struct_by_k / labels_act_by_k), over a k grid.
+  * matched group sizes: Delta_R = R_obs - mean(R_random_same_sizes).
 
-Two matched controls, as in run_motif_subspace_rva.py:
-  * matched k: role and activity labels are taken from the same row of the WL
-    sweep (labels_struct_by_k / labels_act_by_k), swept over a k grid.
-  * matched group sizes: each partition is compared to its OWN size-matched
-    random ensemble, giving excess reuse
-        Delta_R = R_obs - mean(R_random_same_sizes)
-    so Delta_R_conn - Delta_R_act isolates grouping structure from size profile.
-
-Per-net statistic at each k: Delta_R_conn (is reuse specific to connectivity at
-all?) and Delta_R_conn - Delta_R_act (is it more specific than activity?).
+Per-net statistics at each k: Delta_R_conn and Delta_R_conn - Delta_R_act.
 Signed-rank across seeds.
 
-  conda run -n myenv python stepnet/run_motif_reuse_control.py
+    python -m flexsym.run.motif_reuse_control
 """
 
 from __future__ import annotations

@@ -1,8 +1,6 @@
 """Generate docs/tables/*.tex for supplementary.tex from results/main.
 
     python -m flexsym.supp.tables
-Every table in the supplement is written by this script; edit the script, not
-the .tex files.
 """
 import json, numpy as np, pandas as pd
 from pathlib import Path
@@ -137,11 +135,11 @@ W('tab_equitability.tex','\n'.join(lines))
 # ---- S7 participation by motif type ---------------------------------------
 bm=pd.read_csv(WL/'motif_participation'/'aggregate_by_motif.csv').set_index('motif')
 lab={'all':'all','line_attractor':'line attractor','saddle_decision':'decision saddle','point_attractor':'point attractor'}
-cols=[('n_cond_total','$n$',0),('eta2_role_median','$\\eta^2_{\\text{role}}$',2),('z_role_median','$z$',1),
- ('cv_M1_activity_median','$R^2_{\\text{act}}$',2),('cv_M3_role_median','$R^2_{\\text{role}}$',2),
- ('cv_M2_both_median','$R^2_{\\text{both}}$',2),('cv_unique_role_median','unique role',2),
+cols=[('n_cond_total','$n$',0),('eta2_role_median','$\\eta^2_{\\text{class}}$',2),('z_role_median','$z$',1),
+ ('cv_M1_activity_median','$R^2_{\\text{act}}$',2),('cv_M3_role_median','$R^2_{\\text{class}}$',2),
+ ('cv_M2_both_median','$R^2_{\\text{both}}$',2),('cv_unique_role_median','unique class',2),
  ('cv_unique_activity_median','unique act.',2),('cv_shared_median','shared',2),
- ('sub_step_r2_median','$R^2_{\\text{step}}$ role',2),('sub_z_role_median','$z$',1),
+ ('sub_step_r2_median','$R^2_{\\text{step}}$ class',2),('sub_z_role_median','$z$',1),
  ('sub_step_r2_activity_median','$R^2_{\\text{step}}$ act.',2),('sub_z_activity_median','$z$',1)]
 lines=[r'\begin{tabular}{l'+'r'*len(cols)+r'}',r'\toprule',
  ' & '.join(['motif']+[c[1] for c in cols])+r'\\',r'\midrule']
@@ -225,7 +223,7 @@ W('tab_reuse.tex','\n'.join(lines))
 # ---- S12 gain swap ---------------------------------------------------------
 gc=json.load(open(FP/'gain_configuration.json'))
 lines=[r'\begin{tabular}{rrrrrrr}',r'\toprule',
- r'seed & $k$ & role & activity & per unit & role-permuted & random partition\\',r'\midrule']
+ r'seed & $k$ & class & activity & per unit & class-permuted & random partition\\',r'\midrule']
 for s,n in zip(SEEDS,NETS):
     sw=gc[n]['swap']
     lines.append(f"{s} & {gc[n]['k']} & {f(sw['role']['pct'])} & {f(sw['activity']['pct'])} & {f(sw['unit']['pct'])} & {f(sw['shuffled_gains']['pct'])} & {f(sw['random_partition']['pct'])}\\\\")
@@ -237,7 +235,7 @@ W('tab_gainswap.tex','\n'.join(lines))
 
 # ---- S13 susceptibility concentration + first-order validity ---------------
 lines=[r'\begin{tabular}{rrrrrrr}',r'\toprule',
- r'seed & $k$ & role & activity & random & $r(S^{\rm ev}\!\cdot\!\Delta\bar g,\ \Delta|\lambda|)$ & permuted\\',r'\midrule']
+ r'seed & $k$ & class & activity & random & $r(S^{\rm ev}\!\cdot\!\Delta\bar g,\ \Delta|\lambda|)$ & permuted\\',r'\midrule']
 for s,n in zip(SEEDS,NETS):
     su=gc[n]['susceptibility']; lv=gc[n]['leverage']
     r_obs=med([x['r_pred_obs'] for x in lv]); r_null=med([x['r_null'] for x in lv])
@@ -273,7 +271,7 @@ def ratios(sens,cls,denom=None,nullkey='response_permsize'):
         if vals: out.append(med(vals))
     return out
 lines=[r'\begin{tabular}{llrrrr}',r'\toprule',
- r'sensitivity & mode class & size-matched null & unrestricted null & relative to bulk & networks $>1$\\',r'\midrule']
+ r'sensitivity & mode set & size-matched null & unrestricted null & relative to bulk & networks $>1$\\',r'\midrule']
 for sens,sl in [('ev','eigenvalue'),('rot','rotation')]:
     for cls,cl in [('star','motif-carrying'),('critical','near-critical'),('other','irrelevant bulk')]:
         a=ratios(sens,cls); rel=ratios(sens,cls,'other') if cls!='other' else None
@@ -287,7 +285,7 @@ W('tab_allocation.tex','\n'.join(lines))
 tm=json.load(open(FP/'gain_targeted_modulation.json'))
 rows=pd.DataFrame(tm['rows'])
 lines=[r'\begin{tabular}{lrrrrrrr}',r'\toprule',
- r'$\delta$ & exact & top 3 & median rank & fold vs median role & pred/actual & within $2\times$ & $r$ across roles\\',r'\midrule']
+ r'$\delta$ & exact & top 3 & median rank & fold vs median class & pred/actual & within $2\times$ & $r$ across classes\\',r'\midrule']
 for key,lb in [('1.0','$\\delta$'),('0.25','$\\delta/4$')]:
     s=tm['summary'][key]
     lines.append(f"{lb} & {100*s['hit']:.0f}\\% & {100*s['top3']:.0f}\\% & {s['rank']:.1f} & {s['fold']:.1f}$\\times$ & {f(s['ratio'])} & {100*s['within2']:.0f}\\% & {f(s['rcol'])}\\\\")
@@ -303,7 +301,7 @@ if 'net' in rows.columns: gcol='net'
 else: gcol=None
 if gcol:
     lines=[r'\begin{tabular}{rrrrrr}',r'\toprule',
-     r'seed & conditions & exact & top 3 & median rank & $r$ across roles\\',r'\midrule']
+     r'seed & conditions & exact & top 3 & median rank & $r$ across classes\\',r'\midrule']
     for n,g in r1.groupby(gcol):
         seed=n.split('_')[-1]
         lines.append(f"{seed} & {len(g)} & {100*(g['rank']==0).mean():.0f}\\% & {100*(g['rank']<3).mean():.0f}\\% & {g['rank'].median():.1f} & {f(g['r_col'].median())}\\\\")
@@ -317,7 +315,7 @@ if gcol:
 pf=json.load(open(FP/'partition_family_comparison.json'))
 lines=[r'\begin{tabular}{lrrr}',r'\toprule',
  r'partition & leakage & containment & top-3 alignment\\',r'\midrule']
-for fam,lb in [('wl','signed WL (structural roles)'),('spectral','spectral clustering'),
+for fam,lb in [('wl','signed WL (structural classes)'),('spectral','spectral clustering'),
                ('modularity','modularity (Louvain)'),('random','size-matched random')]:
     lines.append(f"{lb} & {f(med([pf[n]['20'][fam]['leakage'] for n in NETS]))} & {f(med([pf[n]['20'][fam]['containment'] for n in NETS]))} & {f(med([pf[n]['20'][fam]['top3'] for n in NETS]))}\\\\")
 lines+=[r'\bottomrule',r'\end{tabular}']
@@ -334,10 +332,7 @@ print('mode concentration k20 pr_conn', med([conc[n]['20']['pr_conn'] for n in N
       'top', med([conc[n]['20']['top_conn'] for n in NETS]), med([conc[n]['20']['top_rand_mean'] for n in NETS]))
 
 # ---- S1b network performance ----------------------------------------------
-# Training ran a fixed step budget with no performance stopping criterion, so
-# final performance has to be reported. The spread is across TASKS (go/anti at
-# ceiling, the delayed-decision family near 0.95), not across sizes or seeds,
-# so the table is task-by-size; the per-network range goes in the prose.
+# Final performance, task x size.
 GRID_ROOT = paths.MODEL_ROOT/'flexsym_grid'
 RULES = [t[0] for t in TASKS]
 ABBR = {t[0]: t[1] for t in TASKS}
@@ -410,9 +405,9 @@ print(f"released lumpability: {len(rl)} rows, {rl.model.nunique()} nets; "
 print("  negative rows:", [(r.model, int(r.k), round(r.z_topk, 2)) for r in rl[rl.z_topk <= 0].itertuples()])
 
 # ---- S17 quotient controls -------------------------------------------------
-# Promised in the main text: gain ablation, connectivity ablation, alternative
-# mode-selection rules (A_cond, k=20, r=3) and compression against
-# partition-free predictors (A_raw, which is what full_space stores).
+# Gain ablation, connectivity ablation, alternative mode-selection rules
+# (A_cond, k=20, r=3) and compression against partition-free predictors
+# (A_raw, which is what full_space stores).
 qcj = json.load(open(FP/'quotient_controls.json'))
 def qcv(key, field='obs', r=3, kk='20', stat='cond'):
     return med([qcj[n]['per_k'][kk][f'{key}|r{r}'][stat][field] for n in NETS
@@ -424,12 +419,12 @@ def arow(lb, key):
             f"{f(qcv(key,'z'),1)}\\\\")
 lines=[r'\begin{tabular}{lrrrr}', r'\toprule',
        r'quotient & $A_{\text{cond}}$ & random & activity & $z$\\', r'\midrule',
-       arow(r'$Q_{\rm pred}$ (role-mean gains)', 'Q_pred'),
+       arow(r'$Q_{\rm pred}$ (class-mean gains)', 'Q_pred'),
        r'\midrule',
        arow(r'no gain ($Q_{\rm struct}$ alone)', 'no_gain'),
        arow(r'scalar (mean) gain', 'scalar_gain'),
        arow(r'gains without $Q_{\rm struct}$', 'gain_only'),
-       arow(r'role-mean gains permuted across roles', 'perm_gain'),
+       arow(r'class-mean gains permuted across classes', 'perm_gain'),
        arow(r'gains from another condition', 'cross_gain'),
        arow(r'norm-matched random direction', 'rand_dir'),
        r'\midrule',
@@ -440,7 +435,7 @@ W('tab_quotient_ablation.tex','\n'.join(lines))
 
 lines=[r'\begin{tabular}{lrrrr}', r'\toprule',
        r'predictor & $r=1$ & $r=3$ & $r=5$ & $r=10$\\', r'\midrule']
-for lb, key, full in [(r'$Q_{\rm pred}$ lifted from roles', 'Q_pred', False),
+for lb, key, full in [(r'$Q_{\rm pred}$ lifted from classes', 'Q_pred', False),
                       (r'random directions in $\mathrm{col}(H)$', 'rand_dir', False),
                       (r'full mean Jacobian', 'full_J', True),
                       (r'full mean Jacobian, eigenvalue-matched', 'full_J_match', True),
@@ -490,7 +485,7 @@ W('tab_composition.tex','\n'.join(lines))
 print('composition: z>0 in', sum(d['z'] > 0 for _,_,d in comp), 'of', len(comp),
       '; per-net median z', [round(med([d['z'] for d in oc[n]['C'].values()]),2) for n in NETS])
 
-# ---- extra numbers for the prose ------------------------------------------
+# ---- extra numbers ---------------------------------------------------------
 sr = pd.read_csv(L/'step_r2_ksweep.csv')
 print('r2_best by size at k=20:',
       {int(sz): (round(g.r2_best.median(),3), round(g.z_best.median(),1))

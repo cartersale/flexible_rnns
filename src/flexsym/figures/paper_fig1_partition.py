@@ -1,28 +1,20 @@
-"""Paper Figure 1 -- the coarse-graining panel.
-
-One trained W_rec, reordered by the inferred structural partition H, next to the
-reduced operator it induces.
+"""Figure 1: coarse-graining panel.
 
   left   W (transpose variant, active units) with rows/columns sorted by cell,
-         thin rules at the cell boundaries
-  right  the quotient Q_struct = D^-1 H' W H -- the k x k operator that acts on
-         cell-mean activity
+         rules at cell boundaries
+  right  the quotient Q_struct = D^-1 H' W H
 
-Nothing is redrawn or idealised: W and the labels come straight out of the cached
-signed-WL sweep, and Q is computed from them with the same `quotient_matrix` the
-analyses use. Cell order is cosmetic only (correlation seriation of the quotient
-row/column profiles); it does not change W, H or Q.
+W and the labels come from the cached signed-WL sweep; Q is computed with
+`quotient_matrix`. Cell order is correlation seriation of the quotient row/column
+profiles.
 
-Writes, into figures/fig1/pieces/, both as .svg and .png:
+Writes, into figures/fig1/pieces/, as .svg and .png:
 
-  fig1_wrec_partitioned_<net>_k<k>      left piece alone
-  fig1_quotient_<net>_k<k>              right piece alone (k x k, own scale)
-  fig1_quotient_sized_<net>_k<k>        alternative right piece: the same
-                                        coarse-graining drawn with cell widths
-                                        proportional to cell size and on W's
-                                        colour scale, i.e. literally the left
-                                        panel averaged within blocks
-  fig1_partition_quotient_<net>_k<k>    the two assembled side by side
+  fig1_wrec_partitioned_<net>_k<k>      left piece
+  fig1_quotient_<net>_k<k>              right piece (k x k)
+  fig1_quotient_sized_<net>_k<k>        right piece with cell widths proportional
+                                        to cell size, on W's colour scale
+  fig1_partition_quotient_<net>_k<k>    both pieces side by side
 
     python -m flexsym.figures.paper_fig1_partition
     python -m flexsym.figures.paper_fig1_partition --k 41 --order size
@@ -51,23 +43,16 @@ matplotlib.rcParams["svg.fonttype"] = "none"
 matplotlib.rcParams["font.family"] = "sans-serif"
 matplotlib.rcParams["font.sans-serif"] = ["Helvetica", "Arial", "DejaVu Sans"]
 
-#: representative network: released Driscoll seed, 256 units, 204 of them active.
-#: Main-cohort example network (the former 256 seed 0 default is a released
-#: Driscoll network and is not in RESULTS_ROOT under the main cohort).
+#: example network (main cohort).
 NET = "LeakyRNN_softplus_diag_256_all_5"
-#: display scale. k = 20 sits on the plateau of the R^2(k) curve for this network
-#: (r2_best 0.790 vs 0.134 for size-matched random partitions, z = +29) while
-#: still giving ~10 units per cell, so the blocks are wide enough to read.
+#: display scale (~10 units per cell).
 K = 20
 
 WL_ROOT = paths.RESULTS_ROOT / "signed_input_wl_paper"
 PIECES = paths.REPO_ROOT / "figures" / "fig1" / "pieces"
 
 CMAP = "RdBu_r"
-#: symmetric colour limits are set at a percentile of |value| rather than the max:
-#: W_rec is inhibition-dominated with a long tail, and at the 99th percentile the
-#: block structure washes out. The 95th saturates ~5% of entries and is stated in
-#: the caption.
+#: symmetric colour limits at this percentile of |value| (saturates ~5% of entries).
 CLIP_W = 95.0
 CLIP_Q = 99.0
 RULE = "#ffffff"       # cell-boundary rules inside the matrix
@@ -434,7 +419,7 @@ def combined(D, vmax, net, k, stem, legend=True):
 # ------------------------------------------------------------------------ main
 
 def report(W, D):
-    """Numbers worth quoting in the caption."""
+    """Summary numbers for the panel."""
     eW = np.linalg.eigvals(W)
     eQ = np.linalg.eigvals(D["Q"])
     eW = eW[np.argsort(-np.abs(eW))][:4]

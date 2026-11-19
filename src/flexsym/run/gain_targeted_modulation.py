@@ -1,30 +1,20 @@
-"""Causal test of the eigenvalue susceptibility: impose the gain change S_ev is about.
-
-The leverage analyses are observational -- S_ev is a structural property, and the question is
-whether the network's own gain changes are allocated with respect to it. But S_ev[i,j] =
-d|lambda_j|/dg_i asserts what WOULD happen to collective mode j if role i's gain changed, so it
-can be tested by performing the intervention.
+"""Targeted gain intervention on the role with largest eigenvalue susceptibility.
 
 Per condition:
   j*  leading mode of the quotient Jacobian (1-alpha)I + alpha diag(gbar) Q_struct
-  i*  argmax_i |S_ev[i,j*]| -- the role predicted to have most leverage over it
-  add delta to the gain of EVERY active unit in role i*, then measure the induced change in
-  |lambda_j*| in the FULL N-unit Jacobian, matching modes across the perturbation by
+  i*  argmax_i |S_ev[i,j*]|
+  add delta to the gain of every active unit in role i*, then measure the change in
+  |lambda_j*| in the full N-unit Jacobian, matching modes across the perturbation by
   eigenvector overlap.
 
-Because gbar is a role mean, a uniform increment on a role shifts gbar_i* by exactly delta, so
-the prediction S_ev[i*,j*]*delta carries no fitted parameters.
+A uniform increment on a role shifts gbar_i* by exactly delta, so the prediction is
+S_ev[i*,j*]*delta.
 
-NULL -- role permutation. Permuting role identities preserves the distribution of
-susceptibilities exactly and destroys only their assignment. Since a permutation merely relabels
-which role carries which susceptibility, the null over ALL permutations is the distribution of
-measured shifts across the k roles, so we obtain it exactly by perturbing every role in turn
-rather than by sampling. Selection is then the rank of role i* among all k; magnitude is
-pred[i*]/actual[i] for a permuted role.
+Null: every role is perturbed in turn, giving the exact role-permutation null.
+Selection is the rank of i* among all k; magnitude is pred[i*]/actual[i] for a
+permuted role.
 
-Reported with the trained seed as the unit of replication, per the manuscript convention.
-
-    conda run -n myenv python -m flexsym.run.gain_targeted_modulation --seeds 3-12
+    python -m flexsym.run.gain_targeted_modulation --seeds 3-12
 """
 from __future__ import annotations
 

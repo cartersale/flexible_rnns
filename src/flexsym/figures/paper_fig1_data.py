@@ -1,18 +1,12 @@
-"""Cache the real data behind Figure 1, panel A.
+"""Cache the data behind Figure 1, panel A.
 
-Pulls, for one trained network:
-  * the trained recurrent weights (active units), ordered by structural role
-  * real trial inputs and epoch boundaries for the example conditions
-  * the recovered fixed/slow points, their local Jacobians, and real trial
-    trajectories, projected into a 2-D plane chosen per motif
+For one trained network:
+  * recurrent weights (active units), ordered by structural role
+  * trial inputs and epoch boundaries for the example conditions (ROWS)
+  * recovered fixed/slow points, their local Jacobians, and trial trajectories,
+    projected into a 2-D plane chosen per motif
 
-Conditions were picked by measuring the geometry of the recovered point sets
-(see ROWS): a clean open 1-D manifold for the line attractor, a closed one for
-the ring, an isolated point for the point attractor, and the unstable-direction
-plane for the saddle.
-
-Everything lands in figures/fig1/data/fig1_panelA.npz so the plotting script
-never needs the data volume.
+Writes figures/fig1/data/fig1_panelA.npz.
 
     python -m flexsym.figures.paper_fig1_data
 """
@@ -25,9 +19,7 @@ import numpy as np
 
 from flexsym import paths
 
-#: Example network for panel A. Must be a network in the current RESULTS_ROOT
-#: cohort; override with --net. The former default (256 seed 0) is a released
-#: Driscoll network and lives in the `released` cohort, not the main paper's grid.
+#: Example network for panel A, in the current RESULTS_ROOT cohort; override with --net.
 NET = "LeakyRNN_softplus_diag_256_all_5"
 OUT = paths.REPO_ROOT / "figures" / "fig1" / "data"
 FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
@@ -60,15 +52,11 @@ def cache_path(net=None):
 # (key, rule, epoch, kind, in response dir?, q threshold)
 ROWS = [
     ("point",  "reactgo",   "go1",    "point",  True,  1e-8),
-    # The q threshold is net-dependent: on seed 5 only 4 points reach q<1e-8 in
-    # this condition, while q<1e-6 gives 417 points forming a clean closed ring
-    # (radial CV 0.11, max angular gap 18 deg) by the same geometric criterion
-    # used to pick these conditions originally.
+    # q threshold is condition-dependent; 1e-6 here.
     ("ring",   "delayanti", "delay1", "ring",   False, 1e-6),
     ("line",   "dmcgo",     "delay1", "line",   False, 1e-6),
     ("saddle", "delaydm1",  "stim1",  "saddle", False, 1e-6),
-    # q<1e-6 matches the slow-point threshold used by the rotation analysis in
-    # results/motif_rotation, so the angle here is the published one
+    # q<1e-6 matches the slow-point threshold of results/motif_rotation
     ("rot",    "delaygo",   "delay1", "rot",    False, 1e-6),   # paired with go1
 ]
 

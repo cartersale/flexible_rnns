@@ -1,18 +1,12 @@
-"""Validation-gate plots + taxonomy table for recovered dynamical motifs.
+"""Validation plots and taxonomy table for recovered dynamical motifs.
 
 For a network's fixed-point directory (results/motif_fixed_points/<net>/):
-  1. q-histogram grid (log10 q per condition) -> confirm the keep-threshold and
-     the bimodal fixed-point / not-converged split the finder produced.
-  2. Jacobian eigenvalue spectra in the complex plane (unit circle) for a few
-     representative conditions -> visually confirm line-attractor (lambda~1),
-     decision saddle (one lambda>1), point attractor (all inside).
-  3. taxonomy CSV + a printed verdict checking the qualitative expectations
-     (memory epochs -> line attractors; DM stimulus epochs -> saddles;
-     non-DM sensory epochs -> point attractors) as the seeds 0-2 sanity gate.
+  1. q-histogram grid (log10 q per condition).
+  2. Jacobian eigenvalue spectra in the complex plane for representative conditions.
+  3. taxonomy CSV and gate counts (memory epochs -> line attractors; DM stimulus
+     epochs -> saddles; non-DM sensory epochs -> point attractors).
 
-Run under conda env `myenv`.
-  conda run -n myenv python stepnet/plot_motif_validation.py \
-      results/motif_fixed_points/LeakyRNN_softplus_diag_256_all_0
+    python -m flexsym.figures.motif_validation results/motif_fixed_points/LeakyRNN_softplus_diag_256_all_0
 """
 
 from __future__ import annotations
@@ -126,7 +120,7 @@ def write_table_and_verdict(net_dir: Path, out_dir: Path):
         w.writeheader()
         w.writerows(rows)
 
-    # ---- qualitative verdict (seeds 0-2 sanity gate) ----
+    # ---- gate counts ----
     mem = [cm for cm in res.values() if cm.epoch_type == "memory"
            and cm.epoch in ("delay1", "delay2")]
     mem_line = [cm for cm in mem if cm.line_attractor]

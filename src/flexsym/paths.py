@@ -1,17 +1,11 @@
-"""Single source of truth for every filesystem root used by flexsym.
+"""Filesystem roots used by flexsym.
 
-Nothing else in the package should contain an absolute path. Roots are read
-from the environment (via a .env at the repo root, see .env.example) and fall
-back to the layout on the original development machine.
+Roots are read from the environment (via a .env at the repo root, see .env.example).
+Trained checkpoints and fixed-point outputs live on an external volume pointed at
+by MODEL_ROOT; `results/motif_fixed_points` and `results/motif_fixed_points_response`
+are symlinks into it.
 
-The bulk data does not live in the repo: trained checkpoints and fixed-point
-outputs are tens of GB and sit on an external volume pointed at by MODEL_ROOT.
-`results/motif_fixed_points` and `results/motif_fixed_points_response` are
-symlinks into it.
-
-Roots are NOT validated at import time -- importing a module must not require
-the data volume to be mounted. Call `require()` at the point of use so failures
-are loud and say which root is missing.
+Roots are not validated at import time. Call `require()` at the point of use.
 """
 
 from __future__ import annotations

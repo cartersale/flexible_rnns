@@ -1,31 +1,23 @@
-"""Controls for the quotient-predicts-motif-direction result.
+"""Controls for quotient prediction of the motif direction.
 
-C2  COMPRESSION COST. What does the quotient give up relative to predictors that
-    use the full N-dimensional operator? Compares top-r modes of: the quotient
-    (k x k), the full mean Jacobian, W_rec, the W_rec singular basis, and r
-    random directions inside the role subspace. Reported with predictor
-    dimension and free-parameter count, so the comparison is about compression.
+C2  COMPRESSION. Top-r modes of: the quotient (k x k), the full mean Jacobian,
+    W_rec, the W_rec singular basis, and r random directions in the role
+    subspace, with predictor dimension and free-parameter count.
 
-C3  WHAT DOES THE WORK -- connectivity or gains? Ablations of
-    Q_pred = (1-a) I + a diag(g_bar) Q_struct :
-      no_gain     (1-a) I + a Q_struct                 connectivity only
-      scalar_gain (1-a) I + a g_global Q_struct        one global gain
-      gain_only   (1-a) I + a diag(g_bar)              gains, no quotient structure
-      perm_gain   group gains permuted across nodes    same gain distribution
-      cross_gain  gains from a DIFFERENT condition     mismatched task/epoch
-    If Q_struct alone already fixes the modes, gains are decoration. If gain_only
-    works, the quotient is decoration. If perm_gain/cross_gain break it, the
-    specific matching of gains to structural roles is what carries the motif.
+C3  ABLATIONS of Q_pred = (1-a) I + a diag(g_bar) Q_struct:
+      no_gain     (1-a) I + a Q_struct
+      scalar_gain (1-a) I + a g_global Q_struct
+      gain_only   (1-a) I + a diag(g_bar)
+      perm_gain   group gains permuted across nodes
+      cross_gain  gains from a different condition
 
 C5  MODE-NUMBER CURVES. A_raw(r) and A_cond(r) for r = 1..10, connectivity vs
-    size-matched random partitions -- saturation rate, not a single r.
+    size-matched random partitions.
 
-C6  MOTIF-APPROPRIATE MODE SELECTION. Selecting quotient modes by top |lambda|
-    is generic. Dynamically motivated rules: line/point attractor -> modes
-    closest to lambda = 1; saddle -> most unstable (largest Re lambda). Applied
-    per motif class and compared to the generic rule.
+C6  MODE SELECTION. Line/point attractor -> modes closest to lambda = 1;
+    saddle -> largest Re lambda; compared with top-|lambda| selection.
 
-  conda run -n myenv python stepnet/run_motif_quotient_controls.py --seeds 0-2
+    python -m flexsym.run.motif_quotient_controls --seeds 0-2
 """
 
 from __future__ import annotations

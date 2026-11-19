@@ -1,29 +1,16 @@
-"""Do different tasks' motifs concentrate on a SHARED few connectivity-quotient modes?
+"""Concentration of motif energy on connectivity-quotient modes.
 
-Not "are the motif directions similar in full space" -- they are (all slow modes), and a
-random partition preserves that (the eig-matched control). The sharper question: express
-each task-epoch motif in the coordinates of the connectivity quotient's eigenmodes, and ask
-whether the COLLECTION of motifs lands on a shared low-dimensional set of those modes that a
-random quotient would NOT concentrate them onto.
+Per network:
+  - Q = (H'H)^-1 H' W H on the connectivity partition; eigenvectors lifted to units
+    and orthonormalised give k modes M, ordered by |lambda|.
+  - each motif direction p_m projects to c_mj = <M_j, p_m>.
+  - aggregate energy E_j = sum_m c_mj^2, normalised by total contained energy.
+  - participation ratio PR = (sum E_j)^2 / sum E_j^2, and the fraction of energy on
+    the top-3 modes.
 
-Setup, per network:
-  - quotient Q = (H'H)^-1 H' W H on the connectivity partition; eigenvectors of Q, lifted to
-    units and orthonormalised, give k quotient modes M (ordered by |lambda|, i.e. by the
-    coarse-grained dynamics).
-  - each motif direction p_m (unit vector) projects to mode coordinates c_mj = <M_j, p_m>.
-  - aggregate energy on mode j: E_j = sum_m c_mj^2, normalised by total contained energy.
-  - CONCENTRATION = participation ratio PR = (sum E_j)^2 / sum E_j^2 (effective number of
-    modes the motifs collectively occupy). Low PR = a shared low-dimensional set.
-    Also: fraction of motif energy on the top-3 quotient modes.
+Null: size-matched random partitions, each with its own quotient and modes.
 
-Because a shared low-dim set requires different tasks to load the SAME modes, aggregate PR is
-the right single statistic: if tasks used disjoint modes the aggregate would spread out.
-
-Null: size-matched RANDOM partitions, each with its OWN quotient + eigenmodes; project the
-same motifs and recompute PR / top-3. The connectivity quotient concentrates the motifs
-specifically iff PR_conn < PR_rand (fewer shared modes) and top-3 energy is higher.
-
-  conda run -n myenv python -m flexsym.run.motif_quotient_mode_concentration --seeds 0-2
+    python -m flexsym.run.motif_quotient_mode_concentration --seeds 0-2
 """
 
 from __future__ import annotations

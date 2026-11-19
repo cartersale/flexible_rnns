@@ -1,30 +1,20 @@
-"""Held-out gain estimates: is the quotient prediction PROSPECTIVE?
+"""Quotient prediction with held-out gain estimates.
 
-In run_motif_quotient_prediction.py the group gains g_bar are read off the same
-fixed points whose motif direction is being predicted. That is mathematically
-valid but in-sample. Here the gains always come from data disjoint from the
-motif direction being predicted, with the quotient Q_struct held fixed.
-
-Four splits, increasingly demanding:
+Gains come from data disjoint from the predicted motif direction; Q_struct is fixed.
 
   interleaved  fixed points of a condition split odd/even; gains from one half,
-               motif direction from the other. Controls for circularity only.
-  arc          for ring/line-attractor conditions, fixed points are ordered by
-               angle in the leading PC plane and split into CONTIGUOUS arcs:
-               gains estimated on one arc, tangent direction predicted at
-               held-out angles. This is extrapolation across the manifold, not
-               interpolation.
-  cross_task   gains from a condition of the SAME motif type in a DIFFERENT task
-               (e.g. estimate on delaygo, predict delayanti). The motif-reuse
-               claim, restated as a prediction rather than a correlation.
-  cross_type   gains from a DIFFERENT motif type -- the negative control. If this
-               works as well, the gains are not carrying task information.
+               motif direction from the other.
+  arc          ring/line-attractor conditions: fixed points ordered by angle in the
+               leading PC plane and split into contiguous arcs; gains on one arc,
+               tangent direction at held-out angles.
+  cross_task   gains from a condition of the same motif type in a different task.
+  cross_type   gains from a different motif type.
 
-Each is scored as A_cond = ||B'v_test|| / ||P_H v_test|| against (i) the
-in-sample bound (gains from the test data itself) and (ii) size-matched random
-partitions carrying the same held-out gains.
+Each is scored as A_cond = ||B'v_test|| / ||P_H v_test|| against the in-sample value
+(gains from the test data) and size-matched random partitions with the same
+held-out gains.
 
-  conda run -n myenv python stepnet/run_motif_quotient_heldout.py --seeds 0-2
+    python -m flexsym.run.motif_quotient_heldout --seeds 0-2
 """
 
 from __future__ import annotations

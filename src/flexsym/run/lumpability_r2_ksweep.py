@@ -1,34 +1,19 @@
 """Eigenvector step-R^2 as a function of the coarse-graining scale k.
 
-The headline lumpability number in the paper is reported at each network's single
-"operating" k (results/.../lumpability/step_r2_all.csv). That leaves k as a free
-parameter chosen by a separate policy -- and the policy is not the same for the
-released Driscoll seeds (0-2, k = activity-cluster count) and our own seeds (3-9,
-k = 20% of active units). This script removes k as a free parameter: it recomputes
-the same measurement at EVERY k in the cached WL sweep, for every network whose
-signed-WL sweep is cached.
+Computed at every k in the cached WL sweep, for every network with a cached sweep,
+on the transpose variant of W_rec restricted to active units:
 
-Measurement (identical to run/training_control.py, applied to the transpose variant
-of W_rec restricted to active units):
-
-  step_r2(v, labels) = 1 - SS_res / SS_tot  of approximating an eigenvector v by its
-                       per-cell mean; 1 = perfectly piecewise-constant on cells.
+  step_r2(v, labels) = 1 - SS_res / SS_tot  of approximating eigenvector v by its
+                       per-cell mean.
 
   r2_best   : max step_r2 over the TOP_N eigenvectors of largest |lambda|
-              (this is the statistic behind the published numbers)
   r2_topk   : mean step_r2 over the k eigenvectors of largest |lambda|
-              (no best-of selection; reported alongside so the headline number
-               cannot be read as a selection artefact)
 
-Both are compared against `n_null` size-matched random partitions of the same cell-size
-profile -> z-score. Positive z = the structural partition makes eigenvectors more
-piecewise-constant than a partition with identical granularity.
+Both are compared against `n_null` size-matched random partitions -> z-score
+(positive = more piecewise-constant than chance).
 
-Inputs are the cached sweeps only -- W_rec (transpose variant, active units) and
-labels_struct_by_k both live in the npz -- so this runs without the checkpoint volume.
-
-Writes results/signed_input_wl_paper/lumpability/step_r2_ksweep.csv (one row per
-network x k).
+Reads the cached sweep npz. Writes
+results/signed_input_wl_paper/lumpability/step_r2_ksweep.csv (one row per network x k).
 """
 
 from __future__ import annotations
@@ -45,27 +30,20 @@ from flexsym.structural.signed_input_wl_structural_roles import random_labels_sa
 WL_ROOT = paths.RESULTS_ROOT / "signed_input_wl_paper"
 OUT = WL_ROOT / "lumpability" / "step_r2_ksweep.csv"
 
-#: The original 33-network cohort: seeds 0-9 at 128/256/512 plus seeds 0-2 at 1024.
-#: Seeds 0-2 at every size are the RELEASED Driscoll et al. (2024) networks, so all
-#: three 1024s are released nets; seeds 3-9 were trained here.
+#: 33-network cohort: seeds 0-9 at 128/256/512 plus seeds 0-2 at 1024. Seeds 0-2 are
+#: the released Driscoll et al. (2024) networks; seeds 3-9 are locally trained.
 GRID_DRISCOLL33 = [(s, i) for s in (128, 256, 512) for i in range(10)] + [(1024, i) for i in range(3)]
 
-#: Our own training grid (MODEL_ROOT/flexsym_grid), no released networks: seeds 3-12
-#: at 128/256/512, 30 networks.
-#:
-#: 512 seeds 3-9 were excluded until 2026-08-20 because the cached results under those
-#: names came from an older, discarded 512 set (MODEL_ROOT/old_new_runs). Those networks
-#: have since been retrained into flexsym_grid, the staged symlinks repointed, and the
-#: stale results quarantined in results/retired/, so the exclusion is lifted.
+#: Locally trained grid (MODEL_ROOT/flexsym_grid): seeds 3-12 at 128/256/512, 30 networks.
 GRID_FLEXSYM = [(s, i) for s in (128, 256, 512) for i in range(3, 13)]
 
 COHORTS = {"driscoll33": GRID_DRISCOLL33, "flexsym": GRID_FLEXSYM}
 
-#: Default kept at the published cohort so existing outputs stay reproducible.
+#: Default: the released cohort.
 GRID = GRID_DRISCOLL33
 
-TOP_N = 12          # matches best_eig_r2 in run/training_control.py
-N_NULL = 30         # matches the null size used there
+TOP_N = 12          # leading eigenvectors scored for r2_best
+N_NULL = 30         # random partitions per null
 
 
 def step_r2(v: np.ndarray, labels: np.ndarray) -> float:

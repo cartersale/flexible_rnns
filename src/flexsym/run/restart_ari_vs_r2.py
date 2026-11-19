@@ -1,31 +1,16 @@
-"""Is the *partition* reproducible, or only the *subspace* it spans?
+"""Label agreement vs subspace agreement across signed-WL restarts.
 
-The signed-WL refinement is a k-means-based approximation, so different random restarts
-land on different labellings. If we reported only the labels, that instability would be a
-problem. The claim in Act 1 is not about labels, though -- it is about the group-constant
-subspace col(H) being approximately invariant. This script separates the two:
+  ARI        Adjusted Rand Index between each pair of restart partitions.
+  overlap    ||P_a P_b||_F^2 / k for the two piecewise-constant projectors: mean
+             squared cosine of the principal angles between col(H_a) and col(H_b).
+  r2_topk    eigenvector step-R^2 per restart.
 
-  ARI        Adjusted Rand Index between every pair of restart partitions. Low = the
-             restarts disagree about which unit goes in which cell.
-  overlap    ||P_a P_b||_F^2 / k for the two piecewise-constant projectors. This is the
-             mean squared cosine of the principal angles between col(H_a) and col(H_b),
-             i.e. how much of the same k-dimensional subspace the two restarts span.
-             1 = identical subspace, k/n = orthogonal-as-possible.
-  r2_topk    the lumpability statistic itself, per restart. Low spread = the measurement
-             does not depend on which restart you happen to get.
+Each is compared with size-matched random partitions mirroring each restart's
+cell-size profile.
 
-Each is compared against the matched quantity for size-matched RANDOM partitions built to
-mirror each restart's own cell-size profile, so "restarts agree more than chance" is a
-statement about structure and not about granularity.
-
-The expected pattern (and the one the paper claims): ARI is low -- restarts genuinely
-disagree about labels -- while overlap and r2_topk are tightly concentrated and far above
-their random counterparts. Label identity is not the carrier of the result; the subspace
-is.
-
-Pure connectivity: reads the cached sweep npz. Writes
+Reads the cached sweep npz. Writes
 results/signed_input_wl_paper/lumpability/restart_ari_vs_r2.csv (one row per network x k)
-and ..._pairs.csv (one row per network x k x restart pair, for plotting distributions).
+and ..._pairs.csv (one row per network x k x restart pair).
 """
 
 from __future__ import annotations

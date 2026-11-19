@@ -1,32 +1,18 @@
-"""Per motif-type aggregate mode-energy profiles, in a defensible orthonormal basis, compared
-WITHIN each network (never by matching mode index across networks).
+"""Per motif-type mode-energy profiles in an orthonormal quotient basis, compared
+within each network.
 
-Motivation and the corrections this addresses:
-  * The quotient Q = (H'H)^-1 H' W H is directed and NON-NORMAL: its eigenvectors are not
-    orthogonal, so energy / participation ratio computed in raw eigenvector coordinates can be
-    distorted. We therefore decompose motif energy in an ORTHONORMAL basis. Two are built and
-    cross-checked: (i) an eigen-ordered orthonormal basis that keeps BOTH real and imaginary
-    parts of complex eigenvectors (so a conjugate pair contributes its full 2-D real invariant
-    plane) then Gram-Schmidt (QR) IN UNIT SPACE, after lifting through H (since W H = H Q,
-    an eigenvector z of Q lifts as H z); (ii) the REAL SCHUR vectors of the same quotient
-    written in orthonormal role coordinates, Qtilde = D^-1/2 H' W H D^-1/2, which satisfies
-    W S = S Qtilde for S = H D^-1/2 and is therefore the operator that may be lifted through
-    S. Both are orthonormal in unit space and their leading columns span the dominant (by
-    |lambda|) invariant subspace. We report the
-    participation ratio in the orthonormal basis and confirm it is not an artifact of the earlier
-    real-parts-only construction.
-  * NO cross-network mode correspondence is claimed: mode j of seed 0 is not mode j of seed 1.
-    Every profile comparison is done WITHIN a network on that network's own basis; only the
-    resulting scalar (cosine, overlap, angle) is aggregated across seeds, with the seed as the
-    unit of replication.
-  * Repeated samples: many motifs come from the same ring / task family, so a raw pool is
-    dominated by the numerous line attractors. Each motif's energy profile is normalised to sum
-    one BEFORE pooling (equal weight per motif); a per-task-family average is also reported.
+Bases (both orthonormal in unit space):
+  (i)  eigen-ordered: real and imaginary parts of the eigenvectors of
+       Q = (H'H)^-1 H' W H, lifted through H (W H = H Q), then QR in unit space.
+  (ii) real Schur vectors of Qtilde = D^-1/2 H' W H D^-1/2, lifted through
+       S = H D^-1/2 (W S = S Qtilde).
 
-Per network at fixed k we form three aggregate mode-energy vectors (line / point / saddle), each
-an equal-weight mean of the per-motif normalised profiles on that network's orthonormal basis, and
-compare the three profiles by cosine, correlation, top-3 index overlap, and principal angles
-between the top-3 mode spans. Size-matched random quotients give the null for every comparison.
+Each motif's energy profile is normalised to sum one before pooling; a
+per-task-family average is also reported. Per network at fixed k, three aggregate
+profiles (line / point / saddle) are compared by cosine, correlation, top-3 index
+overlap, and principal angles between top-3 mode spans. Mode indices are not
+matched across networks; only the resulting scalars are aggregated across seeds.
+Size-matched random quotients give the null.
 """
 from __future__ import annotations
 import argparse, json
@@ -179,10 +165,10 @@ def run_net(net, k, n_perm, rng):
     Q = quotient(W, H, sizes)                              # raw role coordinates: W H = H Q
     Qt = quotient_ortho(W, H, sizes)                       # orthonormal role coordinates: W S = S Qt
 
-    # defensible bases
+    # orthonormal bases
     M_eig = lifted_eigbasis(Q, H)                          # eigen-ordered, lifted through H
     M_schur = lifted(schur_basis(Qt), S)                   # Schur of Qtilde, lifted through S
-    # artifact check: earlier real-parts-only construction
+    # real-parts-only construction, for comparison
     lam, V = np.linalg.eig(Q); order = np.argsort(-np.abs(lam))
     M_realonly, _ = np.linalg.qr(H @ np.real(V[:, order]))
 

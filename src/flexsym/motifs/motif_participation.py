@@ -1,22 +1,19 @@
-"""Link per-unit dynamical-motif participation to connectivity role groups.
+"""Per-unit motif participation against connectivity roles.
 
-Consumes the motif classification (motif_classify.py) and the cached partitions
-(signed-WL role groups + activity clusters) to run the three tests:
+Uses the motif classification (motif_classify.py) and the cached partitions
+(signed-WL roles and activity clusters):
 
-  Test 1 (critical): does role-group membership predict motif participation?
-    per motif: eta^2 of p_m ~ role label, z vs size-matched label permutations.
+  Test 1: per motif, eta^2 of p_m ~ role label, z vs size-matched label permutations.
 
-  Test 2 (earns the claim): nested comparison against activity clusters.
-    M0: p_m ~ 1 ; M1: p_m ~ activity ; M2: p_m ~ activity + role ; M3: p_m ~ role.
-    cross-validated R^2 (hold out units, k-fold) + commonality decomposition
-    (unique-to-role, unique-to-activity, shared). Headline: unique-to-role > 0.
+  Test 2: nested models M0: p_m ~ 1; M1: ~ activity; M2: ~ activity + role;
+    M3: ~ role. Cross-validated R^2 (k-fold over units) and commonality
+    decomposition (unique-to-role, unique-to-activity, shared).
 
-  Test 3 (reuse, closest to the thesis): is the same motif type carried by the
-    same role groups across tasks? correlate p_m across task instances of the
-    same motif type vs across different motif types.
+  Test 3: correlation of p_m across task instances of the same motif type vs
+    across different motif types.
 
-All participation vectors are restricted to the active-unit index set shared by
-both partitions (ind_active) before regressing against labels.
+Participation vectors are restricted to the shared active-unit index set
+(ind_active).
 """
 
 from __future__ import annotations
@@ -44,11 +41,7 @@ WL_ROOT = RESULTS_ROOT / "signed_input_wl_paper"
 ACT_ROOT = RESULTS_ROOT / "activity_clusters_paper"
 ACT_NAME = "epoch_variance_unit_clusters_paper_max.npz"
 
-# Operating k is derived from each network's activity clustering by
-# flexsym.structural.operating_k -- the single source of truth. This module used to
-# carry its own copy of the old literal (seed 0 -> 33, seeds 3-9 -> 14/15), which went
-# stale when the 256 seeds 3-9 were retrained on 2026-07-25 and was missed when the
-# other copies were removed. Do not reintroduce a literal here.
+# Operating k comes from flexsym.structural.operating_k.
 
 
 def _row_for_k(labels_by_k, k):
@@ -181,8 +174,7 @@ def subspace_lumpability(vecs, role_labels, n_rand=200, max_vecs=60, rng=None):
     Membership-invariant: depends only on the subspace col(H), not the label
     assignment. Compares the mean piecewise-constant R^2 (and ||Pv||/||v|| frac)
     of the motif's signed eigenvectors on the role partition to size-matched
-    random partitions -> z. Inherits the robustness of the eigenvector-lumpability
-    (R2) result because it is the same measurement on Jacobian eigenvectors.
+    random partitions -> z.
     """
     from flexsym.structural.signed_input_wl_structural_roles import random_labels_same_sizes
 
@@ -208,8 +200,7 @@ def subspace_lumpability(vecs, role_labels, n_rand=200, max_vecs=60, rng=None):
 def nested_commonality(values, role_labels, act_labels, folds=5, rng=None):
     """Ridge CV R^2 for M0..M3 and commonality decomposition (role vs activity).
 
-    unique_role = R^2(activity+role) - R^2(activity): motif variance role groups
-    explain that the activity partition does NOT. This is the headline number.
+    unique_role = R^2(activity+role) - R^2(activity).
     """
     rng = rng or np.random.default_rng(0)
     y = np.asarray(values, dtype=float)

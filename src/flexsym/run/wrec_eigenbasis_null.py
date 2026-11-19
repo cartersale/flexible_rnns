@@ -1,16 +1,12 @@
 """W_rec-eigenbasis null for containment and top-3 motif-energy concentration.
 
-Random and activity partitions are weak nulls. The eigenbasis of W_rec itself is the strong
-null a reviewer names first: does the connectivity quotient beat "just use the top eigenvectors
-of W_rec" at (a) containing the motif directions and (b) concentrating motif energy on a few
-modes? The compression table already hinted this is close (A_raw 0.479 vs 0.466 at k=20, r=3).
+Per seed and k, matched on dimension:
+  containment  ||P p||/||p|| onto col(H) vs onto the span of the top-k eigenvectors
+               of W_rec (real parts, orthonormalised).
+  top-3 energy fraction of aggregate motif energy on the top-3 quotient eigenmodes
+               (by |lambda_Q|) vs top-3 eigenvectors of W_rec (by |lambda|).
 
-Per seed and per k we compare, matched on dimension:
-  containment  ||P p||/||p|| onto the k-dim group-constant subspace col(H) vs onto the span of
-               the top-k eigenvectors of W_rec (real parts, orthonormalised).
-  top-3 energy fraction of aggregate motif energy on the top-3 modes: quotient eigenmodes
-               (ordered by |lambda_Q|) vs top-3 eigenvectors of W_rec (ordered by |lambda|).
-Signed-rank across the ten seeds. Writes wrec_eigenbasis_null.json.
+Signed-rank across seeds. Writes wrec_eigenbasis_null.json.
 """
 from __future__ import annotations
 import argparse, json

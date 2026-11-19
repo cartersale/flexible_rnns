@@ -29,3 +29,7 @@ dist/
 
 # manim render output
 media/
+
+# Talk and presentation material (kept locally, not part of the manuscript code)
+/src/flexsym/anim/
+/src/flexsym/figures/visual_abstract.py

@@ -1,30 +1,24 @@
 """Classify dynamical motifs from saved fixed/slow-point sets.
 
-Consumes the .npz files written by run_motif_fixed_points.py (one per rule x
-epoch) and classifies the recovered points into the motif taxonomy, using the
-discrete-map Jacobian J = dF/dh spectrum (|lambda| relative to 1):
+Reads the .npz files written by run/motif_fixed_points.py (one per rule x epoch)
+and classifies points from the discrete-map Jacobian J = dF/dh spectrum:
 
-  point attractor : all |lambda| < 1 - eps          (stable, no escape direction)
-  saddle/decision : exactly one |lambda| > 1 + eps  (real) -> unstable eigvec = decision axis
+  point attractor : all |lambda| < 1 - eps
+  saddle/decision : exactly one real |lambda| > 1 + eps; its eigenvector is the decision axis
   rotation        : a non-contracting complex-conjugate pair, |Im| > im_thresh
-  line attractor  : a connected 1-D manifold of slow points whose local slow
-                    direction is tangent to the manifold. Because memory of a
-                    *direction* is a RING (closed, curved 1-D manifold), the
-                    tangency test is LOCAL: at each slow point the local manifold
-                    tangent (leading PC of its k nearest neighbours) must align
-                    with the local slow direction (see _slow_direction) above
-                    cos_thresh, and the neighbourhood must be locally 1-D.
+  line attractor  : a connected 1-D manifold of slow points. At each slow point the
+                    local tangent (leading PC of its k nearest neighbours) must align
+                    with the local slow direction (_slow_direction) above cos_thresh,
+                    and the neighbourhood must be locally 1-D.
 
-Per-point classification is spectral; line-attractor detection is a property of
-the whole slow-point *set* within a condition (rule x epoch), matching the
-memory-motif geometry (a continuum of marginally stable points).
+Point classification is spectral; line-attractor detection is a property of the
+slow-point set within a condition.
 
 A per-unit participation vector p_m (>= 0, unit norm) is built for the dominant
-motif, from |loadings| so it is invariant to eigenvector sign / ring phase:
+motif from absolute loadings:
   line attractor : mean over slow points of |local slow direction|
-  saddle         : mean over saddles of |unstable eigenvector| (decision axis)
-A condition labelled "rotation" gets no participation vector or motif direction,
-since Re(z) and Im(z) of a complex eigenvector depend on the solver's phase.
+  saddle         : mean over saddles of |unstable eigenvector|
+Conditions labelled "rotation" get no participation vector or motif direction.
 """
 
 from __future__ import annotations
@@ -46,14 +40,10 @@ def npload(path):
 
 # --- thresholds (tunable per network from the q-histogram / spectrum) ---------
 EPS_STABLE = 0.02      # |lambda| < 1 - EPS_STABLE  => contracting
-EPS_UNSTABLE = 0.0     # |lambda| > 1 + EPS_UNSTABLE => expanding. Zero matches
-                       # the stability threshold used throughout Driscoll et
-                       # al.'s tools_lnd.py (`max Re(lambda) > 1`, no dead
-                       # zone). On this corpus no eigenvalue is unstable by
-                       # modulus while stable by real part, so the two tests
-                       # coincide. The saddle label additionally requires
-                       # exactly one unstable mode (see classify_point), a
-                       # distinction tools_lnd does not make.
+EPS_UNSTABLE = 0.0     # |lambda| > 1 + EPS_UNSTABLE => expanding (no dead zone,
+                       # as in Driscoll et al.'s tools_lnd.py). The saddle label
+                       # additionally requires exactly one unstable mode
+                       # (see classify_point).
 IM_THRESH = 0.05       # |Im(lambda)| above this => genuine rotation
 COS_THRESH = 0.8       # |cos| local-tangent vs eigenvector for tangency
 Q_FP = 1e-8            # q below this => treat as a true fixed point
@@ -117,10 +107,7 @@ def _slow_direction(eigvals, eigvecs, im_thresh=IM_THRESH):
 
     Among eigenvalues with |Im lambda| <= im_thresh, the one whose real part is closest
     to +1 supplies its eigenvector. A point with no such eigenvalue contributes no
-    tangency comparison: its leading eigenvector would be complex, and Re(z) depends on
-    the phase the eigensolver happens to return, so it is not a well-defined direction.
-    Across the ten 256-unit networks no slow point fell in that case (19,454 points in
-    487 slow-point sets), so the exclusion is a guard rather than a filter.
+    tangency comparison, since Re(z) of a complex eigenvector depends on the solver's phase.
     """
     real_mask = np.abs(eigvals.imag) <= im_thresh
     if not np.any(real_mask):
@@ -278,9 +265,8 @@ def classify_condition(npz_path, q_fp=Q_FP, q_slow=Q_SLOW, **kw) -> ConditionMot
         participation = acc
         signed = np.array(vecs) if vecs else None
     # A condition labelled "rotation" carries no participation vector or motif
-    # direction. Re(z) and Im(z) of a complex eigenvector are defined only up to
-    # the eigensolver's phase, so neither is a well-defined direction, and no
-    # condition in the analysed networks met the criterion.
+    # direction: Re(z) and Im(z) of a complex eigenvector are defined only up to
+    # the eigensolver's phase.
     if participation is not None:
         nrm = np.linalg.norm(participation)
         participation = participation / nrm if nrm > 0 else participation

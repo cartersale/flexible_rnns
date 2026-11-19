@@ -1,25 +1,15 @@
-"""Paper Figure 3 -- state-dependent gain reconfigures a shared scaffold (Results §4).
+"""Figure 3 panels.
 
-The section's result is partly negative -- quotient modes are NOT reusable operators
-that identify a motif type across tasks -- so the figure has to make the negative
-legible before the positive replacement lands: the conserved object is the structural
-substrate, and gain state selects the configuration.
+Written as SVG into figures/fig3/pieces/:
 
-Panels, written as SVG into figures/fig3/pieces/:
+  A  one Q_struct, three condition gain vectors, three spectra
+  B  same- vs different-type separation of cross-task pairs: quotient modes vs
+     unit-level participation
+  C  gain-swap matrix for one network
+  D  gain-swap scores: unit, role, activity, random partition, shuffled gains
+  E  composition: span of two constituents vs size-matched null (supplement)
 
-  A  the decomposition, from data: one fixed Q_struct, three condition gain vectors,
-     three different spectra
-  B  operator reuse fails: quotient modes separate same-type from different-type
-     cross-task pairs worse than unit-level participation does
-  C  gain-swap matrix: condition i's motif direction against a quotient built from
-     condition j's gains, one network
-  D  swap ladder: unit > role ~ activity > random partition > shuffled gains
-
-  E  composition (supplement): a composed motif lies in the span of its two
-     constituents barely more than a size-matched null
-
-Unlike Figure 2, panels here use each network's own operating resolution (OPK,
-k = 33-44), because that is where the gain analyses were run.
+Panels use each network's operating k (OPK).
 
     python -m flexsym.figures.paper_fig3_panels
     python -m flexsym.figures.paper_fig3_panels --only C
@@ -104,9 +94,8 @@ def leverage_json():
 def rel_allocation(gl, tname, cname):
     """Per-network relative allocation, real and size-matched null.
 
-    Exactly the aggregation `gain_leverage_geometry` prints: leverage on the class
-    divided by leverage on the bulk, medianed over contrasts within a network. The
-    reported enrichment is the ratio of the medians across networks.
+    As in `gain_leverage_geometry`: leverage on the class divided by leverage on the
+    bulk, median over contrasts within a network.
     """
     R, P = [], []
     for v in gl.values():
@@ -121,7 +110,7 @@ def rel_allocation(gl, tname, cname):
 
 
 def bulk_ratio(gl, tname):
-    """Per-network absolute ratio for the irrelevant bulk (depletion)."""
+    """Per-network absolute ratio for the bulk."""
     out = []
     for v in gl.values():
         r = [c[f"{tname}_other"]["response"] / c[f"{tname}_other"]["response_permsize"]
@@ -480,7 +469,7 @@ def panel_F():
 # --------------------------------------------------------------------- panel G
 
 def panel_G():
-    """First-order validity: does S_ev predict the observed eigenvalue change?"""
+    """First-order validity: S_ev prediction vs observed eigenvalue change."""
     gj = gain_json()
     rows = [r for n in gj.values() for r in n["leverage"]]
     obs = np.array([r["r_pred_obs"] for r in rows])
@@ -519,7 +508,7 @@ def panel_G():
 # --------------------------------------------------------------------- panel H
 
 def panel_H():
-    """Allocation: gain changes go to roles with leverage over the modes that matter."""
+    """Allocation: gain-change response by sensitivity and mode class, relative to null."""
     gl = leverage_json()
     cats = [("ev", "star", "eigenvalue\nmotif mode", BLUE),
             ("ev", "critical", "eigenvalue\nnear-critical", BLUE),
@@ -561,12 +550,12 @@ def panel_H():
 # --------------------------------------------------------------------- panel I
 
 def panel_I():
-    """What reconfiguration spares, and what it avoids."""
+    """Response ratios for the motif-carrying mode (left) and the bulk (right)."""
     gl = leverage_json()
     fig, (axL, axR) = plt.subplots(1, 2, figsize=(5.8, 3.3))
     fig.subplots_adjust(left=0.12, right=0.97, top=0.80, bottom=0.18, wspace=0.42)
 
-    # left: rotation spared, eigenvalue suppressed, for the motif-carrying mode
+    # left: motif-carrying mode, rotation and eigenvalue response
     ev = np.array([np.nanmedian([c["ev_star"]["response"]
                                  / c["ev_star"]["response_permsize"]
                                  for c in n["contrasts"]
@@ -599,7 +588,7 @@ def panel_I():
              transform=axL.transAxes, ha="center", va="top", fontsize=6.8, color=MUTED)
     clean(axL)
 
-    # right: the bulk is avoided
+    # right: bulk
     for i, (t, lab, c) in enumerate([("ev", "eigenvalue\nleverage", BLUE),
                                      ("rot", "rotation\nleverage", VIOLET)]):
         v = bulk_ratio(gl, t)

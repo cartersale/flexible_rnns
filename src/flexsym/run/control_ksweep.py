@@ -1,43 +1,23 @@
-"""Surrogate-W controls for the mesoscopic-lumpability claim, across the k grid.
+"""Surrogate-matrix controls for eigenvector step-R^2, across the k grid.
 
-Section 1.2 shows that the signed-WL partition of the trained W_rec makes the leading
-eigenvectors piecewise-constant far beyond a size-matched random partition, at every k.
-That is a claim about the *partition*. This script asks the complementary question about
-the *matrix*: which properties of the trained W_rec are responsible?
+For each surrogate the full pipeline is run on the surrogate: a signed-WL partition
+optimised on it at each k, scored against its own size-matched random-partition null.
 
-For each surrogate matrix type we run the FULL pipeline on the surrogate -- WL-optimize a
-fresh partition on it at each k, then score its eigenvectors against ITS OWN size-matched
-random-partition null. Each surrogate therefore gets its best shot; a low score means the
-structure genuinely is not there, not that we handed it the wrong partition.
+Surrogates (built from M = transpose variant of W_rec on active units):
 
-Surrogate types (all built from M = the transpose variant of W_rec on active units):
+  trained        M
+  row-shuffle    entries permuted within each row
+  full-shuffle   all entries permuted
+  gaussian       i.i.d. normal matched in Frobenius norm
+  lowrank-r<R>   rank-R SVD component of M plus a Frobenius-matched Gaussian residual
+  spectrum       real Schur M = U T U^T with U replaced by a random orthogonal Q
 
-  trained        the real matrix (reference curve)
-  row-shuffle    permute the entries within each row -> preserves every unit's incoming
-                 strength profile (sum, distribution, sparsity) and kills only the pattern
-                 of who-connects-to-whom.  [strength-preserving surrogate]
-  full-shuffle   permute all entries -> preserves the global value distribution only
-  gaussian       i.i.d. normal matched in Frobenius norm.  This is also the *untrained*
-                 control: the `diag` initialisation is exactly 1.0 * I, for which every
-                 partition is trivially invariant, so the identity is a degenerate null
-                 and a matched Gaussian draw is the meaningful untrained geometry.
-  lowrank-r<R>   keep the exact rank-R SVD component of M, replace the residual with a
-                 Frobenius-matched Gaussian.  Asks whether the lumpability is carried by
-                 the leading low-rank component alone.
-  spectrum       real Schur M = U T U^T with U replaced by a random orthogonal Q.
-                 Preserves the ENTIRE spectrum (hence spectral radius and all decay
-                 times) exactly, and randomises only the basis alignment.  Asks whether
-                 piecewise-constant eigenvectors follow from the spectrum or from where
-                 the eigenvectors sit relative to the units.
+Statistics per (network, type, k), as in run/lumpability_r2_ksweep.py: `r2_best`
+(max step-R^2 over the top-12 eigenvectors) and `r2_topk` (mean over the top-k), each
+with a 30-draw size-matched random-partition null and a z.
 
-Statistics per (network, type, k) are the same two as run/lumpability_r2_ksweep.py:
-`r2_best` (max step-R^2 over the top-12 eigenvectors) and `r2_topk` (mean over the top-k),
-each with a 30-draw size-matched random-partition null and a z.
-
-Pure connectivity: reads the cached sweep npz (which stores the active-unit matrix), so
-no checkpoint volume and no TF.
-
-Writes results/signed_input_wl_paper/lumpability/control_ksweep.csv.
+Reads the cached sweep npz. Writes
+results/signed_input_wl_paper/lumpability/control_ksweep.csv.
 """
 
 from __future__ import annotations

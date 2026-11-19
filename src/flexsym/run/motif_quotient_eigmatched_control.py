@@ -1,28 +1,14 @@
-"""Control: does the quotient predict the MOTIF direction, or any eigendirection?
+"""Eigenvalue-matched control for quotient prediction of the motif direction.
 
-The prediction result (motif_quotient_prediction.py) shows the coarse-grained
-quotient predicts the motif direction v of each task epoch. A sceptic's objection:
-maybe the quotient simply aligns with these Jacobians' eigenbasis in general, so it
-would predict ANY eigenvector of the same Jacobian just as well -- in which case
-"predicts the motif" is not special.
+For each condition, with the same mean Jacobian Jb and Q_pred basis B:
 
-This control answers that directly. For each condition we keep the same mean
-Jacobian Jb and the same Q_pred basis B, and compare:
+  motif      : A_cond of the motif direction v
+  eig-matched: A_cond of a non-motif eigenvector q of Jb whose |lambda_q| is closest
+               to the motif's |lambda_J| and whose alignment with v is below ALIGN_MAX
 
-  motif      : A_cond of the true motif direction v (the headline statistic)
-  eig-matched: A_cond of a NON-motif eigenvector q of the SAME Jb whose eigenvalue
-               modulus |lambda_q| is closest to the motif's |lambda_J|, and whose
-               alignment with v is below ALIGN_MAX (so it is genuinely a different
-               direction, not a second mode of the same motif -- e.g. the second
-               ring-plane mode of a line attractor).
+Partition, gains, r and containment conditioning are identical between the two.
 
-If the quotient captured the Jacobian spectrum generically, motif and eig-matched
-would score alike. If the quotient captures the computation specifically, the motif
-direction scores higher. Everything else -- partition, gains, r, containment
-conditioning -- is identical between the two, so the only thing that varies is
-which direction of the same operator is being predicted.
-
-  conda run -n myenv python -m flexsym.run.motif_quotient_eigmatched_control --seeds 0-2
+    python -m flexsym.run.motif_quotient_eigmatched_control --seeds 0-2
 """
 
 from __future__ import annotations
@@ -52,7 +38,7 @@ from flexsym.run.motif_quotient_prediction import (
 
 FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 K_GRID = [8, 12, 16, 20, 25, 30, 40, 50]
-M = 3                    # r: the saturating mode count from the main result
+M = 3                    # r: number of quotient modes
 ALIGN_MAX = 0.30         # an eig-matched control vector must be this unaligned with v
 
 

@@ -1,54 +1,31 @@
-"""Are the modes the partition routes into the quotient the modes the motifs live in?
+"""Mode-resolved containment vs motif alignment.
 
-run/transverse_contraction.py established the routing half: the full per-condition
-Jacobian is marginally expansive (rho ~ 1.05), and the signed-WL partition puts the
-marginal modes in the quotient block and leaves a contracting transverse complement,
-where a size-matched random partition of the same matrix leaves rho ~ rho(J) behind.
-That says the partition sorts modes by timescale. It does not say the modes it keeps
-are the ones the computation uses.
-
-This script asks that, mode by mode. For each network, each k, each motif condition:
+For each network, k, and motif condition:
 
     lam_i, u_i      eigenmodes of the condition's mean Jacobian Jbar
-    c_i             containment  ||P u_i|| / ||u_i||     -- how much of mode i the
-                                                            quotient keeps (1 = fully
-                                                            routed into the quotient,
-                                                            0 = purely transverse)
-    a_i             alignment    |u_i^H v| / (||u_i|| ||v||)  with the motif direction v
+    c_i             containment  ||P u_i|| / ||u_i||
+    a_i             alignment    |u_i^H v| / (||u_i|| ||v||)  with motif direction v
     w_i             modal weight |c_i| ||u_i|| / ||v|| from the left-eigenvector
-                                 expansion v = sum_i c_i u_i -- the actual modal content
-                                 of v, which the cosine overstates when modes are
-                                 near-degenerate (these operators are non-normal)
+                                 expansion v = sum_i c_i u_i
 
-and reports, across the n modes:
+Across the n modes:
 
-  rho(c, a)         do quotient-routed modes carry the motif direction?
-  rho(c, |lam|)     does the partition route by timescale?  (the routing result again,
-                    now mode-resolved rather than as a block spectral radius)
-  rho(a, |lam|)     do motifs live in slow modes?
-  rho(c, a | |lam|) partial, ranks, |lam| regressed out. THE number: if routing and motif
-                    alignment are both just "slow modes", this goes to zero and the
-                    partition is not doing anything beyond a timescale filter. If it
-                    stays positive, the partition keeps the computational modes
-                    specifically.
+  rho(c, a)
+  rho(c, |lam|)
+  rho(a, |lam|)
+  rho(c, a | |lam|)  partial rank correlation, |lam| regressed out
 
-Plus a subspace version that does not depend on a per-mode statistic: take the k modes
-with the highest containment (the quotient-routed set), orthonormalise, and measure the
-motif direction's alignment with their span -- against the top-k by |lam| and against k
-modes chosen at random.
+Subspace version: alignment of v with the span of the k highest-containment modes,
+against the top-k by |lam| and k random modes.
 
-NULLS. Two, both paired within (network, k, condition):
-  rand-part   containment recomputed under a size-matched random partition, same modes,
-              same v. Separates "the connectivity partition routes the motif modes" from
-              "any k-dimensional group-constant subspace would".
-  cross-cond  the motif direction of a DIFFERENT condition of the same network, same
-              modes, same partition. Separates a real condition-specific correspondence
-              from the fact that all motif directions look somewhat alike.
+Nulls, paired within (network, k, condition):
+  rand-part   containment under a size-matched random partition
+  cross-cond  motif direction of a different condition of the same network
 
 Writes results/main/signed_input_wl_paper/lumpability/quotient_mode_motif_alignment.csv
-(one row per network x k x condition) and a .json with the paired Wilcoxon summaries.
+(one row per network x k x condition) and a .json with paired Wilcoxon summaries.
 
-  conda run -n myenv python -m flexsym.run.quotient_mode_motif_alignment --seeds 3-12
+    python -m flexsym.run.quotient_mode_motif_alignment --seeds 3-12
 """
 
 from __future__ import annotations
@@ -187,9 +164,7 @@ def one_cell(md: dict, v: np.ndarray, v_cross: np.ndarray | None,
     rec["c_top_align_null_part"] = float(np.mean(c_rnd[top]))
     rec["lam_top_align"] = float(np.mean(lam_abs[top]))
     rec["lam_all"] = float(np.mean(lam_abs))
-    # the block-level routing result says the quotient holds the marginal modes; at the
-    # mode level that is a claim about the extreme end of the spectrum, not a global
-    # rank trend, so look at the slowest modes directly.
+    # containment of the slowest modes
     slow = np.argsort(-lam_abs)[:TOP_R]
     rec["c_top_lam"] = float(np.mean(c_obs[slow]))
     rec["c_top_lam_null_part"] = float(np.mean(c_rnd[slow]))
@@ -285,7 +260,7 @@ def summarise(rows: list[dict]) -> dict:
                 rec[met] = {"median": float(np.median(vals[ok])), "p_vs_0": float(p),
                             "n": int(ok.sum())}
         out[f"k{k}"] = rec
-    # per motif type at every k, on the headline statistic
+    # per motif type at every k
     by_motif = {}
     for mt in MOTIF_TYPES:
         s = [r for r in rows if r["motif"] == mt]

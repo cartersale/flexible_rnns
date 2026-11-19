@@ -1,23 +1,15 @@
-"""Paper Figure 1 -- the surrogate-matrix control panel.
+"""Figure 1: surrogate-matrix control panel.
 
-Step-R^2 of the trained recurrent matrix against three destructive surrogates, one
-point per network in the cohort (network count read from the data, not hardcoded).
+Step-R^2 of the trained recurrent matrix and three surrogates, one point per network.
 
-  trained        the real W_rec (transpose variant, active units)
-  row-shuffle    entries permuted within each row: every unit's incoming strength
-                 profile is preserved, only who-connects-to-whom is destroyed
-  full-shuffle   all entries permuted: only the global value distribution survives
-  gaussian       i.i.d. normal matched in Frobenius norm -- the untrained geometry
+  trained        W_rec (transpose variant, active units)
+  row-shuffle    entries permuted within each row
+  full-shuffle   all entries permuted
+  gaussian       i.i.d. normal matched in Frobenius norm
 
-Every surrogate got the full pipeline in run/control_ksweep.py: a fresh signed-WL
-partition optimised on the surrogate itself, scored against its own size-matched
-random-partition null. A low score means the structure is absent, not that the
-surrogate was handed the wrong partition.
-
-Statistic: `r2_topk` (mean step-R^2 over the k leading eigenvectors), plotted as the
-excess over each matrix's own matched null. `r2_best` is deliberately NOT used here --
-per docs/paper_1_results_overview.md 1.4 it fails as a comparative statistic across
-matrices (the spectrum surrogate beats trained on it 92% of the time).
+Each surrogate has its own signed-WL partition and size-matched random-partition null
+(run/control_ksweep.py). Statistic: `r2_topk` (mean step-R^2 over the k leading
+eigenvectors), plotted as the excess over each matrix's matched null.
 
 Reads results/signed_input_wl_paper/lumpability/control_ksweep.csv; writes
 figures/fig1/pieces/fig1_controls_r2topk_k<k>.{svg,png}.
@@ -73,9 +65,7 @@ def load(k: int, stat: str):
 def panel(data, k, stat, stem):
     labels = [lab for _, lab in TYPES]
     vals = [data[key]["v"] for key, _ in TYPES]
-    # cohort facts come from the data, so the panel cannot mislabel itself when
-    # the cohort changes (it previously hardcoded 33 networks and a 1024 legend
-    # entry, neither of which survives the released/main cohort split)
+    # cohort size and network sizes are read from the data
     n_nets = len(data[TYPES[0][0]]["v"])
     sizes_present = sorted(set(data[TYPES[0][0]]["size"].tolist()))
 

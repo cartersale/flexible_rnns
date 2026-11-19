@@ -1,27 +1,18 @@
-"""Fan out training of a (sizes x seeds) grid of softplus-diag networks across CPU cores.
+"""Train a (sizes x seeds) grid of softplus-diag networks in parallel subprocesses.
 
-Designed for a headless CPU node (default tuned for a 28-core budget). Each
-(size, seed) network is trained in its own subprocess via ``train_softplus_diag.py``;
-a bounded number run concurrently and each is capped to a fixed number of BLAS/TF
-threads so the workers do not oversubscribe the CPU.
+Each (size, seed) network is trained by ``flexsym.training.train_softplus_diag`` in
+its own subprocess, with a bounded number running concurrently and each capped to a
+fixed number of BLAS/TF threads.
 
-Core budgeting
---------------
-    total threads used ~= --workers * --threads-per-worker
-Keep this <= the cores you want to use. The default is 28 workers * 1 thread = 28,
-which exactly covers a 4-size x 7-seed grid (28 jobs) one-per-core. Each network is
-small in RAM (~1-4 GB even at n_rnn=1024), so concurrency is core-bound, not RAM-bound.
+    total threads ~= --workers * --threads-per-worker
 
 Examples
 --------
-    # 7 new seeds (3..9) for every default size (128,256,512,1024) -> 28 jobs
-    python run_seeds_parallel.py --sizes 128,256,512,1024 --seeds 3-9
+    python -m flexsym.training.run_seeds_parallel --sizes 128,256,512,1024 --seeds 3-9
+    python -m flexsym.training.run_seeds_parallel --sizes 256 --seeds 3-9
 
-    # just the 256 net, seeds 3..9
-    python run_seeds_parallel.py --sizes 256 --seeds 3-9
-
-Logs for each job go to <log-dir>/n<size>_seed<n>.log. Jobs whose checkpoint already
-exists are skipped unless --force is given, so the launcher is safe to re-run.
+Logs go to <log-dir>/n<size>_seed<n>.log. Jobs whose checkpoint exists are skipped
+unless --force is given.
 """
 from __future__ import division
 

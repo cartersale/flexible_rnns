@@ -1,24 +1,13 @@
-"""Does raw approximate equitability survive a strength-preserving control?
+"""Equitability defect of trained vs row-shuffled W_rec, across the k grid.
 
-The partition is found by minimising the signed equitability defect
+The signed equitability defect is
 
-    Gamma_signed(H) = ||W+ H - H D^-1 H^T W+ H||_F + ||W- H - H D^-1 H^T W- H||_F,
+    Gamma_signed(H) = ||W+ H - H D^-1 H^T W+ H||_F + ||W- H - H D^-1 H^T W- H||_F.
 
-and trained networks admit partitions with Gamma far below size-matched random
-partitions. That looks like evidence of trained structure -- but Gamma is a statement
-about aggregate in-strengths matching within a group, and a matrix whose rows have been
-independently permuted keeps every unit's incoming strength while destroying the wiring
-pattern entirely. If the row shuffle is *also* strongly equitable, the raw Gamma result is
-a degree/strength effect and cannot carry the claim.
+For each network, k, and matrix in {trained, row-shuffle}, a partition is optimised
+on that matrix and scored against size-matched random partitions as
 
-For each network, each k, and each of {trained, row-shuffle}, this optimises a partition on
-that matrix and scores it against size-matched random partitions, reported as the paper's
-orientation-corrected structure score
-
-    S = (mu_null - Gamma_obs) / sigma_null      (positive = MORE equitable than chance)
-
-so that trained and surrogate are directly comparable. Companion to
-run/control_ksweep.py, which does the same for the lumpability (step-R^2) statistic.
+    S = (mu_null - Gamma_obs) / sigma_null      (positive = more equitable than chance)
 
 Writes results/signed_input_wl_paper/lumpability/equitability_control_ksweep.csv.
 """

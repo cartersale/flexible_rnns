@@ -26,10 +26,8 @@ from tqdm import tqdm
 REPO_DIR = paths.REPO_ROOT
 STEP_DIR = Path(__file__).resolve().parent
 DEFAULT_CONFIG = REPO_DIR / "configs" / "batch_256_transpose_config.json"
-# Child steps run under the SAME interpreter as this runner (sys.executable).
-# This previously defaulted to a `.venv` sibling of the repo, which after the
-# migration resolved to an environment without flexsym installed -- every step
-# died with "No module named 'flexsym'". Use --python to override deliberately.
+# Child steps run under the same interpreter as this runner (sys.executable).
+# Use --python to override.
 
 
 @dataclass(frozen=True)

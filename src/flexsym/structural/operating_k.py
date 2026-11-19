@@ -1,21 +1,11 @@
-"""Single source of truth for the operating k of each 256-unit network.
+"""Operating k for each 256-unit network.
 
-This used to be an `OPK = {0: 41, ..., 3: 14, ...}` literal copy-pasted into
-eight modules. When the 256 seeds 3-9 were retrained on 2026-07-25 every copy
-went stale at once: they held k=14, derived from checkpoints where only ~70 of
-256 units were active, while the current nets want k=42-44. Nothing failed
-loudly -- the analyses just silently kept partitioning at the old granularity.
-
-The k is now derived from each network's activity clustering, using the same
-rule the batch config uses (`configs/batch_256_transpose_config.json`, policy
-"active_fraction"):
+k is derived from each network's activity clustering with the "active_fraction"
+policy of `configs/batch_256_transpose_config.json`:
 
     k = clamp(min(activity_best_k, round(0.20 * n_active)), K_MIN, n_active - 1)
 
-It reproduces the released seeds 0-2 exactly (41, 51, 38), which is the check
-that licenses trusting it on the retrained seeds.
-
-Usage -- drop-in for the old literal:
+Usage:
 
     from flexsym.structural.operating_k import OPK
     for seed, k in OPK.items(): ...
@@ -48,11 +38,7 @@ def model_name(seed: int, size: int = 256) -> str:
 def k_from_clustering(best_k: int, n_active: int) -> int:
     """The active_fraction policy, applied to one clustering result.
 
-    Split out from `operating_k` so callers holding a clustering that does not
-    live under ACTIVITY_ROOT -- e.g. the per-checkpoint trajectory runs, whose
-    clusterings sit beside their snapshots -- select k by the same rule instead
-    of re-deriving it. Re-deriving is exactly how the eight copies of the old
-    OPK literal went stale at once.
+    For callers holding a clustering that does not live under ACTIVITY_ROOT.
     """
     structural_k = max(K_MIN, min(int(round(ACTIVE_FRACTION * n_active)), n_active - 1))
     return max(K_MIN, min(min(int(best_k), structural_k), n_active - 1))

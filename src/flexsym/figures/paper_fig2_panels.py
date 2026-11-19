@@ -1,21 +1,18 @@
-"""Paper Figure 2 -- connectivity-defined roles predict motif geometry (Results §2-3).
+"""Figure 2 panels.
 
-Panels, written as SVG into figures/fig2/pieces/:
+Written as SVG into figures/fig2/pieces/:
 
   A  motif inventory: task x epoch mosaic, coloured by motif type
-  B  worked example: per-unit motif participation, in role order
-  C  geometry dissociation: step-R^2 of the motif direction on roles vs activity clusters
-  D  commonality: unique / shared variance in motif participation
-  E  A_cond vs k for m = 1, 3, 5, against the random-partition null and chance
-  F  quotient ladder: Q_struct -> Q_pred -> Q_task, per network
-  G  eigenvalue prediction: lambda_Q vs lambda_J per condition
-  H  mode routing: containment-alignment correlation, and the span of the routed modes
+  B  per-unit motif participation, in role order
+  C  step-R^2 of the motif direction on roles vs activity clusters
+  D  unique / shared variance in motif participation
+  E  A_cond vs k for m = 1, 3, 5, with random-partition null and chance
+  F  Q_struct -> Q_pred -> Q_task, per network
+  G  lambda_Q vs lambda_J per condition
+  H  containment-alignment correlation, and span of the routed modes
 
-Every panel is population-level (471 classified conditions over ten 256-unit networks)
-except B, which is the anchoring example. Nothing is recomputed here: A/C/D come from
-the participation and taxonomy CSVs, E/F from quotient_prediction.json, G from
-quotient_lambda_pairs.csv (flexsym.run.quotient_lambda_pairs), H from
-lumpability/quotient_mode_motif_alignment.csv.
+Inputs: participation and taxonomy CSVs (A/C/D), quotient_prediction.json (E/F),
+quotient_lambda_pairs.csv (G), lumpability/quotient_mode_motif_alignment.csv (H).
 
     python -m flexsym.figures.paper_fig2_panels           # all panels
     python -m flexsym.figures.paper_fig2_panels --only C G
@@ -82,7 +79,7 @@ def rows(path):
 
 
 def participation_table():
-    """The 471 classified conditions, one row each, pooled over the ten networks."""
+    """Classified conditions, one row each, pooled over networks."""
     out = []
     for p in sorted(FP_ROOT.glob("*/participation_per_motif.csv")):
         for r in rows(p):
@@ -479,14 +476,8 @@ def panel_F():
 # --------------------------------------------------------------------- panel G
 
 def panel_G():
-    """Eigenvalue recovery.
-
-    NOT drawn as a lambda_Q vs lambda_J scatter with an identity line: lambda_J is
-    tightly clustered near 1 (median 1.02, IQR 1.00-1.04) because every motif-carrying
-    mode is near-critical, so such a scatter shows range restriction (r = 0.17), not
-    predictive accuracy. What is real, and what this panel shows, is that the quotient
-    lands on the near-critical value with a small downward bias, and closer than either
-    control in 98% of conditions.
+    """Eigenvalue recovery: lambda_Q and lambda_J distributions (left) and
+    |lambda_Q - lambda_J| against the activity and random-partition controls (right).
     """
     d = rows(FP_ROOT / "quotient_lambda_pairs.csv")
     lj = np.array([float(r["lam_J"]) for r in d])
@@ -501,7 +492,7 @@ def panel_G():
                           left=0.10, right=0.97, top=0.82, bottom=0.19)
     axL, axR = fig.add_subplot(gs[0]), fig.add_subplot(gs[1])
 
-    # ---- left: both eigenvalues are near-critical; the quotient sits just below
+    # ---- left: lambda_Q and lambda_J
     axL.axvline(1.0, color=MUTED, ls="--", lw=1.0, zorder=2)
     axL.text(1.0, 1.62, "critical", ha="center", fontsize=6.6, color=MUTED)
     for i, (v, c, lab) in enumerate([(lq, GREEN, "$\\lambda_Q$  quotient mode"),
@@ -527,7 +518,7 @@ def panel_G():
                   fontsize=9.4, color=INK, pad=8)
     clean(axL, grid="x")
 
-    # ---- right: the comparison that carries the claim
+    # ---- right: comparison with controls
     for i, (lab, v) in enumerate(dl.items()):
         c = [GREEN, YELLOW, GRAY][i]
         axR.scatter(v, i + jitter(len(v), 0.42, seed=i), s=7, color=c, alpha=0.35,

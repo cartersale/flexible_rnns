@@ -1,22 +1,18 @@
-"""Do the backbone results depend on the SIGNED-WL partition, or would any sensible graph
-partition at matched k give the same coordinates?
+"""Signed-WL vs other graph partitions at matched k.
 
-We build, per network and per k, four partitions of the active recurrent block:
-  * WL        signed Weisfeiler-Leman role groups (the partition used throughout the report);
-  * spectral  normalised spectral clustering on the symmetrised absolute weight affinity
-              |W|+|W|^T, k clusters;
-  * modularity greedy modularity communities on the same weighted graph, forced to k communities;
-  * random    size-matched random partitions (mean over a small ensemble), as the floor.
+Partitions of the active recurrent block, per network and k:
+  * WL        signed Weisfeiler-Leman roles
+  * spectral  normalised spectral clustering on |W|+|W|^T, k clusters
+  * modularity greedy modularity communities on the same graph, forced to k
+  * random    size-matched random partitions (mean over a small ensemble)
 
-For each partition we evaluate the three metrics that define Results 1/3/4, all as properties of a
-label vector (so they apply to any partition):
-  leakage     mean fraction of the top-m W_rec eigenvectors' energy OUTSIDE the group-constant
-              subspace (lower = more lumpable); Result 1.
-  containment median motif-direction containment ||P p||/||p|| (higher = motifs live in the
-              subspace); Result 3.
-  top3        fraction of aggregate motif energy on the top-3 quotient eigenmodes (higher = more
-              concentrated); Result 4.
-Signed-rank across the ten networks compares WL to spectral and to modularity at each k.
+Metrics per partition:
+  leakage     mean fraction of the top-m W_rec eigenvectors' energy outside the
+              group-constant subspace
+  containment median motif-direction containment ||P p||/||p||
+  top3        fraction of aggregate motif energy on the top-3 quotient eigenmodes
+
+Signed-rank across networks compares WL with spectral and modularity at each k.
 """
 from __future__ import annotations
 import argparse, json

@@ -1,27 +1,15 @@
-"""Decisive test: role vs activity at the SUBSPACE level, matched k + matched
-group-size distributions, across the 10-seed ensemble.
+"""Class vs activity subspace containment at matched k and matched group sizes.
 
-The paper's positioning hinges on connectivity role groups capturing something
-the activity partition does not. The pilot's "role >> activity in 100% of motifs"
-compared role at k=33 vs activity at k=45 -- not k-matched -- so it does not
-settle it. Here we make the comparison fair:
+  * matched k: role (signed-WL) and activity partitions at the same k
+    (labels_struct_by_k / labels_act_by_k), over a k grid.
+  * matched sizes: excess containment
+        Delta = f_obs - mean_over( random partitions of the same sizes ),
+    f = ||P v|| / ||v||.
 
-  * MATCHED k: role (signed-WL) and activity partitions are taken at the SAME k
-    (both cached per-k in the WL sweep: labels_struct_by_k / labels_act_by_k),
-    swept over a grid so the verdict is not hostage to one k.
-  * MATCHED group-size distributions: raw containment f = ||P v|| / ||v|| depends
-    on the size distribution, and role/activity size profiles differ even at
-    matched k. We therefore compare EXCESS containment
-        Delta = f_obs - mean_over( random partitions of the SAME sizes )
-    for each partition. Delta subtracts each partition's own size-baseline, so
-    Delta_role - Delta_act isolates the grouping STRUCTURE (connectivity vs
-    activity), independent of k and size distribution.
+Per-net statistic at each k: median over motifs of (Delta_role - Delta_act).
+Signed-rank across seeds.
 
-Decisive per-net statistic (at each matched k): median over motifs of
-(Delta_role - Delta_act). Positive => connectivity adds subspace containment
-beyond activity, matched on k and size. Signed-rank across the 10 seeds.
-
-  conda run -n myenv python stepnet/run_motif_subspace_rva.py
+    python -m flexsym.run.motif_subspace_rva
 """
 
 from __future__ import annotations

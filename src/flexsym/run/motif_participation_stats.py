@@ -1,17 +1,15 @@
-"""Run the connectivity->motif participation tests for one network.
+"""Connectivity -> motif participation tests for one network.
 
-Loads the recovered motifs (results/motif_fixed_points/<net>/) + cached
+Loads the recovered motifs (results/motif_fixed_points/<net>/) and cached
 partitions, then runs:
-  Test 1  role-group predicts participation (eta^2 + permutation z), per motif.
-  Test 2  nested M0..M3 CV R^2 + commonality (unique-to-role headline), per motif.
-  Test 3  motif reuse across tasks (same-type vs different-type p_m correlation).
+  Test 1  eta^2 + permutation z, per motif.
+  Test 2  nested M0..M3 CV R^2 + commonality, per motif.
+  Test 3  same-type vs different-type p_m correlation across tasks.
 
 Writes results/motif_fixed_points/<net>/participation_stats.json and a per-motif
-CSV. Aggregation across networks (signed-rank over seeds) is done separately
-once the ensemble has been processed.
+CSV. Aggregation: run/motif_participation_aggregate.py.
 
-  conda run -n myenv python stepnet/run_motif_participation_stats.py \
-      --net LeakyRNN_softplus_diag_256_all_0
+    python -m flexsym.run.motif_participation_stats --net LeakyRNN_softplus_diag_256_all_0
 """
 
 from __future__ import annotations
@@ -133,9 +131,7 @@ def run_net(net, k=None, n_perm=1000, folds=5, seed=0):
 def reuse_test(motifs):
     """Same-type vs different-type participation correlation across tasks.
 
-    Correlations are between motif instances in DIFFERENT tasks (rules), so the
-    signal is 'the same computation reuses the same role groups across tasks',
-    not within-task epoch similarity.
+    Correlations are between motif instances in different tasks (rules).
     """
     def corr(a, b):
         return float(np.corrcoef(a, b)[0, 1])
@@ -154,7 +150,7 @@ def reuse_test(motifs):
     for mt, cs in same.items():
         if cs:
             out["same_type"][mt] = {"mean": float(np.mean(cs)), "n": len(cs)}
-    # headline: line-attractor same-type reuse minus different-type baseline
+    # line-attractor same-type reuse minus different-type baseline
     la = out["same_type"].get("line_attractor", {}).get("mean", float("nan"))
     out["line_reuse_minus_baseline"] = (
         la - out["different_type_mean"]

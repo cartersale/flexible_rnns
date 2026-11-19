@@ -1,48 +1,31 @@
-"""Structure x state -> function: does gain configure a fixed structural substrate?
-
-The composition tests failed because they asked the architecture to carry
-configuration identity. The decomposition says it should not:
+"""Gain swap, structural susceptibility, and leverage.
 
     Q_c = (1-a) I + a diag(gbar_c) Q_struct
 
-Q_struct is task-free and fixed. Everything condition-specific is the k-vector
-gbar_c. Under that reading the invariant is not a mode but the substrate whose
-modes gain reshapes -- eig(D_A Q) != eig(D_B Q) in general even for fixed Q, so
-"which quotient mode is memory" has no reason to be conserved.
-
-Three tests.
-
-  1. COUNTERFACTUAL GAIN SWAP. Hold the structure fixed, swap the gain state.
-     S[i,j] = how well the quotient built from condition j's gains captures
-     condition i's motif direction. If gains carry configuration, S is diagonally
-     dominant. Scored by the within-row percentile of the matched entry (scale
-     free, so representations of different dimension compare fairly; chance 0.5).
-
-     Representations, which are the controls operator-transport lacked:
+  1. GAIN SWAP. S[i,j] = how well the quotient built from condition j's gains
+     captures condition i's motif direction, scored by the within-row percentile
+     of the matched entry (chance 0.5). Representations:
        role      group-mean gains over the connectivity partition
        activity  group-mean gains over the activity partition at matched k
-       unit      full per-unit gains, no partition   (does coarse-graining help?)
-       shuffled  role-mean gains permuted across cells (distribution preserved)
+       unit      per-unit gains, no partition
+       shuffled  role-mean gains permuted across cells
        random    size-matched random partitions, quotient recomputed
 
-  2. STRUCTURAL SUSCEPTIBILITY. For Q(g) = (1-a)I + a D(g) Q_struct,
+  2. SUSCEPTIBILITY. For Q(g) = (1-a)I + a D(g) Q_struct,
 
          d lambda_j / d g_i = a * u_j[i] * (Q_struct v_j)[i] / (u_j' v_j)
 
-     with u_j, v_j the left/right eigenvectors. This is a purely STRUCTURAL map:
-     which roles can move which collective modes. Reported as leverage on |lambda|
-     (what sets contracting / neutral / unstable), with its concentration over
-     roles compared against random and activity partitions.
+     with u_j, v_j the left/right eigenvectors. Reported as leverage on |lambda|,
+     with its concentration over roles against random and activity partitions.
 
-  3. DOES THE NETWORK USE THE LEVERAGE? Two forms.
-     3a  First-order validity: across modes, does s_j . dgbar predict the OBSERVED
-         d|lambda_j| between the two conditions of a contrast (modes matched by
-         eigenvector overlap)? This tests the linearisation and the susceptibility
-         object at once.
-     3b  Targeting: is dgbar aligned with the leverage of the mode that actually
-         carries the motif, more than with the leverage of other modes?
+  3. LEVERAGE.
+     3a  across modes, correlation of s_j . dgbar with the observed d|lambda_j|
+         between the two conditions of a contrast (modes matched by eigenvector
+         overlap).
+     3b  alignment of dgbar with the leverage of the motif-carrying mode vs other
+         modes.
 
-    conda run -n myenv python -m flexsym.run.gain_configuration --seeds 0-9
+    python -m flexsym.run.gain_configuration --seeds 0-9
 """
 
 from __future__ import annotations
@@ -310,8 +293,7 @@ def run_net(net, k, rng, n_perm=N_PERM):
             else:
                 rr, nr, keep = np.nan, np.nan, keep
             # 3b: is dg aligned with the leverage of the motif-carrying mode?
-            # j* must be indexed in the BASE eigenbasis Va_, because Sa_ columns
-            # are base modes. Using Vb_ here mismatched the two orderings.
+            # j* is indexed in the base eigenbasis Va_, matching the columns of Sa_.
             M = H @ np.real(Va_)        # eigen-directions of Q lift through H, not H D^-1/2
             M /= np.maximum(np.linalg.norm(M, axis=0), TOL)
             energy = (M.T @ byk[kb]["v"]) ** 2

@@ -1,26 +1,20 @@
-"""Find dynamical-motif fixed/slow points for a trained multitask RNN.
+"""Find fixed/slow points for a trained multitask RNN.
 
-For each task and each analysable epoch we hold the input constant at the
-task-relevant values (rule cue + fixation on, stimulus zero for delay/memory
-epochs; rule cue + stimulus for stimulus epochs), sample initial states from
-actual trial trajectories in that epoch (plus Gaussian noise to escape the
-trajectory manifold), and minimise q(h) = 1/2 ||F(h) - h||^2 with Matt Golub's
-FixedPointFinder (Adam then joint optimisation, exact autograd on the trained
-graph). Jacobians J = dF/dh at each recovered point are saved for downstream
-motif classification and per-unit participation analysis.
+For each task and analysable epoch the input is held constant (rule cue + fixation,
+stimulus zero for delay/memory epochs; rule cue + stimulus for stimulus epochs).
+Initial states are sampled from trial trajectories in that epoch plus Gaussian noise,
+and q(h) = 1/2 ||F(h) - h||^2 is minimised with FixedPointFinder. Jacobians
+J = dF/dh are saved at each recovered point.
 
-Outputs (per model) go to results/motif_fixed_points/<net>/:
+Outputs go to results/motif_fixed_points/<net>/:
   <rule>__<epoch>.npz  with keys:
     xstar (n, N), qstar (n,), J_xstar (n, N, N), inputs (n, n_input),
     eigvals (n, N) complex, epoch_type (str), rule (str), n_inits (int)
   summary.json  with per-(rule, epoch) counts and q statistics.
 
-Run under conda env `myenv` (TF 2.19, tf.compat.v1). FixedPointFinder and
-recurrent-whisperer are loaded from repo-local external/ via sys.path.
+FixedPointFinder and recurrent-whisperer are loaded from external/ via sys.path.
 
-Example:
-  conda run -n myenv python stepnet/run_motif_fixed_points.py \
-      --net LeakyRNN_softplus_diag_256_all_0 --n-inits 1000
+    python -m flexsym.run.motif_fixed_points --net LeakyRNN_softplus_diag_256_all_0 --n-inits 1000
 """
 
 from __future__ import annotations
@@ -55,13 +49,8 @@ ORIGINAL_STORE = paths.ORIGINAL_STORE
 STAGED_STORE = paths.STAGED_STORE
 OUTPUT_ROOT = RESULTS_ROOT / "motif_fixed_points"
 
-# Epochs we analyse. go1 (pure response) is skipped by default: the motifs of
-# interest (memory line attractors, decision saddles) live in the delay and
-# stimulus epochs. Order is only used for stable iteration/reporting.
-# Pass --include-response to analyse go1 as well: Driscoll et al. report the
-# rotation motif at the memory->response transition (the ring attractor rotating
-# from output-null into output-potent space as the fixation input drops to zero),
-# which cannot be seen without the response epoch.
+# Epochs analysed. go1 (response) is skipped unless --include-response is given.
+# Order is only used for stable iteration/reporting.
 MEMORY_EPOCHS = ("fix1", "delay1", "delay2")
 STIM_EPOCHS = ("stim1", "stim2")
 SKIP_EPOCHS = ("go1",)

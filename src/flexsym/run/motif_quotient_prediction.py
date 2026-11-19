@@ -1,42 +1,25 @@
-"""Does the QUOTIENT predict the motif direction?
+"""Quotient prediction of the motif direction.
 
-Containment (run_motif_subspace_rva.py) shows the motif direction lies in the
-group-constant subspace col(H). That is a statement about the subspace only. The
-stronger, falsifiable claim is that the coarse-grained dynamics -- the quotient
-matrix on the role partition -- predicts WHICH direction inside that subspace the
-motif occupies, and with which eigenvalue.
+The cell is h+ = (1-a) h + a * f(W h + W_in x + b), so J = (1-a) I + a diag(g) W
+with g = f'(u). a and g are recovered from a stored J and W (J[i,j]/W[i,j] is
+constant along row i).
 
-Setup. The trained cell is h+ = (1-a) h + a * f(W h + W_in x + b), so the
-Jacobian at a fixed point is J = (1-a) I + a diag(g) W with g = f'(u). Both a and
-the per-unit gains g are recovered exactly from a stored J and W (the row ratio
-J[i,j]/W[i,j] is constant along row i), so the coarse-grained predictor below
-uses no fitted quantities.
+Quotients:
+  Q_struct  = (H'H)^-1 H' W H
+  Q_pred    = (1-a) I + a diag(g_bar) Q_struct     g_bar = group-mean gains
+  Q_task    = (H'H)^-1 H' Jbar H                   Jbar = condition mean Jacobian
 
-Three quotients, in increasing order of task information:
-  Q_struct  = (H'H)^-1 H' W H                 connectivity only, task-free
-  Q_pred    = (1-a) I + a diag(g_bar) Q_struct  + GROUP-MEAN gains (the honest
-              coarse-grained prediction: partition + connectivity + group gains)
-  Q_task    = (H'H)^-1 H' Jbar H              quotient of the condition's mean
-              Jacobian (upper bound; exact if the partition were equitable for J)
+The top-m eigenvectors of Q by |lambda| are lifted to N units and orthonormalised
+-> B. For motif direction v:
 
-Test. Take the top-m eigenvectors of Q by |lambda|, lift them to N units
-(piecewise constant on groups), orthonormalise -> B. Score the motif direction v:
+  A_raw  = ||B' v|| / ||v||
+  A_cond = ||B' v|| / ||P_H v||       chance ~ sqrt(m/k)
 
-  A_raw  = ||B' v|| / ||v||           how much of v the quotient predicts
-  A_cond = ||B' v|| / ||P_H v||       CONDITIONAL on v already being in col(H)
+Nulls: size-matched random partitions with the quotient recomputed, and the
+activity partition at matched k. Also reported: |lambda_Q - lambda_J| for the
+best-aligned quotient eigenvector.
 
-A_cond is the statistic that matters: it factors out containment, so it asks only
-"which direction within the subspace", not "is it in the subspace". Its chance
-level is ~sqrt(m/k) (m arbitrary directions out of a k-dim subspace).
-
-Nulls: size-matched random partitions, with the quotient RECOMPUTED on each
-random partition (so the null has its own coarse-grained dynamics), plus the
-activity partition at matched k.
-
-Also reported: eigenvalue agreement |lambda_Q - lambda_J| for the best-aligned
-quotient eigenvector, where lambda_J is the Jacobian eigenvalue of the motif.
-
-  conda run -n myenv python stepnet/run_motif_quotient_prediction.py --seeds 0-2
+    python -m flexsym.run.motif_quotient_prediction --seeds 0-2
 """
 
 from __future__ import annotations

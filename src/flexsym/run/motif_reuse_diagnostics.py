@@ -1,37 +1,20 @@
-"""Diagnostics for the motif-reuse / partition-specificity question.
+"""Diagnostics for cross-task motif reuse (same vs different motif type).
 
-Three analyses, all on cross-task motif pairs (same motif type vs different
-motif type), run on the valid networks (seeds 0-2):
+  D1  FULL-SPACE similarity of motif directions, before any partition: mean same /
+      mean diff, R_full, Cohen's d and AUC, for three motif descriptors.
 
-  D1  FULL-SPACE similarity. Compare motif directions directly, before any
-      partition. If same-computation directions are already far more similar in
-      the full 204-d space, the reuse result belongs to the motifs, not to the
-      connectivity coordinates. Reported as mean same / mean diff, R_full,
-      Cohen's d and AUC, for three motif descriptors.
+  D2  PRESERVATION. rho_H = R_H / R_full for connectivity, size-matched random,
+      and activity at matched k.
 
-  D2  INCREMENTAL PRESERVATION. How much of the full-space same-vs-different
-      difference survives coarse-graining onto each partition:
-          rho_H = R_H / R_full        (normalised preservation ratio)
-      for connectivity, size-matched random, and activity at matched k. The
-      question is not whether R_H > 0 (it is, for every partition) but whether
-      connectivity preserves full-space reuse BETTER than random.
+  D3  PARTITION-SENSITIVE FEATURES:
+        signed    group mean of the signed dominant motif direction
+        rank      Spearman correlation of the k group means
+        top       Jaccard overlap of the top-k/4 highest-loading groups
+        angle     mean cosine principal angle between projected top-3 motif subspaces
+        conc      effective number of groups carrying the motif (per motif)
+      Each against size-matched random partitions and activity at matched k.
 
-  D3  PARTITION-SENSITIVE FEATURES. The |loading| profile summarised by a group
-      mean may be too insensitive to distinguish partitions. Five descriptors
-      that use the partition more sharply:
-        signed    group-mean of the SIGNED dominant motif direction (incoherent
-                  groups cancel; |loading| cannot show this)
-        rank      Spearman correlation of the k group means (ordering only)
-        top       Jaccard overlap of the top-k/4 highest-loading groups (identity
-                  of the groups carrying the motif)
-        angle     mean cosine principal angle between the projected top-3 motif
-                  subspaces (uses the motif subspace, not one vector)
-        conc      effective number of groups carrying the motif (concentration;
-                  a per-motif scalar, not a pair statistic)
-      Each is compared against size-matched random partitions and against the
-      activity partition at matched k.
-
-  conda run -n myenv python stepnet/run_motif_reuse_diagnostics.py --seeds 0-2
+    python -m flexsym.run.motif_reuse_diagnostics --seeds 0-2
 """
 
 from __future__ import annotations

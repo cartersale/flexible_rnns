@@ -1,14 +1,10 @@
-"""Paper Figure 1, panel A -- schematic, drawn from real data.
+"""Figure 1, panel A: schematic built from network data.
 
-One fixed recurrent connectivity (W_rec) is driven by different task
-conditions; each condition realises a different dynamical motif in the same
-network. Everything shown is measured, not drawn:
-
-  * the directed graph and the matrix are the trained recurrent weights of
-    LeakyRNN_softplus_diag_256_all_0, ordered by its structural roles
-  * the timecourses are real trial inputs with real epoch boundaries
-  * the motif portraits are the recovered fixed/slow points, real trial
-    trajectories, and the local linearised flow of the trained Jacobian
+  * directed graph and matrix: recurrent weights of
+    LeakyRNN_softplus_diag_256_all_0, ordered by structural role
+  * timecourses: trial inputs with epoch boundaries
+  * motif portraits: recovered fixed/slow points, trial trajectories, and the
+    local linearised flow of the Jacobian
 
 Run flexsym.figures.paper_fig1_data first to build figures/fig1/data/.
 

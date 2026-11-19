@@ -1,10 +1,7 @@
 """Motif taxonomy for every network with fixed-point results, in one CSV.
 
-plot_motif_validation.py writes a per-network motif_taxonomy.csv as a side effect of
-its (expensive) plotting. This runs only the classification, over all networks, and
-writes a single combined table plus the seeds 0-2 validation-gate counts.
-
-Gate definitions match plot_motif_validation.py exactly:
+Runs the classification over all networks and writes a combined table plus gate
+counts, with gate definitions as in figures/motif_validation.py:
   memory delays   -> line_attractor flag, epochs delay1/delay2 with epoch_type memory
   decision stim   -> n_saddle > 0, for DECISION_RULES stim epochs
   sensory stim    -> condition_motif == point_attractor, non-decision stim epochs

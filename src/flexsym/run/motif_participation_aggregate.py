@@ -1,21 +1,19 @@
-"""Aggregate the per-network motif-participation tests across the ten 256-unit networks.
+"""Aggregate per-network motif-participation tests across the 256-unit networks.
 
-run/motif_participation_stats.py writes one participation_stats.json per network and
-leaves aggregation "to be done separately once the ensemble has been processed" -- this
-is that step. The trained network is the unit of replication: every per-network value is
-the median over that network's conditions, and cross-network claims are tested with a
-Wilcoxon signed-rank over the ten networks.
+Per-network values are medians over that network's conditions; cross-network tests
+are Wilcoxon signed-rank over networks.
 
-Reports, per motif type and pooled:
+Per motif type and pooled:
 
-  eta2_role / z_role      does role membership predict per-unit motif participation
+  eta2_role / z_role      role membership vs per-unit motif participation
                           (vs size-matched label permutations)
-  cv_unique_role          variance in participation explained by roles and NOT by the
-  cv_unique_activity      activity clusters, and vice versa, from the nested ridge-CV
-  cv_shared               commonality decomposition (M0..M3)
-  sub_step_r2 / sub_z_*   whether the motif's own signed directions lie in the
-                          group-constant subspace, scored against role and activity
+  cv_unique_role          unique-to-role, unique-to-activity and shared variance
+  cv_unique_activity      from the nested ridge-CV commonality decomposition (M0..M3)
+  cv_shared
+  sub_step_r2 / sub_z_*   step-R^2 of the motif's signed directions on role and
+                          activity partitions
 
+Reads participation_stats.json per network (run/motif_participation_stats.py).
 Writes results/signed_input_wl_paper/motif_participation/aggregate_by_motif.csv,
 aggregate_by_net.csv and aggregate_summary.json.
 """

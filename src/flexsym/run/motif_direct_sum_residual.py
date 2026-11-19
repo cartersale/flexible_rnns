@@ -1,34 +1,20 @@
-"""Residualised direct sum: is C's motif direction in span(A) + span(B) once the
-subspace shared by ALL conditions is removed?
+"""Direct-sum test after removing the subspace shared by all conditions.
 
-`motif_operator_composition` test C was ceiling-limited. Its null sat at 0.77-0.92
-because motif directions concentrate globally: a 6-12 dimensional span built from
-ANY two conditions already captures ~80% of any motif direction inside col(H).
-That shared concentration swamps the contrast the test is trying to measure, so
-its negative could not be trusted.
-
-Fix. Build a global subspace G from the motif directions of the OTHER conditions
--- leave-triple-out, so C, A and B never contribute to the thing being projected
-out -- and run the identical test in the orthogonal complement:
+A global subspace G is built from the motif directions of the other conditions
+(leave-triple-out), and the direct-sum test is run in its orthogonal complement:
 
     v_C^p   = (I - P_G) v_C
     Ba^p    = orth (I - P_G) Ba          (same for Bb)
     S^p     = orth (I - P_G) S           S = H/sqrt(sizes), basis of col(H)
     rho     = ||[Ba^p Bb^p]' v_C^p|| / ||S^p' v_C^p||
 
-Both the observed span and every null span are truncated to the SAME dimension d,
-so the comparison stays dimension-matched after residualisation (a residualised
-span can lose rank if it lay inside G).
+Observed and null spans are truncated to the same dimension d. r = 0 is the
+unresidualised test; r is swept.
 
-r = 0 reproduces the original test. Sweeping r is the point: if compositional
-structure exists but is hidden under shared concentration, the observed-minus-null
-margin should GROW with r while the null falls away from its ceiling.
+Per (net, triple): rho, the two single-operand rhos, null mean, empirical one-sided
+p from the mismatched-pair null, and gain over the best single operand.
 
-Reported per (net, triple): rho, the two single-operand rhos, the null mean, an
-empirical one-sided p from the mismatched-pair null, and the gain over the best
-single operand. Seed remains the unit of replication.
-
-    conda run -n myenv python -m flexsym.run.motif_direct_sum_residual --seeds 0-9
+    python -m flexsym.run.motif_direct_sum_residual --seeds 0-9
 """
 
 from __future__ import annotations

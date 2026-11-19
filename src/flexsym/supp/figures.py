@@ -1,12 +1,9 @@
-"""Generate docs/figs/supp/*.svg for supplementary.tex.
+"""Generate docs/figs/supp/*.svg (and .pdf) for supplementary.tex.
 
     python -m flexsym.supp.figures
 
-Each figure is also written as PDF, because pdflatex cannot embed SVG; the SVG
-is the editable deliverable and the PDF is what \\includegraphics pulls in.
-
-Figures whose inputs live on the X9_Pro volume (results/main/motif_fixed_points
-is a symlink to it) are skipped with a message when the volume is not mounted.
+Figures whose inputs are under results/main/motif_fixed_points are skipped when that
+volume is not mounted.
 """
 import json
 import numpy as np, pandas as pd
@@ -61,8 +58,8 @@ def panel_label(ax, letter):
 # ---- S: released-cohort lumpability ---------------------------------------
 
 # ---- S3: generalization across network size and architecture --------------
-# Panels A-C: the principal effects of Figs. 1-3 at N = 128, 256, 512.
-# Panel D: the same lumpability test on the released architectures.
+# Panels A-D: Figs. 1-3 analyses at N = 128, 256, 512.
+# Panel E: lumpability on the released architectures.
 SIZES = [(128, SERIES[0]), (256, SERIES[1]), (512, SERIES[2])]
 FPJ = lambda stem, size: FP/(stem if size == 256 else f'{stem[:-5]}_{size}.json')
 
@@ -211,61 +208,10 @@ save(fig, 'fig_restart_reproducibility')
 # ---- figures that need the X9_Pro volume ----------------------------------
 if not FP.exists():
     print('\nSKIPPED (X9_Pro not mounted, results/main/motif_fixed_points '
-          'unreadable): fig_motif_direction, fig_reuse_composition')
+          'unreadable): fig_reuse_composition')
     raise SystemExit
 
 NETS = [f'LeakyRNN_softplus_diag_256_all_{s}' for s in range(3, 13)]
-MOTIF = [('line_attractor', 'line attractor', SERIES[0]),
-         ('saddle_decision', 'decision saddle', SERIES[1]),
-         ('point_attractor', 'point attractor', SERIES[2])]
-
-# ---- S: motif direction on roles vs activity clusters ----------------------
-pm = pd.concat([pd.read_csv(FP/n/'participation_per_motif.csv').assign(net=n)
-                for n in NETS], ignore_index=True)
-null_med = pm.sub_null_r2.median()
-
-fig, axes = plt.subplots(1, 2, figsize=(7.0, 3.2),
-                         gridspec_kw={'width_ratios': [1.25, 1]})
-ax = axes[0]
-lim = (0, 0.78)
-ax.plot(lim, lim, color=MUTED, lw=0.8, ls=(0, (4, 3)), zorder=1)
-ax.axvspan(0, null_med, color=GRID, alpha=0.55, lw=0, zorder=0)
-ax.axhspan(0, null_med, color=GRID, alpha=0.55, lw=0, zorder=0)
-for key, label, col in MOTIF:
-    g = pm[pm.motif == key]
-    ax.scatter(g.sub_step_r2_activity, g.sub_step_r2, s=11, facecolor=col,
-               edgecolor='white', linewidth=0.35, alpha=0.85, zorder=3,
-               label=f'{label} ($n$={len(g)})')
-ax.set_xlim(lim); ax.set_ylim(lim)
-ax.set_xlabel(r'$R^2_{\mathrm{step}}$ on activity clusters')
-ax.set_ylabel(r'$R^2_{\mathrm{step}}$ on structural roles')
-ax.set_title('signed motif direction, 471 conditions', loc='left', pad=3,
-             color=INK)
-ax.text(0.055, 0.735, 'size-matched\nnull level', fontsize=5.8, color=INK2,
-        ha='left', va='top')
-ax.legend(loc='lower right', fontsize=6, handletextpad=0.3, borderpad=0.3,
-          labelspacing=0.35)
-panel_label(ax, 'A')
-
-ax = axes[1]
-rng = np.random.default_rng(0)
-for i, (key, label, col) in enumerate(MOTIF):
-    g = pm[pm.motif == key]
-    d = g.sub_z_role - g.sub_z_activity
-    y = i + rng.uniform(-0.16, 0.16, len(d))
-    ax.scatter(d, y, s=9, facecolor=col, edgecolor='white', linewidth=0.3,
-               alpha=0.8, zorder=3)
-    ax.plot([np.median(d)]*2, [i-0.3, i+0.3], color=INK, lw=1.6, zorder=4)
-    ax.text(-3.5, i + 0.34, label, fontsize=6.2, color=col, ha='left',
-            va='bottom')
-ax.axvline(0, color=INK2, lw=0.7, zorder=2)
-ax.set_yticks([]); ax.set_ylim(-0.6, 2.8)
-ax.set_xlabel(r'$z_{\mathrm{role}} - z_{\mathrm{activity}}$')
-ax.set_title('advantage over the activity partition', loc='left', pad=3,
-             color=INK)
-panel_label(ax, 'B')
-fig.subplots_adjust(wspace=0.28)
-plt.close(fig)   # dropped from the supplement (three figures only)
 
 # ---- S: operator reuse and composition ------------------------------------
 oc = json.load(open(FP/'operator_composition.json'))

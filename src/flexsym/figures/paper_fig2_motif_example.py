@@ -1,23 +1,17 @@
-"""Paper Figure 2 -- one concrete motif: the memory line attractor.
+"""Figure 2: memory line-attractor example.
 
-A single (task, epoch) condition, shown three ways:
+One (task, epoch) condition:
 
-  A  the recovered slow-point manifold in the top three PCs, with real delay-epoch
-     trajectories overlaid -- the line-attractor geometry
-  B  the per-neuron loading on the motif's near-unit mode, sorted
-  C  the same loadings in connectivity-role order, with the role bands behind them
+  A  slow-point manifold in the top three PCs, with delay-epoch trajectories
+  B  per-neuron loading on the motif's near-unit mode, sorted, with spread over
+     slow points
+  C  the same loadings in role order, with role bands
 
 The loading of neuron i is its component in the Jacobian's real eigenvector nearest
-+1 -- the direction along which the memory is held. It is computed per slow point
-exactly as `motif_classify.detect_line_attractor` does (`_slow_direction`),
-sign-aligned across points, then averaged. Panel B carries an error bar (the spread
-over slow points), so it shows how consistent each neuron's loading is along the
-manifold; panel C drops the bars and joins the points within each role instead, so
-the eye reads the step between roles rather than the within-point scatter. Values
-are scaled so the largest mean loading is 1.
++1, computed per slow point as in `motif_classify._slow_direction`, sign-aligned
+across points, averaged, and scaled so the largest mean loading is 1.
 
-Panel C uses the same signed-WL partition, cell order and role colours as Figure 1,
-imported from paper_fig1_partition, so a role is the same colour in both figures.
+Panel C uses the partition, cell order and role colours of paper_fig1_partition.
 
     python -m flexsym.figures.paper_fig2_motif_example
     python -m flexsym.figures.paper_fig2_motif_example --rule delaygo --epoch delay1
@@ -43,10 +37,7 @@ matplotlib.rcParams["svg.fonttype"] = "none"
 matplotlib.rcParams["font.family"] = "sans-serif"
 matplotlib.rcParams["font.sans-serif"] = ["Helvetica", "Arial", "DejaVu Sans"]
 
-#: DMS, delay: a memory epoch whose slow-point set is the cleanest 1-D continuous
-#: attractor in this network (participation ratio 3.45, 969 slow points forming a
-#: single closed curve) and whose loadings are typically role-structured
-#: (eta^2_role = 0.56). It is also not one of the conditions Figure 1 uses.
+#: example condition: DMS, delay epoch.
 RULE, EPOCH = "dmsgo", "delay1"
 
 FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
@@ -73,14 +64,10 @@ def load_motif(net, rule, epoch):
 def loadings(J, mode="participation"):
     """Per-neuron loading on the motif's near-unit mode: mean and sd over slow points.
 
-    `participation` is |u| averaged over points -- the vector `motif_classify` builds
-    and every participation statistic in the paper is computed on. It is the right
-    summary here because the slow-point set is a closed curve: the tangent direction
-    rotates as you travel around it, so the *signed* eigenvector components average
-    towards zero with a large spread, while their magnitudes do not.
+    `participation` is |u| averaged over points, as built by `motif_classify`.
 
-    `signed` keeps the sign, aligning each point's eigenvector to the mean. It is only
-    interpretable for a straight (non-rotating) line attractor -- kept for that case.
+    `signed` keeps the sign, aligning each point's eigenvector to the mean; meaningful
+    only for a straight (non-rotating) line attractor.
     """
     U = np.array([_slow_direction(*np.linalg.eig(j)) for j in J])
     U[~np.isfinite(U).all(1)] = 0.0
@@ -237,7 +224,7 @@ def main():
     ap.add_argument("--epoch", default=EPOCH)
     ap.add_argument("--k", type=int, default=K)
     ap.add_argument("--mode", default="participation", choices=["participation", "signed"],
-                    help="|u| averaged over slow points (the paper's participation "
+                    help="|u| averaged over slow points (the participation "
                          "vector), or the sign-aligned signed eigenvector")
     args = ap.parse_args()
 

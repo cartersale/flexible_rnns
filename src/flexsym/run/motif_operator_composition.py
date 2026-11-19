@@ -1,53 +1,30 @@
-"""Does compositionality in function induce compositionality in connectivity?
+"""Operator reuse, operator transport, and direct sum in quotient space.
 
-Driscoll's observation is functional: tasks are built from recurring dynamical
-motifs (memory, decision, rotation). This asks the structural question. The role
-partition H is derived from W_rec alone and is therefore TASK-FREE, so every
-task-conditioned quotient
+Every condition's quotient
 
     Q_c = (H'H)^-1 H' Jbar_c H            c = (rule, epoch)
 
-lives in the SAME k x k space for every condition in a network. Quotient modes
-are comparable across tasks without any matching procedure -- which is exactly
-what units are not. That is what makes "operator reuse" separable from "node
-reuse" here.
+lives in the same k x k space within a network.
 
-Three tests, each with the seed as the unit of replication (10 nets).
+  A. OPERATOR vs NODE REUSE. Each cross-rule pair of conditions gets a node
+     similarity (squared unit loadings of the motif direction) and an operator
+     similarity (mode energy in the orthonormal quotient basis). AUC of each for
+     separating same-type from different-type pairs, overall and within the
+     bottom tertile of node similarity.
 
-  A. OPERATOR REUSE vs NODE REUSE.
-     Every cross-rule pair of conditions gets two similarities: a NODE profile
-     similarity (squared unit loadings of the motif direction) and an OPERATOR
-     profile similarity (mode energy in the orthonormal quotient basis). Ask
-     which one better separates same-motif-type pairs from different-type pairs,
-     scored by AUC -- rank-based, so the differing dimensions (n_active vs k) do
-     not bias the comparison. The user-facing claim "same motif, different
-     neurons, same quotient eigenstructure" is the LOW-NODE-OVERLAP cell:
-     restricted to pairs in the bottom tertile of node similarity, is same-type
-     operator similarity still elevated?
+  B. OPERATOR TRANSPORT. Each family is one primitive with >= 2 instantiations,
+     e.g. anti = {fdgo -> fdanti, delaygo -> delayanti}. Statistic: cosine between
+     instantiation contrasts, on dQ and on dgbar.
 
-  B. OPERATOR TRANSPORT (the parallelogram form of composition).
-     If a functional primitive is a reusable operator, adding it to task X and to
-     task Y should be the SAME displacement in quotient space. Each family below
-     is one primitive with >= 2 independent instantiations, e.g. anti = {fdgo ->
-     fdanti, delaygo -> delayanti}. Statistic: cosine between instantiation
-     contrasts, computed on dQ (the quotient displacement) and on dgbar (the
-     group-mean gain displacement -- the only task-dependent term in the honest
-     predictor Q_pred = (1-a) I + a diag(gbar) Q_struct, so gain additivity IS
-     coarse-grained compositionality for that predictor).
+  C. DIRECT SUM. For triples where C combines A and B (e.g. multidelaydm from
+     delaydm1 and delaydm2): projection of C's motif direction onto
+     span(top modes of Q_A) + span(top modes of Q_B), conditional on containment,
+     against mismatched-pair nulls, with contribution balance.
 
-  C. DIRECT SUM. For triples where C is functionally A + B -- multidelaydm is
-     literally delaydm1 and delaydm2 evidence integrated together -- ask whether
-     the motif direction of C lies in span(top modes of Q_A) + span(top modes of
-     Q_B), conditional on containment, against mismatched-pair nulls. Reported
-     with the contribution balance, so "C ~ A alone" does not count as composed.
+Nulls: size-matched random partitions (quotient recomputed) and the activity
+partition at matched k.
 
-Nulls throughout: size-matched random partitions with the quotient RECOMPUTED
-(so the null has its own coarse-grained dynamics), and the activity partition at
-matched k (is this connectivity-specific, or would any functional grouping do?).
-Both are mandatory here -- the cross-task motif reuse result in claim 2 died
-against exactly the first of these.
-
-    conda run -n myenv python -m flexsym.run.motif_operator_composition --seeds 0-9
+    python -m flexsym.run.motif_operator_composition --seeds 0-9
 """
 
 from __future__ import annotations
@@ -82,9 +59,9 @@ N_PERM = 100
 #
 # Only fix1 / stim1 / delay1 / stim2 / delay2 conditions exist in the fixed-point
 # cache -- go1 carries no fixed points -- so every contrast below is built from
-# those. A family is (primitive, epoch, [(base_rule, plus_rule), ...]); both
+# those. A family is (primitive, epoch, [(base_rule, plus_rule), ...]); the
 # instantiations of a family differ only in the task context the primitive is
-# added to, so their contrasts should coincide if the primitive is an operator.
+# added to.
 # --------------------------------------------------------------------------- #
 FAMILIES = [
     ("anti", "stim1", [("fdgo", "fdanti"), ("delaygo", "delayanti")]),

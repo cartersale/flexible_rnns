@@ -1,19 +1,14 @@
-"""Per-condition (lambda_Q, lambda_J) pairs, for the eigenvalue-prediction panel.
+"""Per-condition (lambda_Q, lambda_J) pairs.
 
-`motif_quotient_prediction` reports only the mean |lambda_Q - lambda_J| per network,
-which is enough for the text but not for a scatter. This dumps the pairs themselves.
+lambda_J is the eigenvalue of the condition's mean Jacobian whose eigenvector best
+matches the motif direction (as in `load_conditions`); lambda_Q is the eigenvalue of
+the quotient mode best aligned with that direction among the top-M modes by
+|lambda|. The nearest-eigenvalue variant is also recorded.
 
-For each condition, lambda_J is the eigenvalue of the condition's mean Jacobian whose
-eigenvector best matches the motif direction (as `load_conditions` computes it), and
-lambda_Q is the eigenvalue of the quotient mode best ALIGNED with that direction --
-the manuscript's wording -- among the top-M modes by |lambda|. The nearest-eigenvalue
-variant is recorded too, since the two can differ.
+The same is computed for the activity partition at matched k and for size-matched
+random partitions (median over draws, quotient recomputed).
 
-The same is done for the activity partition at matched k and for size-matched random
-partitions (median over draws, with the quotient recomputed on each), giving the two
-comparison distributions.
-
-    conda run -n myenv python -m flexsym.run.quotient_lambda_pairs --seeds 3-12
+    python -m flexsym.run.quotient_lambda_pairs --seeds 3-12
 """
 from __future__ import annotations
 
@@ -35,7 +30,7 @@ from flexsym.run.motif_reuse_control import _row_for_k
 
 FP_ROOT = paths.RESULTS_ROOT / "motif_fixed_points"
 K = 20
-M = 5                   # modes considered, matching the reported analysis
+M = 5                   # modes considered
 N_PERM = 20
 
 

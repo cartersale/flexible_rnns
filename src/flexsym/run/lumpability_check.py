@@ -1,28 +1,14 @@
-"""Lumpability / invariant-subspace check for structural partitions (P1.4).
+"""Lumpability / invariant-subspace check for structural partitions.
 
-Reviewer #6 (highest-value theory): equitable partitions are not just "role
-equivalence" -- they are lumpable, invariant subspaces of the linear dynamics,
-and the eigenvectors are piecewise-constant on cells. That is the theorem-backed
-bridge from connectivity to Driscoll's dynamical motifs. Here we test the
-empirical prediction directly.
+For a partition with indicator H (n x k), P = H (H^T H)^{-1} H^T projects onto
+cell-constant vectors. For a matrix M:
 
-Given a partition with indicator H (n x k), let P = H (H^T H)^{-1} H^T be the
-orthogonal projector onto functions that are constant within each cell. Two
-consequences of (approximate) equitability of a matrix M:
+  1. Invariant subspace:   ||(I-P) M H|| / ||M H||   (normalised gamma defect).
+  2. Eigenvector leakage:  leakage(v) = ||v - P v|| / ||v|| for each leading eigenvector v.
 
-  1. Invariant subspace:   col(H) is (nearly) M-invariant  <=>
-     ||(I-P) M H|| / ||M H||  is small   (this is the normalized gamma defect).
-  2. Piecewise-constant eigenvectors: each leading eigenvector v of M is well
-     approximated by its cell-averaged version P v, i.e.
-     leakage(v) = ||v - P v|| / ||v||  is small.
-
-We compute both for the structural partition and compare to random same-size
-partitions (z-score). Negative z = structural partition yields MORE
-piecewise-constant eigenvectors / a more invariant subspace than chance.
-
-We report for the matrix variant the partition was optimized on (default
-transpose) and, for the dynamics interpretation, the raw recurrent matrix W.
-Pure connectivity -- no TF model load.
+Both are computed for the structural partition and for random same-size partitions
+(z-score; negative z = less leakage than chance), on the optimised matrix variant
+(default transpose) and on raw W. No TF model load.
 """
 
 from __future__ import annotations

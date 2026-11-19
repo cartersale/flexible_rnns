@@ -1,50 +1,25 @@
-"""Is the gain change eigenvalue-conservative, and is rotation the better geometry?
+"""Eigenvalue response and eigenvector rotation induced by the observed gain change.
 
-`gain_configuration` §3b found that dgbar is LESS aligned with eigenvalue-magnitude
-leverage than a role-permuted dgbar (0.071 vs 0.108, 0/10 nets). Two readings, and
-this run separates them.
+Two sensitivity matrices (k roles x k modes), evaluated at the base condition of
+each contrast and column-normalised:
 
-  (i)  STABILITY. The network deliberately avoids high-leverage roles because
-       moving eigenvalues is costly -- an eigenvalue-conservative solution. If so,
-       the real dgbar should produce a SMALLER eigenvalue response than
-       norm-matched and distribution-matched surrogates, and the deficit should be
-       largest for near-critical modes (|lambda| ~ 1), where movement is most
-       consequential.
+    Sev[i,j]  = d|lambda_j| / dg_i          analytic
+    Srot[i,j] = ||d v_j / d g_i||           finite difference, with mode matching
+                                            and phase alignment
 
-  (ii) WRONG GEOMETRY. Function may depend on eigenvector ROTATION rather than
-       eigenvalue movement. d|lambda_j|/dg_i is then simply not the structural
-       quantity that matters, and the anti-alignment says nothing about strategy.
-       The corresponding object is ||d v_j / d g_i|| -- how much gain on role i
-       rotates mode j -- computed here by finite difference with mode matching and
-       phase alignment, which is robust where the analytic 1/(lam_j - lam_m)
-       expression is not.
-
-Two sensitivity matrices (k roles x k modes), both evaluated at the BASE condition
-of each contrast, both column-normalised so every mode contributes equally and the
-question is purely about DIRECTION in gain space:
-
-    Sev[i,j] = d|lambda_j| / dg_i          analytic, validated in §3a
-    Srot[i,j] = ||d v_j / d g_i||          finite difference
-
-Three mode classes, all indexed in the base eigenbasis:
+Mode classes, indexed in the base eigenbasis:
 
     star      the mode carrying the plus condition's motif direction
-    critical  the 5 modes with |lambda| closest to 1 (near-neutral / slow)
+    critical  the 5 modes with |lambda| closest to 1
     other     the rest
 
-Two statistics per (sensitivity, class), against the real dgbar and two surrogates
--- `perm` (dgbar permuted across roles: matches norm AND distribution exactly) and
-`gauss` (isotropic, norm-matched only):
+Statistics per (sensitivity, class), for the observed dgbar and two surrogates --
+`perm` (dgbar permuted across roles) and `gauss` (isotropic, norm-matched):
 
-    response    ||S[:,C]' dghat|| / sqrt(|C|)      how much the class actually moves
+    response    ||S[:,C]' dghat|| / sqrt(|C|)
     projection  ||P_C dghat||, P_C = top-3 left singular vectors of S[:,C]
-                                                   how much dgbar lives in the
-                                                   high-leverage subspace
 
-Prediction (i) is response_real / response_perm < 1, most so for `critical`.
-Prediction (ii) is that the rotation matrix reverses or removes the deficit.
-
-    conda run -n myenv python -m flexsym.run.gain_leverage_geometry --seeds 0-9
+    python -m flexsym.run.gain_leverage_geometry --seeds 0-9
 """
 
 from __future__ import annotations
