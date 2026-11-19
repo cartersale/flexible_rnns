@@ -79,10 +79,6 @@ def test_lifted_basis_complex_pair_gives_its_plane(complex_planted):
     assert invariance_residual(P.W, B1) < 1e-10
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "Known defect, kept to preserve results: selecting both members of a conjugate pair "
-    "stacks [a, a, b, -b]; Householder QR leaves an arbitrary direction at the rank-deficient "
-    "column, so the kept columns do not span the pair's invariant plane."))
 def test_lifted_basis_both_pair_members_give_the_same_plane(complex_planted):
     """Selecting both members of a pair must not add a spurious direction."""
     P = complex_planted
