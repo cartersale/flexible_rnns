@@ -2,6 +2,7 @@
 
 Code for *Connectivity predicts where computation forms and where it can be
 changed* (Sale, Coraggio, Kaplan & Richardson).
+Preprint: [bioRxiv](https://www.biorxiv.org/content/10.64898/2026.10.28.762656v1.abstract).
 
 Grouping units by the total input each receives from every other group defines
 structural **roles** from the recurrent weight matrix alone, without running any
