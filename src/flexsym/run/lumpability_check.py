@@ -9,6 +9,9 @@ cell-constant vectors. For a matrix M:
 Both are computed for the structural partition and for random same-size partitions
 (z-score; negative z = less leakage than chance), on the optimised matrix variant
 (default transpose) and on raw W. No TF model load.
+
+Networks are those with a cached transpose WL sweep; k is each network's operating
+k (`flexsym.structural.operating_k`), and the labels are that row of the sweep.
 """
 
 from __future__ import annotations
@@ -32,9 +35,12 @@ from flexsym.structural.signed_input_wl_structural_roles import (  # noqa: E402
     apply_matrix_variant,
     load_w_rec,
 )
+from flexsym.motifs.motif_classify import npload  # noqa: E402
+from flexsym.run.motif_reuse_control import _row_for_k  # noqa: E402
+from flexsym.structural.operating_k import operating_k  # noqa: E402
 from flexsym.structural.partition import pw_constant_projector, random_labels_same_sizes  # noqa: E402
 
-REPO = paths.REPO_ROOT
+WL_ROOT = paths.RESULTS_ROOT / "signed_input_wl_paper"
 ACT_ROOT = paths.RESULTS_ROOT / "activity_clusters_paper"
 ACT_NAME = "epoch_variance_unit_clusters_paper_max.npz"
 ORIGINAL = paths.ORIGINAL_STORE
@@ -80,11 +86,13 @@ def analyse(model: str, k: int, *, variant: str, n_null: int, m_eig: int) -> dic
     W_raw = load_w_rec(md)[np.ix_(ind, ind)]
     matrices = {"transpose": W_raw.T, "W": W_raw}
 
-    # structural labels at operating k (from the materialized sweep)
-    loaded = _load_labels(model, k)
-    if loaded is None:
+    # structural labels at operating k, from the cached transpose WL sweep
+    sweep = WL_ROOT / model / "transpose" / "signed_input_wl_sweep.npz"
+    if not sweep.exists():
         return None
-    labels, actual_k = loaded
+    ls = npload(sweep)["labels_struct_by_k"]
+    labels = np.asarray(ls[_row_for_k(ls, k)], dtype=np.int64)
+    actual_k = int(np.unique(labels).size)
     kk = int(labels.max() + 1)
     P = pw_constant_projector(labels, kk)
 
@@ -111,46 +119,6 @@ def analyse(model: str, k: int, *, variant: str, n_null: int, m_eig: int) -> dic
     return out
 
 
-def _load_labels(model: str, k: int) -> tuple[np.ndarray, int] | None:
-    """Return (labels, actual_k). Falls back to any materialized transpose_selected_k_<n>."""
-    import glob as _glob
-    from flexsym.structural.structural_cell_activity_coherence import load_structural_labels
-
-    candidates = [
-        (REPO / f"results/signed_input_wl_paper/{model}/transpose_selected_k_{k}/signed_input_wl_sweep.npz", k),
-    ]
-    # fall back to whatever single-k sweeps were materialized for this model
-    for d in sorted(_glob.glob(str(REPO / f"results/signed_input_wl_paper/{model}/transpose_selected_k_*"))):
-        try:
-            kk = int(Path(d).name.rsplit("_", 1)[1])
-        except ValueError:
-            continue
-        candidates.append((Path(d) / "signed_input_wl_sweep.npz", kk))
-    for p, kk in candidates:
-        if p.exists():
-            try:
-                labels, _, _ = load_structural_labels(p, kk)
-                return labels, kk
-            except Exception:
-                continue
-    return None
-
-
-def load_operating_k() -> dict[str, int]:
-    out: dict[str, int] = {}
-    for s in [
-        paths.RESULTS_ROOT / "signed_input_wl_paper/batch_rnn_softplus_diag_k20pct/k_selection_summary.csv",
-        paths.RESULTS_ROOT / "signed_input_wl_paper/batch_rnn_softplus_diag_newseeds/k_selection_summary.csv",
-    ]:
-        if not s.exists():
-            continue
-        for r in csv.DictReader(s.open()):
-            na = int(r["n_active"])
-            sk = int(r["selected_k"]) if r.get("selected_k") else max(int(r["k_min"]), min(min(int(r["activity_k"]), int(r["structural_k"])), na - 1))
-            out[r["model"]] = sk
-    return out
-
-
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--n-null", type=int, default=200)
@@ -162,7 +130,8 @@ def main() -> None:
 
     out_dir = Path(args.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    opk = load_operating_k()
+    opk = {d.name: operating_k(d.name) for d in WL_ROOT.glob("LeakyRNN_*")}
+    opk = {m: k for m, k in opk.items() if k is not None}
     models = sorted(opk, key=lambda m: (int(m.split("_")[3]), int(m.split("_")[-1])))
     if args.models:
         models = [m for m in models if m in set(args.models)]

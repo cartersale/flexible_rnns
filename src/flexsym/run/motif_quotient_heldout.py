@@ -50,8 +50,11 @@ def per_point_cache(net, ind_active, W, motif_of, lamJ_of):
     if cache.exists():
         d = npload(cache)
         if np.array_equal(np.asarray(d["ind_active"]), ind_active):
-            return {k: {"g": g, "V": v, "ang": a} for k, g, v, a in
-                    zip(d["keys"], d["gains"], d["vecs"], d["angles"])}
+            # Saved as object arrays; when every condition has the same number of
+            # points numpy stacks them into one object array of Python floats.
+            return {k: {"g": np.asarray(g, dtype=float), "V": np.asarray(v, dtype=float),
+                        "ang": np.asarray(a, dtype=float)}
+                    for k, g, v, a in zip(d["keys"], d["gains"], d["vecs"], d["angles"])}
     keys, gains, vecs, angles = [], [], [], []
     for f in sorted(net_dir.glob("*.npz")):
         if "cache" in f.name or f.stem not in motif_of:

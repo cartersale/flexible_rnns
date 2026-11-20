@@ -46,20 +46,25 @@ def lifted_basis(Q, H, m, rule="top", lam_J=None, eig=None):
     and rank-deficient columns are dropped. ``eig`` is an optional precomputed
     ``np.linalg.eig(Q)``.
 
-    Returns (B (N, r) with r <= 2m, selected eigenvalues).
+    A complex pair spans one real plane, given by Re and Im of either member. If
+    both members are selected, only the first is stacked: stacking both gives
+    [a, a, b, -b], and Householder QR then puts an arbitrary direction at the
+    rank-deficient column, so the kept columns would not span the plane.
 
-    Known defect, kept so results are unchanged: if both members of a conjugate
-    pair are selected, the stack is [a, a, b, -b] and the rank-deficient Householder
-    column leaves an arbitrary direction, so B need not span the pair's plane.
+    Returns (B (N, r) with r <= 2m, selected eigenvalues).
     """
     lam, V = np.linalg.eig(Q) if eig is None else eig
     idx = select_modes(lam, rule, m, lam_J)
-    Vr, Vi = np.real(V[:, idx]), np.imag(V[:, idx])
+    lam_sel = lam[idx]
+    first = [j for j in range(len(idx))
+             if lam_sel[j].imag == 0
+             or not np.any(lam_sel[:j] == np.conj(lam_sel[j]))]
+    Vr, Vi = np.real(V[:, idx[first]]), np.imag(V[:, idx[first]])
     U = Vr if H is None else H @ Vr
     if np.any(np.abs(Vi) > 1e-12):
         U = np.hstack([U, Vi if H is None else H @ Vi])
     B, R = np.linalg.qr(U)
-    return B[:, np.abs(np.diag(R)) > 1e-10], lam[idx]
+    return B[:, np.abs(np.diag(R)) > 1e-10], lam_sel
 
 
 # --------------------------------------------------------------------------- #
