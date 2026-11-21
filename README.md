@@ -1,12 +1,14 @@
-# flexsym
+# Connectivity predicts where computation forms and where it can be changed
 
-Code for *Connectivity predicts where computation forms and where it can be
-changed* (Sale, Coraggio, Kaplan & Richardson).
+Code for the paper of the same name (Sale, Coraggio, Kaplan & Richardson).
 Preprint: [bioRxiv](https://www.biorxiv.org/content/10.64898/2026.10.28.762656v1.abstract).
+Data: [Zenodo, doi:10.5281/zenodo.24408394](https://doi.org/10.5281/zenodo.24408394).
+
+The Python package is named `flexsym`.
 
 Grouping units by the total input each receives from every other group defines
-structural **roles** from the recurrent weight matrix alone, without running any
-task. This repository trains the networks the paper analyses, infers those roles,
+structural **classes** from the recurrent weight matrix alone, without running any
+task. This repository trains the networks the paper analyses, infers those classes,
 recovers the fixed-point motifs the networks compute with, and produces all stats and figures reported.
 
 The networks and the 15-task suite build on Driscoll, Shenoy & Sussillo (2024).
@@ -23,9 +25,7 @@ pip install -e .
 cp .env.example .env    # then edit the roots for your machine
 ```
 
-`.env` defines where the bulk data lives. Nothing in the code hardcodes an
-absolute path: every root resolves through `flexsym.paths`, and a relative value
-resolves against the repository root rather than the working directory, so a
+`.env` defines where the bulk data lives. Every root resolves through `flexsym.paths`, and a relative value resolves against the repository root rather than the working directory, so a
 module writes to the same place wherever it is invoked from. Roots are not
 validated at import, so importing a module does not require the data volume to
 be mounted.
@@ -42,20 +42,57 @@ git clone https://github.com/mattgolub/recurrent-whisperer.git
 
 ## Data
 
+The trained networks and the analysis results are archived on Zenodo:
+https://doi.org/10.5281/zenodo.24408394
+
+| File | Extracts to | Content |
+|---|---|---|
+| `checkpoints.zip` | `checkpoints/` | the 30 trained networks: 128, 256 and 512 units, seeds 3-12 |
+| `results_main.zip` | `results/main/` | analysis results for those networks, behind the main text |
+| `results_released.zip` | `results/released/` | analysis results for the Driscoll et al. (2024) networks, behind the supplement |
+
+Download the three files into a data directory outside the repository and
+arrange them as the code expects:
+
+```bash
+cd /path/to/data
+unzip checkpoints.zip && unzip results_main.zip && unzip results_released.zip
+
+# the grid, grouped by size, and a flat directory of links to every network
+mv checkpoints flexsym_grid
+mkdir -p new_runs/staged
+ln -s "$PWD"/flexsym_grid/*/LeakyRNN_* new_runs/staged/
+
+# the two result cohorts go into the repository
+mkdir -p /path/to/repo/results
+mv results/main results/released /path/to/repo/results/
+```
+
+Then set the roots in `.env`:
+
+```bash
+MODEL_ROOT=/path/to/data
+RESULTS_ROOT=./results/main
+```
+
+`STAGED_STORE` defaults to `MODEL_ROOT/new_runs/staged` and needs no entry.
+`DATA_ROOT` is only needed for the Driscoll networks, below.
+
+The archive does not contain the fixed points and Jacobians (more than 400 GB);
+they are recomputed from the checkpoints, see
+[Reproducing the results](#reproducing-the-results).
+
 The networks released with Driscoll et al. (2024) are at the Allen Institute
 database, buckets `multitask_shared` (networks) and `multitask_processed`
 (processed data, including fixed point locations):
 https://open.quiltdata.com/b/aind-trained-networks/tree/
+Point `DATA_ROOT` at the downloaded `multitask_processed` directory.
 
-The size × seed grid the main text analyses is trained locally by
-`flexsym.training`. Checkpoints and fixed-point output run to tens of GB and are
-expected on a separate volume pointed at by `MODEL_ROOT`.
-
-Analysis output is written under `results/`, split by cohort so that results
-computed on different sets of checkpoints cannot be pooled by accident:
-`results/main/` for the locally trained grid, which backs the main text, and
-`results/released/` for the Driscoll networks, which back the supplement.
-`RESULTS_ROOT` in `.env` selects between them.
+Results are split by cohort so that results computed on different sets of
+checkpoints cannot be pooled by accident: `results/main/` for the locally
+trained grid, which backs the main text, and `results/released/` for the
+Driscoll networks, which are in the supplement. `RESULTS_ROOT` in `.env` selects
+the cohort an analysis reads and writes.
 
 ## Layout
 
@@ -79,7 +116,7 @@ src/flexsym/
 The shared modules are tested against matrices with known quotients and
 spectra (`pip install -e .[test]`, then `pytest`).
 
-Entry points are modules, not scripts:
+Entry points are modules:
 
 ```bash
 python -m flexsym.run.motif_fixed_points --help
@@ -88,7 +125,20 @@ python -m flexsym.figures.paper_fig2_panels
 
 ## Reproducing the results
 
-The stages are ordered; each reads what the previous one wrote.
+The stages are ordered; each reads what the previous one wrote. With the
+archived data in place, the starting point depends on what is to be reproduced:
+
+- **Tables and supplementary figures.** Run stage 6 directly. `flexsym.supp.tables`
+  and `flexsym.supp.figures` need only the archived results and training logs.
+- **The analyses.** Stages 1 to 3 can be skipped: the archive holds the trained
+  networks, the activity clusters and the role partitions. The analyses that
+  read fixed points (most of the `motif_*`, `quotient_*` and `gain_*` modules) need
+  stage 4 first, which writes one directory per network into
+  `results/main/motif_fixed_points/`, next to the archived summary files. The
+  same holds for the main-figure panels that show a single example network.
+- **Everything.** Start at stage 1.
+
+An analysis overwrites the archived result of the same name.
 
 1. **Train the grid.** `flexsym.training.run_seeds_parallel` fans
    `train_softplus_diag` across cores, one process per (size, seed).

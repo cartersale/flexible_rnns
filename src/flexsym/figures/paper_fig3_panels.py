@@ -308,7 +308,7 @@ def panel_C():
 
     axr.barh(np.arange(n), d, height=0.9, color=BLUE, zorder=3)
     axr.axvline(0.5, color=INK, lw=1.0, zorder=5)
-    axr.plot([np.nanmedian(d)] * 2, [-0.5, n - 0.5], color=ORANGE, lw=1.4, zorder=6)
+    axr.plot([np.nanmean(d)] * 2, [-0.5, n - 0.5], color=ORANGE, lw=1.4, zorder=6)
     axr.set_ylim(n + 2.4, -0.5); axr.set_xlim(0, 1.0)
     axr.set_yticks([]); axr.set_xticks([0, 0.5, 1.0])
     axr.set_xticklabels(["0", "0.5", "1"], fontsize=6.6, color=MUTED)
@@ -324,7 +324,7 @@ def panel_C():
     ax.set_title("A condition's own gain state recovers its motif best",
                  fontsize=9.8, color=INK, pad=8, x=0.72)
     fig.text(0.16, -0.005, f"seed {EX_SEED}, $k$ = {k}, {n} conditions  ·  "
-             f"median diagonal percentile {pct:.2f} (chance 0.50, orange line)",
+             f"mean diagonal percentile {pct:.2f} (chance 0.50, black line; mean, orange line)",
              ha="left", va="top", fontsize=6.6, color=MUTED)
     save(fig, "fig3_panelC_gain_swap_matrix")
 
